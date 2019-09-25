@@ -1,0 +1,7 @@
+Running: xsim.dir/ingeniousmips_min_sopc_behav/xsimk.exe -simmode gui -wdb ingeniousmips_min_sopc_behav.wdb -simrunnum 0 -socket 50160
+Design successfully loaded
+Design Loading Memory Usage: 6820 KB (Peak: 6820 KB)
+Design Loading CPU Usage: 15 ms
+Simulation completed
+Simulation Memory Usage: 13148 KB (Peak: 13148 KB)
+Simulation CPU Usage: 46 ms

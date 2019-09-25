@@ -1,0 +1,19 @@
+0.6
+2018.3
+Dec  7 2018
+00:33:28
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.sim/sim_1/behav/xsim/glbl.v,1544155481,verilog,,,,glbl,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,1569422048,verilog,,,,,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/ex.v,1569422952,verilog,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/ex_mem.v,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,ex,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/ex_mem.v,1569422473,verilog,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/hilo_reg.v,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,ex_mem,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/hilo_reg.v,1569423064,verilog,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/id.v,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,hilo_reg,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/id.v,1569423187,verilog,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/id_ex.v,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,id,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/id_ex.v,1569423225,verilog,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/if_id.v,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,id_ex,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/if_id.v,1569423278,verilog,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/ingeniousmips.v,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,if_id,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/ingeniousmips.v,1569424484,verilog,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/inst_rom.v,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,ingeniousmips,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/ingeniousmips_min_sopc.v,1569424695,verilog,,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,ingeniousmips_min_sopc,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/inst_rom.v,1569425008,verilog,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/mem.v,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,inst_rom,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/mem.v,1569423444,verilog,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/mem_wb.v,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,mem,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/mem_wb.v,1569423504,verilog,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/pc_reg.v,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,mem_wb,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/pc_reg.v,1569423552,verilog,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/regfile.v,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,pc_reg,,,,,,,,
+Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/regfile.v,1569423624,verilog,,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/ingeniousmips_min_sopc.v,Z:/Dropbox/Work/ingenious-mips/ingenious-mips.srcs/sources_1/new/defines.v,regfile,,,,,,,,
