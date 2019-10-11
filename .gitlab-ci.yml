@@ -9,13 +9,13 @@ bitstream:
   image: vivado2018:2018.3
   script:
     - env
-    - /opt/Xilinx/Vivado/2018.3/bin/vivado -mode tcl -source build.tcl thinpad_top.xpr
+    - /opt/Xilinx/Vivado/2018.3/bin/vivado -mode tcl -source build.tcl ingenious-mips.xpr
 
   artifacts:
     paths:
-      - thinpad_top.runs/impl_1/thinpad_top.bit
-      - thinpad_top.runs/impl_1/runme.log
-      - thinpad_top.runs/synth_1/runme.log
+      - ingenious-mips.runs/impl_1/IngeniousMIPS.bit
+      - ingenious-mips.runs/impl_1/runme.log
+      - ingenious-mips.runs/synth_1/runme.log
 
 sonar-scanner:
   image: harryleafchen/debian-curl-tar
