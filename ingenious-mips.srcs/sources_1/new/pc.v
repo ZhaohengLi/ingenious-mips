@@ -3,6 +3,7 @@
 module PC(
     input wire clk,
     input wire rst,
+    input wire [`InstAddrBus] instAddr_i,
     output reg[`InstAddrBus] instAddr_o,
     output reg ce_o
 );
@@ -16,7 +17,7 @@ module PC(
     always @(posedge clk) begin
         case (ce_o)
         `Disable : instAddr_o <= `ZeroWord;
-        `Enable : instAddr_o <= instAddr_o + 32'd4;
+        `Enable : instAddr_o <= instAddr_i;
         endcase
     end
     
