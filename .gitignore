@@ -1,1 +1,6 @@
 .DS_Store
+ingenious-mips.cache/
+ingenious-mips.hw/
+ingenious-mips.ip_user_files/
+ingenious-mips.runs/
+ingenious-mips.sim/
