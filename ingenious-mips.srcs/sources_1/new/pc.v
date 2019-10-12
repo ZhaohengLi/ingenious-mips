@@ -8,15 +8,15 @@ module PC(
 );
     always @(posedge clk) begin
         case (rst)
-        `RstEnable : ce_o <= `ChipDisable;
-        `RstDisable : ce_o <= `ChipEnable;
+        `Enable : ce_o <= `Disable;
+        `Disable : ce_o <= `Enable;
         endcase
     end
     
     always @(posedge clk) begin
         case (ce_o)
-        `ChipDisable : instAddr_o <= `ZeroWord;
-        `ChipEnable : instAddr_o <= instAddr_o + 32'd4;
+        `Disable : instAddr_o <= `ZeroWord;
+        `Enable : instAddr_o <= instAddr_o + 32'd4;
         endcase
     end
     

@@ -19,5 +19,21 @@ module ID_EX(
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o
 );
-
+    always @ (posedge clk) begin
+        if(rst == `Disable) begin
+            aluSel_o <= aluSel_i;
+            aluOp_o <= aluOp_i;
+            operand1_o <= operand1_i;
+            operand2_o <= operand2_i;
+            regWriteAddr_o <= regWriteAddr_i;
+            regWriteEnable_o <= regWriteEnable_i;
+        end else begin
+            aluSel_o <= `EXE_RES_NOP;
+            aluOp_o <= `EXE_NOP_OP;
+            operand1_o <= `ZeroWord;
+            operand2_o <= `ZeroWord;
+            regWriteAddr_o <= `NOPRegAddr;
+            regWriteEnable_o <= `Disable;
+        end
+    end //always
 endmodule

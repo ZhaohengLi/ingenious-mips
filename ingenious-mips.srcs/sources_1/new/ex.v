@@ -15,5 +15,36 @@ module EX(
 	output reg[`RegBus] regWriteData_o
 	
 );
+    reg [31:0] logic_out;
+    
+    
+    always @ (*) begin
+        if (rst == `Enable) begin //set logic output to zero
+            logic_out <= `ZeroWord;
+        end else begin
+            case(aluOp_i)
+                `EXE_OR_OP: begin
+                    logic_out <= operand1_i | operand2_i;
+                end //exe_or_op
+                default: begin
+                    logic_out <= `ZeroWord;
+                end //default
+                
+            endcase 
+        end //if
+    end //always
+    
+    always @(*) begin
+        regWriteEnable_o <= regWriteEnable_i;
+        regWriteAddr_o <= regWriteAddr_i;
+        case(aluSel_i)
+            `EXE_RES_LOGIC: begin
+                regWriteData_o <= logic_out; //write out the logic operation result
+            end
+            default: begin
+                regWriteData_o <= `ZeroWord;
+            end
+        endcase
+    end
 
 endmodule
