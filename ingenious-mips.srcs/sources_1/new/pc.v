@@ -15,7 +15,7 @@ module PC(
     
     always @(posedge clk) begin
         case (ce_o)
-        `ChipDisable : instAddr_o <= 32'd0;
+        `ChipDisable : instAddr_o <= `ZeroWord;
         `ChipEnable : instAddr_o <= instAddr_o + 32'd4;
         endcase
     end
