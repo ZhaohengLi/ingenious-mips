@@ -3,21 +3,21 @@
 module REG(
 	input wire clk,
 	input wire rst,
-	
+
 	input wire[`RegAddrBus] regWriteAddr_i,
 	input wire[`RegBus] regWriteData_i,
 	input wire regWriteEnable_i,
-	
+
 	input wire[`RegAddrBus] reg1Addr_i,
 	input wire reg1Enable_i,
 	output reg[`RegBus] reg1Data_o,
-	
+
 	input wire[`RegAddrBus] reg2Addr_i,
 	input wire reg2Enable_i,
 	output reg[`RegBus] reg2Data_o
 );
     //registers 0 to 31
-    reg[31:0] registers[0:31];
+    reg[`RegBus] registers[0:`RegNum-1];
     //on posedge clk, if rst is enabled, check if write is enabled and writeReg isn't all 0, then write writeData to register[writeReg]
     always @(posedge clk) begin
         if(rst == `Enable) begin
@@ -26,7 +26,7 @@ module REG(
             end
         end
     end
-    
+
     //any time, when rst is enabled or when read address is 0, set read data to 0
     //otherwise check read adress == write address, write and read both enabled, set read data to write data
     //otherwise if read is enabled, read data = register[read address]

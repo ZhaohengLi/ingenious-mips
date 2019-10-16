@@ -2,22 +2,21 @@
 
 module EX(
 	input wire rst,
-	
-    input wire[`AluOpBus] aluOp_i,
+
+  input wire[`AluOpBus] aluOp_i,
 	input wire[`AluSelBus] aluSel_i,
 	input wire[`RegBus] operand1_i,
 	input wire[`RegBus] operand2_i,
 	input wire[`RegAddrBus] regWriteAddr_i,
 	input wire regWriteEnable_i,
-	
+
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o,
 	output reg[`RegBus] regWriteData_o
-	
+
 );
-    reg [31:0] logic_out;
-    
-    
+    reg[`RegBus] logic_out;
+
     always @ (*) begin
         if (rst == `Enable) begin //set logic output to zero
             logic_out <= `ZeroWord;
@@ -29,11 +28,11 @@ module EX(
                 default: begin
                     logic_out <= `ZeroWord;
                 end //default
-                
-            endcase 
+
+            endcase
         end //if
     end //always
-    
+
     always @(*) begin
         regWriteEnable_o <= regWriteEnable_i;
         regWriteAddr_o <= regWriteAddr_i;

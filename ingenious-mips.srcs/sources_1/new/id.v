@@ -7,27 +7,27 @@ module ID(
 
 	input wire[`RegBus] reg1Data_i,
 	input wire[`RegBus] reg2Data_i,
-	//ÉÏÌõÖ¸Áî
+	//ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
 	input wire[`RegBus] ex_operand_i, //wdata
 	input wire[`RegAddrBus] ex_regWriteAddr_i,
 	input wire ex_regWriteEnable_i,
-	//ÉÏÉÏÌõÖ¸Áî
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
 	input wire[`RegBus] mem_operand_i, //wdata
 	input wire[`RegAddrBus] mem_regWriteAddr_i,
 	input wire mem_regWriteEnable_i,
 
 	output reg reg1Enable_o, //enable read reg1
 	output reg reg2Enable_o, //enable read reg2
-	
+
 	output reg[`RegAddrBus] reg1Addr_o,
-	output reg[`RegAddrBus] reg2Addr_o, 	      
-	
+	output reg[`RegAddrBus] reg2Addr_o,
+
 	output reg[`AluOpBus] aluOp_o,
 	output reg[`AluSelBus] aluSel_o,
-	
+
 	output reg[`RegBus] operand1_o, //reg1wdata_out
 	output reg[`RegBus] operand2_o, //reg2wdata_out
-	
+
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o
 );
@@ -39,7 +39,7 @@ module ID(
     wire [4:0] rd = inst_i[15:11];
     wire [4:0] shamt = inst_i[10:6];
     wire [5:0] func = inst_i[5:0];
-    
+
     //immediate
     reg [31:0] immediate;
     reg valid_instruct;
@@ -54,8 +54,8 @@ module ID(
             reg2Enable_o <= 1'b0;
             reg1Addr_o <= rs;
             reg2Addr_o <= rt;
-            immediate <= 32'h00000000;
-            
+            immediate <= `ZeroWord;
+
             case(op)
                 `EXE_ORI: begin
                     regWriteEnable_o <= 1'b1; //enable writing the result of ori
@@ -65,7 +65,7 @@ module ID(
                     reg2Enable_o <= 1'b0; //doesn't need to read from second register
                     immediate <= {16'h0, inst_i[15:0]}; //the immediate needed for ori operation
                     regWriteAddr_o <= rd;
-                    valid_instruct <= `InstValid; //instruction valid                    
+                    valid_instruct <= `InstValid; //instruction valid
                 end
                 default:begin
                 end
@@ -84,14 +84,14 @@ module ID(
             immediate <= 32'h0;
         end //if
     end //always
-    
+
     always @ (*) begin
         if(rst == `Enable) begin
-            operand1_o <= 32'h00000000;
-        end else if ((reg1Enable_o == 1'b1) &&(ex_regWriteEnable_i == 1'b1) && 
+            operand1_o <= `ZeroWord;
+        end else if ((reg1Enable_o == 1'b1) &&(ex_regWriteEnable_i == 1'b1) &&
         (ex_regWriteAddr_i == reg1Addr_o)) begin
             operand1_o <= ex_operand_i;
-        end else if ((reg1Enable_o == 1'b1) &&(mem_regWriteEnable_i == 1'b1) && 
+        end else if ((reg1Enable_o == 1'b1) &&(mem_regWriteEnable_i == 1'b1) &&
         (mem_regWriteAddr_i == reg1Addr_o)) begin
             operand1_o <= mem_operand_i;
         end else if (reg1Enable_o == 1'b1) begin
@@ -99,16 +99,16 @@ module ID(
         end else if(reg1Enable_o == 1'b0) begin
             operand1_o <= immediate;
         end else begin
-            operand1_o <= 32'h00000000;
+            operand1_o <= `ZeroWord;
         end
     end //always
     always @ (*) begin
         if(rst == `Enable) begin
-            operand2_o <= 32'h00000000;
-        end else if ((reg2Enable_o == 1'b1) &&(ex_regWriteEnable_i == 1'b1) && 
+            operand2_o <= `ZeroWord;
+        end else if ((reg2Enable_o == 1'b1) &&(ex_regWriteEnable_i == 1'b1) &&
         (ex_regWriteAddr_i == reg1Addr_o)) begin
             operand2_o <= ex_operand_i;
-        end else if ((reg2Enable_o == 1'b1) &&(mem_regWriteEnable_i == 1'b1) && 
+        end else if ((reg2Enable_o == 1'b1) &&(mem_regWriteEnable_i == 1'b1) &&
         (mem_regWriteAddr_i == reg1Addr_o)) begin
             operand2_o <= mem_operand_i;
         end else if (reg2Enable_o == 1'b1) begin
@@ -116,7 +116,7 @@ module ID(
         end else if(reg2Enable_o == 1'b0) begin
             operand2_o <= immediate;
         end else begin
-            operand2_o <= 32'h00000000;
+            operand2_o <= `ZeroWord;
         end
     end //always
 
