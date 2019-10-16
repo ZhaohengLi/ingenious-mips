@@ -7,12 +7,12 @@ module ID(
 
 	input wire[`RegBus] reg1Data_i,
 	input wire[`RegBus] reg2Data_i,
-	//����ָ��
-	input wire[`RegBus] ex_operand_i, //wdata
+
+	input wire[`RegBus] ex_regWriteData_i,
 	input wire[`RegAddrBus] ex_regWriteAddr_i,
 	input wire ex_regWriteEnable_i,
-	//������ָ��
-	input wire[`RegBus] mem_operand_i, //wdata
+
+	input wire[`RegBus] mem_regWriteData_i,
 	input wire[`RegAddrBus] mem_regWriteAddr_i,
 	input wire mem_regWriteEnable_i,
 
@@ -90,10 +90,10 @@ module ID(
             operand1_o <= `ZeroWord;
         end else if ((reg1Enable_o == 1'b1) &&(ex_regWriteEnable_i == 1'b1) &&
         (ex_regWriteAddr_i == reg1Addr_o)) begin
-            operand1_o <= ex_operand_i;
+            operand1_o <= ex_regWriteData_i;
         end else if ((reg1Enable_o == 1'b1) &&(mem_regWriteEnable_i == 1'b1) &&
         (mem_regWriteAddr_i == reg1Addr_o)) begin
-            operand1_o <= mem_operand_i;
+            operand1_o <= mem_regWriteData_i;
         end else if (reg1Enable_o == 1'b1) begin
             operand1_o <= reg1Data_i;
         end else if(reg1Enable_o == 1'b0) begin
@@ -107,10 +107,10 @@ module ID(
             operand2_o <= `ZeroWord;
         end else if ((reg2Enable_o == 1'b1) &&(ex_regWriteEnable_i == 1'b1) &&
         (ex_regWriteAddr_i == reg1Addr_o)) begin
-            operand2_o <= ex_operand_i;
+            operand2_o <= ex_regWriteData_i;
         end else if ((reg2Enable_o == 1'b1) &&(mem_regWriteEnable_i == 1'b1) &&
         (mem_regWriteAddr_i == reg1Addr_o)) begin
-            operand2_o <= mem_operand_i;
+            operand2_o <= mem_regWriteData_i;
         end else if (reg2Enable_o == 1'b1) begin
             operand2_o <= reg2Data_i;
         end else if(reg2Enable_o == 1'b0) begin

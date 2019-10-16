@@ -9,153 +9,134 @@ module CPU(
     output wire romEnable_o
 
 );
- 
-    //PIPELINE START
-     
-    //pcadder
-    wire [31:0] adder_pc_in;
+    // PC & PC_ADDER & IF_ID
+    wire[`InstAddrBus] instAddr_pc_adder_to_pc;
+    wire[`InstAddrBus] instAddr_pc_to_if_id;
     
-    //if id
-    wire [31:0] if_inst_Addr_i;
-    wire [31:0] id_inst_Addr_i;
-    wire [31:0] id_inst_i;
+    // IF_ID & REG & ID_EX
+    wire[`InstBus] inst_if_id_to_id;
+    wire[`InstAddrBus] instAddr_if_id_to_id;
     
-    //IDregister
-    wire [7:0] id_aluOp_o;
-    wire [2:0] id_aluSel_o;
-    wire [31:0] id_operand1_o;
-    wire [31:0] id_operand2_o;
-    wire [4:0] id_regWriteAddr_o; //target register's address
-    wire id_regWritEnablee_o;
+    wire[`RegBus] reg1Data_reg_to_id;
+    wire[`RegBus] reg2Data_reg_to_id;
     
-    //ID-EX
-    wire [2:0] ex_aluSel_i;
-    wire [7:0] ex_aluOp_i;
-    wire [31:0] ex_operand1_i;
-    wire [31:0] ex_operand2_i;
-    wire [4:0] ex_regWriteAddr_i;
-    wire ex_regWriteEnable_i;
+    wire reg1Enable_id_to_reg;
+    wire reg2Enable_id_to_reg;
+    wire[`RegAddrBus] reg1Addr_id_to_reg;
+    wire[`RegAddrBus] reg2Addr_id_to_reg;
     
-    //EX
-    wire ex_regWriteEnable_o;
-    wire [31:0] ex_regWriteData_o;
-    wire [4:0] ex_regWriteAddr_o;
+    wire[`AluOpBus] aluOp_id_to_id_ex;
+    wire[`AluSelBus] aluSel_id_to_id_ex;
     
-     //exmem
-     wire mem_regWriteEnable_i;
-     wire [31:0] mem_regWriteData_i;
-     wire [4:0] mem_regWriteAddr_i;
+    wire[`RegBus]operand1_id_to_id_ex;
+    wire[`RegBus]operand2_id_to_id_ex;
     
-     //mem
-     wire mem_regWriteEnable_o;
-     wire [31:0] mem_regWriteData_o;
-     wire [4:0] mem_regWriteAddr_o;
+    wire regWriteEnable_id_to_id_ex;
+    wire[`RegAddrBus] regWriteAddr_id_to_id_ex;
     
-     //memwb
-     wire wb_regWriteEnable_i;
-     wire [31:0] wb_regWriteData_i;
-     wire [4:0] wb_regWriteAddr_i;
+    // ID_EX & EX & EX_MEM
     
-     //register.v
-     wire enread1; //enable read1
-     wire enread2;
-     wire [31:0] reg_data1_i;
-     wire [31:0] reg_data2_i;
-     wire [4:0] reg1_Addr_i;
-     wire [4:0] reg2_Addr_i;
+    wire[`AluOpBus] aluOp_id_ex_to_ex;
+    wire[`AluSelBus] aluSel_id_ex_to_ex;
+    wire[`RegBus] operand1_id_ex_to_ex;
+    wire[`RegBus] operand2_id_ex_to_ex;
+    wire[`RegAddrBus] regWriteAddr_id_ex_to_ex;
+    wire regWriteEnable_id_ex_to_ex;
     
-
-     PC pc1(
-         .clk(clock_btn),  .rst(reset_btn),
-         .instAddr_i(if_inst_Addr_i), 
-         .instAddr_o(adder_pc_in), .ce_o(romEnable_o)
-     );
-     //pcadder.v
-     PC_ADDER pc_adder1(
-         .pc_in(adder_pc_in), .pc_out(if_inst_Addr_i)
-     );
-     
-     assign romAddr_o = if_inst_Addr_i;
+    wire[`RegAddrBus] regWriteAddr_ex_to_ex_mem;
+    wire regWriteEnable_ex_to_ex_mem;
+    wire[`RegBus] regWriteData_ex_to_ex_mem;
     
-     //ifid
-     IF_ID if_id1(
-         .clk(clock_btn),  .rst(reset_btn),
-         .instAddr_i(if_inst_Addr_i), .inst_i(romData_i),
-         .instAddr_o(id_inst_Addr_i), .inst_o(id_inst_i)
-     );
+        
+    // EX_MEM & MEM & MEM_WB
+    wire[`RegAddrBus] regWriteAddr_ex_mem_to_mem;
+    wire regWriteEnable_ex_mem_to_mem;
+    wire[`RegBus] regWriteData_ex_mem_to_mem;
     
-     //IDRegister
-     ID id1(
-         .rst(reset_btn),  .instAddr_i(id_inst_Addr_i),
-         .inst_i(id_inst_i),
-         //from registers
-         .reg1Data_i(reg_data1_i), .reg2Data_i(reg_data2_i),
-         //send to registers
-         .reg1Enable_o(enread1), .reg2Enable_o(enread2),
-         .reg1Addr_o(reg1_Addr_i), .reg2Addr_o(reg2_Addr_i),
-         //send to id/ex
-         .aluOp_o(id_aluOp_o), .aluSel_o(id_aluSel_o),
-         .operand1_o(id_operand1_o), .operand2_o(id_operand2_o),
-         .regWriteEnable_o(id_regWritEnablee_o), .regWriteAddr_o(id_regWriteAddr_o)
-     );
+    wire[`RegAddrBus] regWriteAddr_mem_to_mem_wb;
+    wire regWriteEnable_mem_to_mem_wb;
+    wire[`RegBus] regWriteData_mem_to_mem_wb;
     
-     //Registers
-     REG reg1(
-         .clk(clock_btn), .rst(reset_btn),
-         .regWriteEnable_i(wb_regWriteData_i), .regWriteAddr_i(wb_regWriteAddr_i),
-         .regWriteData_i(wb_regWriteData_i), .reg1Enable_i(enread1),
-         .reg1Addr_i(reg1_Addr_i), .reg1Data_o(reg_data1_i),
-         .reg2Enable_i(enread2), .reg2Addr_i(reg2_Addr_i),
-         .reg2Data_o(reg_data2_i)
-     );
+    // MEM_WB & REG
     
-     //ID/EX
-     ID_EX id_ex1(
-         .clk(clock_btn), .rst(reset_btn),
+    wire[`RegAddrBus] regWriteAddr_mem_wb_to_reg;
+    wire regWriteEnable_mem_wb_to_reg;
+    wire[`RegBus] regWriteData_mem_wb_to_reg;
     
-         .aluSel_i(id_aluSel_o), .aluOp_i(id_aluOp_o),
-         .operand1_i(id_operand1_o), .operand2_i(id_operand2_o),
-         .regWriteAddr_i(id_regWriteAddr_o), .regWriteEnable_i(id_regWritEnablee_o),
     
-         .aluSel_o(ex_aluSel_i), .aluOp_o(ex_aluOp_i),
-         .operand1_o(ex_operand1_i), .operand2_o(ex_operand2_i),
-         .regWriteAddr_o(ex_regWriteAddr_i), .regWriteEnable_o(ex_regWriteEnable_i)
-     );
+    PC pc1(
+        .clk(clk), .rst(rst),
+        .instAddr_i(instAddr_pc_adder_to_pc), .instAddr_o(instAddr_pc_to_if_id),
+        .ce_o(romEnable_o)
+    );
     
-     //ex
-     EX ex1(
-         .rst(reset_btn),  .aluSel_i(ex_aluSel_i),
-         .aluOp_i(ex_aluOp_i), .operand1_i(ex_operand1_i),
-         .operand2_i(ex_operand2_i), .regWriteAddr_i(ex_regWriteAddr_i),
-         .regWriteEnable_i(ex_regWriteEnable_i),
-         .regWriteEnable_o(ex_regWriteEnable_o), .regWriteAddr_o(ex_regWriteAddr_o),
-         .regWriteData_o(ex_regWriteData_o)
+    assign romAddr_o = instAddr_pc_to_if_id;
     
-     );
+    PC_ADDER pc_adder1(
+        .instAddr_i(instAddr_pc_to_if_id), .instAddr_o(instAddr_pc_adder_to_pc)
+    );
     
-     //exmem
-     EX_MEM ex_mem1(
-         .rst(reset_btn), .clk(clock_btn),
-         .regWriteAddr_i(ex_regWriteAddr_o), .regWriteEnable_i(ex_regWriteEnable_o),
-         .regWriteData_i(ex_regWriteData_o), .regWriteAddr_o(mem_regWriteAddr_i),
-         .regWriteEnable_o(mem_regWriteEnable_i), .regWriteData_o(mem_regWriteData_i)
-     );
+    IF_ID if_id1(
+        .clk(clk), .rst(rst),
+        .instAddr_i(instAddr_pc_to_if_id), .inst_i(romData_i),
+        .instAddr_o(instAddr_if_id_to_id), .inst_o(inst_if_id_to_id)
+    );
     
-     //mem
-     MEM mem1(
-         .rst(reset_btn), .regWriteAddr_i(mem_regWriteAddr_i),
-         .regWriteEnable_i(mem_regWriteEnable_i), .regWriteData_i(mem_regWriteData_i),
-         .regWriteAddr_o(mem_regWriteAddr_o),   .regWriteEnable_o(mem_regWriteEnable_o),
-         .regWriteData_o(mem_regWriteData_o)
-     );
+    ID id1(
+        .rst(rst),
+        .instAddr_i(instAddr_if_id_to_id), .inst_i(inst_if_id_to_id),
+        .reg1Data_i(reg1Data_reg_to_id), .reg2Data_i(reg2Data_reg_to_id),
+        .reg1Enable_o(reg1Enable_id_to_reg), .reg2Enable_o(reg2Enable_id_to_reg),
+        .reg1Addr_o(reg1Addr_id_to_reg), .reg2Addr_o(reg2Addr_id_to_reg),
+        .aluOp_o(aluOp_id_to_id_ex), .aluSel_o(aluSel_id_to_id_ex),
+        .operand1_o(operand1_id_to_id_ex), .operand2_o(operand2_id_to_id_ex),
+        .regWriteAddr_o(regWriteAddr_id_to_id_ex), .regWriteEnable(regWriteEnable_id_to_id_ex)
+    );
     
-     //memwb
-     MEM_WB mem_wb1(
-         .rst(reset_btn), .clk(clock_btn),
-         .regWriteAddr_i(mem_regWriteAddr_o), .regWriteEnable_i(mem_regWriteEnable_o),
-         .regWriteData_i(mem_regWriteData_o), .regWriteAddr_o(wb_regWriteAddr_i),
-         .regWriteEnable_o(wb_regWriteEnable_i), .regWriteData_o(wb_regWriteData_i)
-     );
-     //PIPELINE END
-
+    REG reg1(
+        .clk(clk), .rst(rst),
+        .reg1Addr_i(reg1Addr_id_to_reg), .reg2Addr_i(reg2Addr_id_to_reg),
+        .reg1Enable_i(reg1Enable_id_to_reg), .reg2Enable(reg2Enable_id_to_reg),
+        .reg1Data_o(reg1Data_reg_to_id), .reg2Data_o(reg2Data_reg_to_id),
+        .regWriteAddr_i(regWriteAddr_mem_wb_to_reg), .regWritwData_i(regWriteData_mem_wb_to_reg), .regWriteEnable_i(regWriteEnable_mem_wb_to_reg)
+    );
+    
+    ID_EX id_ex1(
+        .clk(clk), .rst(rst),
+        .aluOp_i(aluOp_id_to_id_ex), .aluSel_i(aluSel_id_to_id_ex),
+        .operand1_i(operand1_id_to_id_ex), .operand2_i(operand2_id_to_id_ex),
+        .regWriteAddr_i(regWriteAddr_id_to_id_ex), .regWriteEnable_i(regWriteEnable_id_to_id_ex),
+        .aluOp_o(aluOp_id_ex_to_ex), .aluSel_o(aluSel_id_ex_to_ex),
+        .operand1_o(operand1_id_to_id_ex), .operand2_o(operand2_id_to_id_ex),
+        .regWriteAddr_o(regWriteAddr_id_ex_to_ex), .regWriteEnable_o(regWriteEnable_id_ex_to_ex)
+    );
+    
+    EX ex1(
+        .rst(rst),
+        .aluOp_i(aluOp_id_ex_to_ex), .aluSel_i(aluSel_id_ex_to_ex),
+        .operand1_i(operand1_id_to_id_ex), .operand2_i(operand2_id_to_id_ex),
+        .regWriteAddr_i(regWriteAddr_id_ex_to_ex), .regWriteEnable_i(regWriteEnable_id_ex_to_ex),
+        .regWriteAddr_o(regWriteAddr_ex_to_ex_mem),
+        .regWriteData_o(regWriteEnable_ex_to_ex_mem),
+        .regWriteEnable_o()
+    );
+    
+    EX_MEM ex_mem1(
+        .clk(clk), .rst(rst),
+        .regWriteAddr_i(regWriteAddr_ex_to_ex_mem), .regWriteEnable_i(regWriteEnable_ex_to_ex_mem), .regWriteData_i(regWriteData_ex_to_ex_mem),
+        .regWriteAddr_o(regWriteAddr_ex_mem_to_mem), .regWriteEnable_o(regWriteEnable_ex_mem_to_mem), .regWriteData_o(regWriteData_ex_mem_to_mem)
+    );
+    
+    MEM mem1(
+        .rst(rst),
+        .regWriteAddr_i(regWriteAddr_ex_mem_to_mem), .regWriteEnable_i(regWriteEnable_ex_mem_to_mem), .regWriteData_i(regWriteData_ex_mem_to_mem),
+        .regWriteAddr_o(regWriteAddr_mem_to_mem_wb), .regWriteEnable_o(regWriteEnable_mem_to_mem_wb), .regWriteData_o(regWriteData_mem_to_mem_wb)
+    );
+    
+    MEM_WB mem_wb1 (
+        .clk(clk), .rst(rst),
+        .regWriteAddr_i(regWriteAddr_mem_to_mem_wb), .regWriteEnable_i(regWriteEnable_mem_to_mem_wb), .regWriteData_i(regWriteData_mem_to_mem_wb),
+        .regWriteAddr_o(regWriteAddr_mem_wb_to_reg), .regWriteEnable_o(regWriteEnable_mem_wb_to_reg), .regWriteData_o(regWriteData_mem_wb_to_reg)
+    );
+    
 endmodule

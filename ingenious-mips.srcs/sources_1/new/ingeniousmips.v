@@ -1,7 +1,6 @@
 module IngeniousMIPS(
-
     input wire clk_50M,           //50MHz 时钟输入
-    input wire clk_11M0592,       //11.0592MHz 时钟输入
+    input wire clk_11M0592,       //11.0592MHz 时钟输入（备用，可不用）
 
     input wire clock_btn,         //BTN5手动时钟按钮开关，带消抖电路，按下时为1
     input wire reset_btn,         //BTN6手动复位按钮开关，带消抖电路，按下时为1
