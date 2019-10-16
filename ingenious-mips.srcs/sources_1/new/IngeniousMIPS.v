@@ -74,7 +74,7 @@ module IngeniousMIPS(
         .ce_o(rom_ce)
     );
     //pcadder.v
-    PC_ADDER pc_Adder1(
+    PC_ADDER pc_adder1(
         .pc_in(adder_pc_in), .pc_out(if_inst_Addr_i)
     );
     assign rom_addrOUT = if_inst_Addr_i;
