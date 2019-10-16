@@ -20,7 +20,7 @@ module REG(
     reg[`RegBus] registers[0:`RegNum-1];
     //on posedge clk, if rst is enabled, check if write is enabled and writeReg isn't all 0, then write writeData to register[writeReg]
     always @(posedge clk) begin
-        if(rst == `Enable) begin
+        if(rst == `Disable) begin
             if((regWriteEnable_i == `Enable) && (regWriteAddr_i != `ZeroWord)) begin
                 registers[regWriteAddr_i] <= regWriteData_i;
             end

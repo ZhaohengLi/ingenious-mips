@@ -8,10 +8,11 @@ module PC(
     output reg ce_o
 );
     always @(posedge clk) begin
-        case (rst)
-        `Enable : ce_o <= `Disable;
-        `Disable : ce_o <= `Enable;
-        endcase
+        if (rst == `Enable) begin
+            ce_o <= `Disable;
+        end else begin
+            ce_o <= `Enable;
+        end
     end
     
     always @(posedge clk) begin

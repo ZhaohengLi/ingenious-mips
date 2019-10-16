@@ -13,7 +13,7 @@ module MEM(
 	
 );
     always @(*) begin
-        if(rst ==`Disable) begin
+        if(rst == `Disable) begin
             regWriteAddr_o <= regWriteAddr_i;
             regWriteEnable_o <= regWriteEnable_i;
             regWriteData_o <= regWriteData_i;
