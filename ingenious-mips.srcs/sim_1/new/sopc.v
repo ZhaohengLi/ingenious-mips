@@ -14,7 +14,7 @@ module SOPC(
     );
         
     ROM rom1(
-        .romAddr_i(instAddr), .romEnable(romEnable),
+        .romAddr_i(instAddr), .romEnable_i(romEnable),
         .romData_o(inst)
     );
     

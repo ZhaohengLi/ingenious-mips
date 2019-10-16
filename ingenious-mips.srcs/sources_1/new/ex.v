@@ -3,7 +3,7 @@
 module EX(
 	input wire rst,
 
-  input wire[`AluOpBus] aluOp_i,
+	input wire[`AluOpBus] aluOp_i,
 	input wire[`AluSelBus] aluSel_i,
 	input wire[`RegBus] operand1_i,
 	input wire[`RegBus] operand2_i,
