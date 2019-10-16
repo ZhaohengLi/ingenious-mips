@@ -1,11 +1,13 @@
 // Global
-`define RstEnable 1'b1
-`define RstDisable 1'b0
+`define Enable 1'b1
+`define Disable 1'b0
+//`define RstEnable 1'b1
+//`define RstDisable 1'b0
 `define ZeroWord 32'h00000000
-`define WriteEnable 1'b1
-`define WriteDisable 1'b0
-`define ReadEnable 1'b1
-`define ReadDisable 1'b0
+//`define WriteEnable 1'b1
+//`define WriteDisable 1'b0
+//`define ReadEnable 1'b1
+//`define ReadDisable 1'b0
 `define AluOpBus 7:0
 `define AluSelBus 2:0
 `define InstValid 1'b0

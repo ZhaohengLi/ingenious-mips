@@ -1,4 +1,5 @@
 module IngeniousMIPS(
+
     input wire clk_50M,           //50MHz 时钟输入
     input wire clk_11M0592,       //11.0592MHz 时钟输入
 
@@ -79,5 +80,5 @@ module IngeniousMIPS(
 );
 
     assign leds = dip_sw[15:0];
-
+    
 endmodule
