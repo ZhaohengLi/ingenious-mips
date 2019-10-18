@@ -261,7 +261,7 @@ module ID(
         if(rst == `Enable) begin
             operand2_o <= `ZeroWord;
         end else if ((reg2Enable_o == 1'b1) &&(ex_regWriteEnable_i == 1'b1) &&
-        (ex_regWriteAddr_i == reg1Addr_o)) begin
+        (ex_regWriteAddr_i == reg2Addr_o)) begin
             operand2_o <= ex_regWriteData_i;
         end else if ((reg2Enable_o == 1'b1) &&(mem_regWriteEnable_i == 1'b1) &&
         (mem_regWriteAddr_i == reg2Addr_o)) begin
