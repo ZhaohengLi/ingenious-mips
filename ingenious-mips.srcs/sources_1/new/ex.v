@@ -9,10 +9,25 @@ module EX(
 	input wire[`RegBus] operand2_i,
 	input wire[`RegAddrBus] regWriteAddr_i,
 	input wire regWriteEnable_i,
+	
+	input wire[`RegBus] regHI_i,
+	input wire[`RegBus] regLO_i,
+	
+	input wire mem_regHILOEnable_i,
+	input wire[`RegBus] mem_regHI_i,
+	input wire[`RegBus] mem_regLO_i,
+	
+	input wire mem_wb_regHILOEnable_i,
+	input wire[`RegBus] mem_wb_regHI_i,
+	input wire[`RegBus] mem_wb_regLO_i,
 
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o,
-	output reg[`RegBus] regWriteData_o
+	output reg[`RegBus] regWriteData_o,
+	
+	output reg regHILOEnable_o,
+	output reg[`RegBus] regHI_o,
+	output reg[`RegBus] regLO_o
 
 );
     reg[`RegBus] logic_out;
