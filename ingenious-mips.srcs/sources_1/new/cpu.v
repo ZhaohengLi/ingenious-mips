@@ -85,20 +85,20 @@ module CPU(
     
     ID id1(
         .rst(rst),  
-        .instAddr_i(id_inst_Addr_i),   .inst_i(id_inst_i),
+        .instAddr_i(instAddr_if_id_to_id),   .inst_i(inst_if_id_to_id),
         //from registers
-        .reg1Data_i(reg_data1_i), .reg2Data_i(reg_data2_i),
+        .reg1Data_i(reg1Data_reg_to_id), .reg2Data_i(reg2Data_reg_to_id),
         //send to registers
-        .reg1Enable_o(enread1), .reg2Enable_o(enread2),
-        .reg1Addr_o(reg1_Addr_i), .reg2Addr_o(reg2_Addr_i),
+        .reg1Enable_o(reg1Enable_id_to_reg), .reg2Enable_o(reg2Enable_id_to_reg),
+        .reg1Addr_o(reg1Addr_id_to_reg), .reg2Addr_o(reg2Addr_id_to_reg),
         //send to id/ex
-        .aluOp_o(id_aluOp_o), .aluSel_o(id_aluSel_o),
-        .operand1_o(id_operand1_o), .operand2_o(id_operand2_o),
-        .regWriteEnable_o(id_regWritEnablee_o), .regWriteAddr_o(id_regWriteAddr_o),
+        .aluOp_o(aluOp_id_to_id_ex), .aluSel_o(aluSel_id_to_id_ex),
+        .operand1_o(operand1_id_to_id_ex), .operand2_o(operand2_id_to_id_ex),
+        .regWriteEnable_o(regWriteEnable_id_to_id_ex), .regWriteAddr_o(regWriteAddr_id_to_id_ex),
         //from ex
-        .ex_operand_i(ex_regWriteData_o), .ex_regWriteAddr_i(ex_regWriteAddr_o),
-        .ex_regWriteEnable_i(ex_regWriteEnable_o), .mem_operand_i(mem_regWriteData_o),
-        .mem_regWriteAddr_i(mem_regWriteAddr_o), .mem_regWriteEnable_i(mem_regWriteEnable_o)
+        .ex_regWriteData_i(regWriteData_ex_to_ex_mem), .ex_regWriteAddr_i(regWriteAddr_ex_to_ex_mem),
+        .ex_regWriteEnable_i(regWriteEnable_ex_to_ex_mem), .mem_regWriteData_i(regWriteData_mem_to_mem_wb),
+        .mem_regWriteAddr_i(regWriteAddr_mem_to_mem_wb), .mem_regWriteEnable_i(regWriteEnable_mem_to_mem_wb)
     );
     
     REG reg1(
@@ -115,14 +115,14 @@ module CPU(
         .operand1_i(operand1_id_to_id_ex), .operand2_i(operand2_id_to_id_ex),
         .regWriteAddr_i(regWriteAddr_id_to_id_ex), .regWriteEnable_i(regWriteEnable_id_to_id_ex),
         .aluOp_o(aluOp_id_ex_to_ex), .aluSel_o(aluSel_id_ex_to_ex),
-        .operand1_o(operand1_id_to_id_ex), .operand2_o(operand2_id_ex_to_ex),
+        .operand1_o(operand1_id_ex_to_ex), .operand2_o(operand2_id_ex_to_ex),
         .regWriteAddr_o(regWriteAddr_id_ex_to_ex), .regWriteEnable_o(regWriteEnable_id_ex_to_ex)
     );
     
     EX ex1(
         .rst(rst),
         .aluOp_i(aluOp_id_ex_to_ex), .aluSel_i(aluSel_id_ex_to_ex),
-        .operand1_i(operand1_id_to_id_ex), .operand2_i(operand2_id_ex_to_ex),
+        .operand1_i(operand1_id_ex_to_ex), .operand2_i(operand2_id_ex_to_ex),
         .regWriteAddr_i(regWriteAddr_id_ex_to_ex), .regWriteEnable_i(regWriteEnable_id_ex_to_ex),
         .regWriteAddr_o(regWriteAddr_ex_to_ex_mem),
         .regWriteData_o(regWriteData_ex_to_ex_mem),

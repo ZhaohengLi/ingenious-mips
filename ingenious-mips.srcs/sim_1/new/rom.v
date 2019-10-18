@@ -7,10 +7,10 @@ module ROM(
     reg[31:0] instractions[0:1024];
     
     initial begin
-        instractions[0] <= 32'h34011100;
-        instractions[1] <= 32'h34020020;
-        instractions[2] <= 32'h3403ff00;
-        instractions[3] <= 32'h3404ffff;
+        instractions[0] <= 32'h34011100; //ori
+        instractions[1] <= 32'h34020020; //ori
+        instractions[2] <= 32'h00011882; //srl
+        instractions[3] <= 32'h3c04ffff; //lui
     end
     
     always @ (*) begin

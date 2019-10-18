@@ -58,7 +58,7 @@ module ID(
             immediate <= `ZeroWord;
 
             case(op)
-                `EXE_ORI: begin
+                `EXE_ORI: begin //rt <- rs | imm
                     regWriteEnable_o <= `Enable; //enable writing the result of ori
                     aluOp_o <= `EXE_OR_OP; //belongs to the or type operation
                     aluSel_o <= `EXE_RES_LOGIC; //belongs to logic operation tpe
@@ -68,7 +68,7 @@ module ID(
                     regWriteAddr_o <= rt;
                     valid_instruct <= `InstValid; //instruction valid      
                 end
-                `EXE_ANDI:begin
+                `EXE_ANDI:begin //rt <- rs & imm
                     regWriteEnable_o <= `Enable; 
                     aluOp_o <= `EXE_AND_OP; 
                     aluSel_o <= `EXE_RES_LOGIC; 
@@ -78,7 +78,7 @@ module ID(
                     regWriteAddr_o <= rt;
                     valid_instruct <= `InstValid; //instruction valid
                 end
-                `EXE_XORI:begin
+                `EXE_XORI:begin //rt <- rs ^ imm
                     regWriteEnable_o <= `Enable; 
                     aluOp_o <= `EXE_XOR_OP; 
                     aluSel_o <= `EXE_RES_LOGIC; 
@@ -88,7 +88,7 @@ module ID(
                     regWriteAddr_o <= rt;
                     valid_instruct <= `InstValid; //instruction valid
                 end
-                `EXE_LUI:begin
+                `EXE_LUI:begin //move imm to the upper 16 bits of rt
                     regWriteEnable_o <= `Enable; 
                     aluOp_o <= `EXE_OR_OP; 
                     aluSel_o <= `EXE_RES_LOGIC; 
@@ -110,7 +110,7 @@ module ID(
                     case(shamt)
                         5'b00000: begin
                             case(func)
-                                `EXE_OR: begin
+                                `EXE_OR: begin // rd <- rs | rt
                                     regWriteEnable_o <= `Enable; 
                                     aluOp_o <= `EXE_OR_OP; 
                                     aluSel_o <= `EXE_RES_LOGIC; 
@@ -118,7 +118,7 @@ module ID(
                                     reg2Enable_o <= 1'b1; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
-                                `EXE_AND:begin
+                                `EXE_AND:begin //rd <- rs & rt
                                     regWriteEnable_o <= `Enable; 
                                     aluOp_o <= `EXE_AND_OP; 
                                     aluSel_o <= `EXE_RES_LOGIC; 
@@ -126,7 +126,7 @@ module ID(
                                     reg2Enable_o <= 1'b1; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
-                                `EXE_XOR:begin
+                                `EXE_XOR:begin // rd <- rs ^ rt
                                     regWriteEnable_o <= `Enable; 
                                     aluOp_o <= `EXE_XOR_OP;
                                     aluSel_o <= `EXE_RES_LOGIC; 
@@ -134,7 +134,7 @@ module ID(
                                     reg2Enable_o <= 1'b1; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
-                                `EXE_NOR:begin
+                                `EXE_NOR:begin // rd <- not(rs|rt)
                                     regWriteEnable_o <= `Enable; 
                                     aluOp_o <= `EXE_NOR_OP; 
                                     aluSel_o <= `EXE_RES_LOGIC; 
@@ -158,7 +158,7 @@ module ID(
                                     reg2Enable_o <= 1'b1; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
-                                `EXE_SRAV:begin
+                                `EXE_SRAV:begin //
                                     regWriteEnable_o <= `Enable; 
                                     aluOp_o <= `EXE_SRA_OP; 
                                     aluSel_o <= `EXE_RES_SHIFT; 
@@ -188,7 +188,7 @@ module ID(
             endcase // op
             if(inst_i[31:21] == 11'b00000000000) begin
                 case(func)
-                    `EXE_SLL: begin
+                    `EXE_SLL: begin //rd <- rt << shamt
                         regWriteEnable_o <= `Enable; 
                         aluOp_o <= `EXE_SLL_OP; 
                         aluSel_o <= `EXE_RES_SHIFT; 
@@ -198,7 +198,7 @@ module ID(
                         regWriteAddr_o <= rd;
                         valid_instruct <= `InstValid; //instruction valid
                     end
-                    `EXE_SRL: begin
+                    `EXE_SRL: begin //rd <- rt >> shamt (logical)
                          regWriteEnable_o <= `Enable; 
                         aluOp_o <= `EXE_SRL_OP; 
                         aluSel_o <= `EXE_RES_SHIFT; 
@@ -208,7 +208,7 @@ module ID(
                         regWriteAddr_o <= rd;
                         valid_instruct <= `InstValid; //instruction valid
                     end
-                    `EXE_SRA:begin
+                    `EXE_SRA:begin //rd <- rt >> shamt (arithmetic)
                          regWriteEnable_o <= `Enable; 
                         aluOp_o <= `EXE_SRA_OP; //belongs to the sra type operation
                         aluSel_o <= `EXE_RES_SHIFT; 
@@ -264,7 +264,7 @@ module ID(
         (ex_regWriteAddr_i == reg1Addr_o)) begin
             operand2_o <= ex_regWriteData_i;
         end else if ((reg2Enable_o == 1'b1) &&(mem_regWriteEnable_i == 1'b1) &&
-        (mem_regWriteAddr_i == reg1Addr_o)) begin
+        (mem_regWriteAddr_i == reg2Addr_o)) begin
             operand2_o <= mem_regWriteData_i;
         end else if (reg2Enable_o == `Enable) begin
             operand2_o <= reg2Data_i;

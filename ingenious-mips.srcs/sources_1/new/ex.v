@@ -52,7 +52,7 @@ module EX(
                 `EXE_SRL_OP: begin
                     shift_res <= operand2_i >> operand1_i[4:0];
                 end
-                `EXE_SRA_OP: begin
+                `EXE_SRA_OP: begin // operand2 >> operand1[4:0]
                     shift_res <= ({32{operand2_i[31]}} << (6'd32 - {1'b0, operand1_i[4:0]}))| operand2_i >> operand1_i[4:0];
                 end
                 default: begin
