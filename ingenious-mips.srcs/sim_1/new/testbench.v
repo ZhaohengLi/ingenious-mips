@@ -12,7 +12,7 @@ module TESTBENCH();
     initial begin
         rst = 1'b1;
         #100 rst = 1'b0;
-        #500 rst = 1'b1;
+        #700 rst = 1'b1;
         #100 $stop;
     end
         

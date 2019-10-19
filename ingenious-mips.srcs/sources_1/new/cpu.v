@@ -73,10 +73,14 @@ module CPU(
     wire[`RegBus] regHI_mem_to_mem_wb;
     wire[`RegBus] regLO_mem_to_mem_wb;
     
-    //MEM_WB to HILO
+    // MEM_WB & HILO
     wire regHILOEnable_mem_wb_to_hilo;
     wire[`RegBus] regHI_mem_wb_to_hilo;
     wire[`RegBus] regLO_mem_wb_to_hilo;
+    
+    // HILO & EX
+    wire[`RegBus] regHI_hilo_to_ex;
+    wire[`RegBus] regLO_hilo_to_ex;
     
     
     PC pc1(
@@ -144,16 +148,13 @@ module CPU(
         .regWriteAddr_o(regWriteAddr_ex_to_ex_mem), .regWriteData_o(regWriteData_ex_to_ex_mem),
         .regWriteEnable_o(regWriteEnable_ex_to_ex_mem),
         
-        .mem_regHILOEnable_i(regHILOEnable_mem_to_mem_wb), .mem_regHI_i(regHI_mem_to_mem_wb),
-        .mem_regLO_i(regLO_mem_to_mem_wb),
-        .mem_wb_regHILOEnable_i(regHILOEnable_mem_wb_to_hilo), .mem_wb_regHI_i(regHI_mem_wb_to_hilo),
-        .mem_wb_regLO_i(regLO_mem_wb_to_hilo),
+        .mem_regHILOEnable_i(regHILOEnable_mem_to_mem_wb), .mem_regHI_i(regHI_mem_to_mem_wb), .mem_regLO_i(regLO_mem_to_mem_wb),
+        .mem_wb_regHILOEnable_i(regHILOEnable_mem_wb_to_hilo), .mem_wb_regHI_i(regHI_mem_wb_to_hilo), .mem_wb_regLO_i(regLO_mem_wb_to_hilo),
         
         //from hilo
-        .regHI_i(), .regLO_i();
+        .regHI_i(regHI_hilo_to_ex), .regLO_i(regLO_hilo_to_ex),
         
-        .regHILOEnable_o(regHILOEnable_ex_to_ex_mem), .regHI_o(regHI_ex_to_ex_mem),
-        .regLO_o(regLO_ex_to_ex_mem)
+        .regHILOEnable_o(regHILOEnable_ex_to_ex_mem), .regHI_o(regHI_ex_to_ex_mem), .regLO_o(regLO_ex_to_ex_mem)
     );
     
     EX_MEM ex_mem1(
@@ -190,6 +191,12 @@ module CPU(
         //mem_wb to hilo
         .regHILOEnable_o(regHILOEnable_mem_wb_to_hilo), .regHI_o(regHI_mem_wb_to_hilo),
         .regLO_o(regLO_mem_wb_to_hilo)
+    );
+    
+    HILO hilo1 (
+        .clk(clk), .rst(rst),
+        .regHILOEnable_i(regHILOEnable_mem_wb_to_hilo), .regHI_i(regHI_mem_wb_to_hilo), .regLO_i(regLO_mem_wb_to_hilo),
+        .regHI_o(regHI_hilo_to_ex), .regLO_o(regLO_hilo_to_ex)
     );
     
 endmodule

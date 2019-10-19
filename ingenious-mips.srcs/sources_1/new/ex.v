@@ -32,6 +32,74 @@ module EX(
 );
     reg[`RegBus] logic_out;
     reg[`RegBus] shift_res;
+    reg[`RegBus] move_res;
+    reg[`RegBus] hi; // latest value of reg hi
+    reg[`RegBus] lo; // latest value of reg lo
+    
+    // set the latest value of reg hi & lo
+    always @ (*) begin
+        if (rst == `Enable) begin
+            hi <= `ZeroWord;
+            lo <= `ZeroWord;
+        end else if (mem_regHILOEnable_i == `Enable) begin
+            hi <= mem_regHI_i;
+            lo <= mem_regLO_i;
+        end else if (mem_wb_regHILOEnable_i == `Enable) begin
+            hi <= mem_wb_regHI_i;
+            lo <= mem_wb_regLO_i;
+        end else begin
+            hi <= regHI_i;
+            lo <= regLO_i;
+        end
+    end
+    
+    // set move_res
+    always @ (*) begin
+        if (rst == `Enable) begin
+            move_res <= `ZeroWord;
+        end else begin
+            move_res <= `ZeroWord;
+            case (aluOp_i)
+                `EXE_MFHI_OP: begin
+                    move_res <= hi;
+                end
+                `EXE_MFLO_OP: begin
+                    move_res <= lo;
+                end
+                `EXE_MOVZ_OP: begin
+                    move_res <= operand1_i;
+                end
+                `EXE_MOVN_OP: begin
+                    move_res <= operand2_i;
+                end
+                default: begin
+                end
+            endcase
+        end
+    end
+    
+    // set regHI_o regLO_o regHILOEnable_o
+    always @ (*) begin
+        if (rst == `Enable) begin
+            regHILOEnable_o <= `Disable;
+            regHI_o <= `ZeroWord;
+            regLO_o <= `ZeroWord;
+        end else if (aluOp_i == `EXE_MTHI_OP) begin
+            regHILOEnable_o <= `Enable;
+            regHI_o <= operand1_i;
+            regLO_o <= lo;
+        end else if (aluOp_i == `EXE_MTLO_OP) begin
+            regHILOEnable_o <= `Enable;
+            regHI_o <= hi;
+            regLO_o <= operand1_i;
+        end else begin
+            regHILOEnable_o <= `Disable;
+            regHI_o <= `ZeroWord;
+            regLO_o <= `ZeroWord;
+        end
+    end
+    
+    // set logic_out
     always @ (*) begin
         if (rst == `Enable) begin //set logic output to zero
             logic_out <= `ZeroWord;
@@ -56,6 +124,9 @@ module EX(
             endcase
         end //if
     end //always
+    
+    
+    // set shift_res
     always @(*) begin
         if(rst == `Enable) begin
             shift_res <= `ZeroWord;
@@ -76,6 +147,8 @@ module EX(
             endcase
         end//if
     end
+    
+    // set regWriteData_o
     always @(*) begin
         regWriteEnable_o <= regWriteEnable_i;
         regWriteAddr_o <= regWriteAddr_i;
@@ -85,6 +158,9 @@ module EX(
             end
             `EXE_RES_SHIFT: begin
                 regWriteData_o <= shift_res;
+            end
+            `EXE_RES_MOVE: begin
+                regWriteData_o <= move_res;
             end
             default: begin
                 regWriteData_o <= `ZeroWord;
