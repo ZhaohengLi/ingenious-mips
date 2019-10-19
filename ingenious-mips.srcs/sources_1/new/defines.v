@@ -27,7 +27,7 @@
 `define ChipEnable 1'b1
 `define ChipDisable 1'b0
 
-// Instraction
+// Instruction
 `define EXE_ORI  6'b001101
 `define EXE_NOP 6'b000000
 `define EXE_AND 6'b100100
@@ -38,13 +38,21 @@
 `define EXE_XORI 6'b001110
 `define EXE_LUI 6'b001111
 
-//ÒÆÎ»
+//ï¿½ï¿½Î»
 `define EXE_SLL 6'b000000
 `define EXE_SLLV 6'b000100
 `define EXE_SRL 6'b000010
 `define EXE_SRLV 6'b000110
 `define EXE_SRA 6'b000011
 `define EXE_SRAV 6'b000111
+
+//move
+`define EXE_MOVN 6'b001011 //if rt != 0, rd <- rs
+`define EXE_MOVZ 6'b001010 //if rt == 0, rd <- rs
+`define EXE_MFHI 6'b010000 // rd <- hi
+`define EXE_MFLO 6'b010010 //rd <- lo
+`define EXE_MTHI 6'b010001 // hi <- rs
+`define EXE_MTLO 6'b010011 // lo <- rs
 
 `define EXE_SYNC 6'b001111
 `define EXE_PREF 6'b110011
@@ -61,13 +69,21 @@
 `define EXE_SRL_OP 8'b00000010
 `define EXE_SRA_OP 8'b00000011
 
+`define EXE_MOVZ_OP  8'b00001010
+`define EXE_MOVN_OP  8'b00001011
+`define EXE_MFHI_OP  8'b00010000
+`define EXE_MTHI_OP  8'b00010001
+`define EXE_MFLO_OP  8'b00010010
+`define EXE_MTLO_OP  8'b00010011
+
 //  nop
-`define EXE_NOP_OP 8'b00000000 
+`define EXE_NOP_OP 8'b00000000
 
 // AluSel
-`define EXE_RES_LOGIC 3'b001
 `define EXE_RES_NOP 3'b000
+`define EXE_RES_LOGIC 3'b001
 `define EXE_RES_SHIFT 3'b010 //this is not tru i just set it there temporarily cuz idk what the shift operation is
+`define EXE_RES_MOVE 3'b011
 
 // ROM
 `define InstAddrBus 31:0

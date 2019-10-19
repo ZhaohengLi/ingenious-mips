@@ -62,8 +62,8 @@ module ID(
                     regWriteEnable_o <= `Enable; //enable writing the result of ori
                     aluOp_o <= `EXE_OR_OP; //belongs to the or type operation
                     aluSel_o <= `EXE_RES_LOGIC; //belongs to logic operation tpe
-                    reg1Enable_o <= 1'b1; //read register from Register.v's 1st register
-                    reg2Enable_o <= 1'b0; //doesn't need to read from second register
+                    reg1Enable_o <= `Enable; //read register from Register.v's 1st register
+                    reg2Enable_o <= `Disable; //doesn't need to read from second register
                     immediate <= {16'h0, inst_i[15:0]}; 
                     regWriteAddr_o <= rt;
                     valid_instruct <= `InstValid; //instruction valid      
@@ -72,8 +72,8 @@ module ID(
                     regWriteEnable_o <= `Enable; 
                     aluOp_o <= `EXE_AND_OP; 
                     aluSel_o <= `EXE_RES_LOGIC; 
-                    reg1Enable_o <= 1'b1; 
-                    reg2Enable_o <= 1'b0; 
+                    reg1Enable_o <= `Enable; 
+                    reg2Enable_o <= `Disable; 
                     immediate <= {16'h0, inst_i[15:0]}; 
                     regWriteAddr_o <= rt;
                     valid_instruct <= `InstValid; //instruction valid
@@ -82,8 +82,8 @@ module ID(
                     regWriteEnable_o <= `Enable; 
                     aluOp_o <= `EXE_XOR_OP; 
                     aluSel_o <= `EXE_RES_LOGIC; 
-                    reg1Enable_o <= 1'b1; 
-                    reg2Enable_o <= 1'b0;
+                    reg1Enable_o <= `Enable; 
+                    reg2Enable_o <= `Disable;
                     immediate <= {16'h0, inst_i[15:0]}; 
                     regWriteAddr_o <= rt;
                     valid_instruct <= `InstValid; //instruction valid
@@ -92,8 +92,8 @@ module ID(
                     regWriteEnable_o <= `Enable; 
                     aluOp_o <= `EXE_OR_OP; 
                     aluSel_o <= `EXE_RES_LOGIC; 
-                    reg1Enable_o <= 1'b1; //read register from Register.v's 1st register
-                    reg2Enable_o <= 1'b0; //doesn't need to read from second register
+                    reg1Enable_o <= `Enable; //read register from Register.v's 1st register
+                    reg2Enable_o <= `Disable; //doesn't need to read from second register
                     immediate <= {inst_i[15:0],16'h0}; 
                     regWriteAddr_o <= rt;
                     valid_instruct <= `InstValid; //instruction valid
@@ -102,76 +102,130 @@ module ID(
                     regWriteEnable_o <= `Disable; 
                     aluOp_o <= `EXE_NOP_OP; 
                     aluSel_o <= `EXE_RES_LOGIC; 
-                    reg1Enable_o <= 1'b0; 
-                    reg2Enable_o <= 1'b0; //doesn't need to read from second register
+                    reg1Enable_o <= `Disable; 
+                    reg2Enable_o <= `Disable; //doesn't need to read from second register
                     valid_instruct <= `InstValid; //instruction valid
                 end
                 `EXE_SPECIAL_INST: begin
                     case(shamt)
                         5'b00000: begin
                             case(func)
+                                `EXE_MFHI: begin
+                                    regWriteEnable_o <= `Enable;
+                                    aluOp_o <= `EXE_MFHI_OP;
+                                    aluSel_o <= `EXE_RES_MOVE;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                 end
+                                `EXE_MFLO: begin
+                                    regWriteEnable_o <= `Enable;
+                                    aluOp_o <= `EXE_MFLO_OP;
+                                    aluSel_o <= `EXE_RES_MOVE;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_MTHI: begin
+                                    regWriteEnable_o <= `Disable;
+                                    aluOp_o <= `EXE_MTHI_OP;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Disable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_MTLO: begin
+                                    regWriteEnable_o <= `Disable;
+                                    aluOp_o <= `EXE_MTLO_OP;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Disable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_MOVN: begin
+                                    aluOp_o <= `EXE_MOVN_OP;
+                                    aluSel_o <= `EXE_RES_MOVE;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                    if (operand2_o != `ZeroWord) begin
+                                        regWriteEnable_o <= `Enable;
+                                    end else begin
+                                        regWriteEnable_o <= `Disable;
+                                    end
+                                end
+                                `EXE_MOVZ: begin
+                                    aluOp_o <= `EXE_MOVZ_OP;
+                                    aluSel_o <= `EXE_RES_MOVE;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                    if (operand2_o == `ZeroWord) begin
+                                        regWriteEnable_o <= `Enable;
+                                    end else begin
+                                        regWriteEnable_o <= `Disable;
+                                    end
+                                end
                                 `EXE_OR: begin // rd <- rs | rt
                                     regWriteEnable_o <= `Enable; 
                                     aluOp_o <= `EXE_OR_OP; 
                                     aluSel_o <= `EXE_RES_LOGIC; 
-                                    reg1Enable_o <= 1'b1; 
-                                    reg2Enable_o <= 1'b1; 
+                                    reg1Enable_o <= `Enable; 
+                                    reg2Enable_o <= `Enable; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
                                 `EXE_AND:begin //rd <- rs & rt
                                     regWriteEnable_o <= `Enable; 
                                     aluOp_o <= `EXE_AND_OP; 
                                     aluSel_o <= `EXE_RES_LOGIC; 
-                                    reg1Enable_o <= 1'b1; 
-                                    reg2Enable_o <= 1'b1; 
+                                    reg1Enable_o <= `Enable; 
+                                    reg2Enable_o <= `Enable; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
                                 `EXE_XOR:begin // rd <- rs ^ rt
                                     regWriteEnable_o <= `Enable; 
                                     aluOp_o <= `EXE_XOR_OP;
                                     aluSel_o <= `EXE_RES_LOGIC; 
-                                    reg1Enable_o <= 1'b1; 
-                                    reg2Enable_o <= 1'b1; 
+                                    reg1Enable_o <= `Enable; 
+                                    reg2Enable_o <= `Enable; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
                                 `EXE_NOR:begin // rd <- not(rs|rt)
                                     regWriteEnable_o <= `Enable; 
                                     aluOp_o <= `EXE_NOR_OP; 
                                     aluSel_o <= `EXE_RES_LOGIC; 
-                                    reg1Enable_o <= 1'b1; 
-                                    reg2Enable_o <= 1'b1; 
+                                    reg1Enable_o <= `Enable; 
+                                    reg2Enable_o <= `Enable; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
                                 `EXE_SLLV:begin
                                     regWriteEnable_o <= `Enable; 
                                     aluOp_o <= `EXE_SLL_OP; 
                                     aluSel_o <= `EXE_RES_SHIFT; 
-                                    reg1Enable_o <= 1'b1; 
-                                    reg2Enable_o <= 1'b1; 
+                                    reg1Enable_o <= `Enable; 
+                                    reg2Enable_o <= `Enable; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
                                 `EXE_SRLV:begin
                                     regWriteEnable_o <= `Enable; 
                                     aluOp_o <= `EXE_SRL_OP; 
                                     aluSel_o <= `EXE_RES_SHIFT; 
-                                    reg1Enable_o <= 1'b1; 
-                                    reg2Enable_o <= 1'b1; 
+                                    reg1Enable_o <= `Enable; 
+                                    reg2Enable_o <= `Enable; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
                                 `EXE_SRAV:begin //
                                     regWriteEnable_o <= `Enable; 
                                     aluOp_o <= `EXE_SRA_OP; 
                                     aluSel_o <= `EXE_RES_SHIFT; 
-                                    reg1Enable_o <= 1'b1; 
-                                    reg2Enable_o <= 1'b1; 
+                                    reg1Enable_o <= `Enable; 
+                                    reg2Enable_o <= `Enable; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
                                 `EXE_SYNC:begin
                                     regWriteEnable_o <= `Disable; 
                                     aluOp_o <= `EXE_NOP_OP; 
                                     aluSel_o <= `EXE_RES_NOP; 
-                                    reg1Enable_o <= 1'b0; 
-                                    reg2Enable_o <= 1'b1; 
+                                    reg1Enable_o <= `Disable; 
+                                    reg2Enable_o <= `Enable; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
                                 default: begin
@@ -192,8 +246,8 @@ module ID(
                         regWriteEnable_o <= `Enable; 
                         aluOp_o <= `EXE_SLL_OP; 
                         aluSel_o <= `EXE_RES_SHIFT; 
-                        reg1Enable_o <= 1'b0; 
-                        reg2Enable_o <= 1'b1; 
+                        reg1Enable_o <= `Disable; 
+                        reg2Enable_o <= `Enable; 
                         immediate[4:0] <= shamt; 
                         regWriteAddr_o <= rd;
                         valid_instruct <= `InstValid; //instruction valid
@@ -202,8 +256,8 @@ module ID(
                          regWriteEnable_o <= `Enable; 
                         aluOp_o <= `EXE_SRL_OP; 
                         aluSel_o <= `EXE_RES_SHIFT; 
-                        reg1Enable_o <= 1'b0; 
-                        reg2Enable_o <= 1'b1; 
+                        reg1Enable_o <= `Disable; 
+                        reg2Enable_o <= `Enable; 
                         immediate[4:0] <= shamt; 
                         regWriteAddr_o <= rd;
                         valid_instruct <= `InstValid; //instruction valid
@@ -212,8 +266,8 @@ module ID(
                          regWriteEnable_o <= `Enable; 
                         aluOp_o <= `EXE_SRA_OP; //belongs to the sra type operation
                         aluSel_o <= `EXE_RES_SHIFT; 
-                        reg1Enable_o <= 1'b0; 
-                        reg2Enable_o <= 1'b1; 
+                        reg1Enable_o <= `Disable; 
+                        reg2Enable_o <= `Enable; 
                         immediate[4:0] <= shamt; 
                         regWriteAddr_o <= rd;
                         valid_instruct <= `InstValid; //instruction valid
@@ -238,14 +292,16 @@ module ID(
             immediate <= `ZeroWord;
         end //if
     end //always
+    
+    
     //OPERAND1
     always @ (*) begin
         if(rst == `Enable) begin
             operand1_o <= `ZeroWord;
-        end else if ((reg1Enable_o == 1'b1) &&(ex_regWriteEnable_i == 1'b1) &&
+        end else if ((reg1Enable_o == `Enable) &&(ex_regWriteEnable_i == `Enable) &&
         (ex_regWriteAddr_i == reg1Addr_o)) begin
             operand1_o <= ex_regWriteData_i;
-        end else if ((reg1Enable_o == 1'b1) &&(mem_regWriteEnable_i == 1'b1) &&
+        end else if ((reg1Enable_o == `Enable) &&(mem_regWriteEnable_i == `Enable) &&
         (mem_regWriteAddr_i == reg1Addr_o)) begin
             operand1_o <= mem_regWriteData_i;
         end else if (reg1Enable_o == `Enable) begin
@@ -256,14 +312,16 @@ module ID(
             operand1_o <= `ZeroWord;
         end
     end //always
+    
+    
     //OPERAND2
     always @ (*) begin
         if(rst == `Enable) begin
             operand2_o <= `ZeroWord;
-        end else if ((reg2Enable_o == 1'b1) &&(ex_regWriteEnable_i == 1'b1) &&
-        (ex_regWriteAddr_i == reg1Addr_o)) begin
+        end else if ((reg2Enable_o == `Enable) &&(ex_regWriteEnable_i == `Enable) &&
+        (ex_regWriteAddr_i == reg2Addr_o)) begin
             operand2_o <= ex_regWriteData_i;
-        end else if ((reg2Enable_o == 1'b1) &&(mem_regWriteEnable_i == 1'b1) &&
+        end else if ((reg2Enable_o == `Enable) &&(mem_regWriteEnable_i == `Enable) &&
         (mem_regWriteAddr_i == reg2Addr_o)) begin
             operand2_o <= mem_regWriteData_i;
         end else if (reg2Enable_o == `Enable) begin
