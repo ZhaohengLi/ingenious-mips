@@ -4,6 +4,7 @@ module PC(
     input wire clk,
     input wire rst,
     input wire [`InstAddrBus] instAddr_i,
+    input wire[5:0] stall_i,
     output reg[`InstAddrBus] instAddr_o,
     output reg ce_o
 );
@@ -16,10 +17,11 @@ module PC(
     end
     
     always @(posedge clk) begin
-        case (ce_o)
-        `Disable : instAddr_o <= `ZeroWord;
-        `Enable : instAddr_o <= instAddr_i;
-        endcase
+        if (ce_o == `Disable) begin
+            instAddr_o <= `ZeroWord;
+        end else if (stall_i[0] == `NoStop) begin
+            instAddr_o <= instAddr_i;
+        end 
     end
     
 endmodule

@@ -29,8 +29,13 @@ module ID(
 	output reg[`RegBus] operand2_o, //reg2wdata_out
 
 	output reg[`RegAddrBus] regWriteAddr_o,
-	output reg regWriteEnable_o
+	output reg regWriteEnable_o,
+	
+	output wire stallReq_o
 );
+    
+    assign stallReq_o = `NoStop;
+    
     //to see if it's an ori operation, look at 31:26
     //rd <- rs[reg1] (?) rt [reg2]
     wire [5:0] op = inst_i[31:26]; //op

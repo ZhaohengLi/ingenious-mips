@@ -82,10 +82,22 @@ module CPU(
     wire[`RegBus] regHI_hilo_to_ex;
     wire[`RegBus] regLO_hilo_to_ex;
     
+    // CTRL
+    
+    wire[5:0] stall_ctrl_to_all;
+    wire stallReqID_id_to_ctrl;
+    wire stallReqEX_ex_to_ctrl;
+   
+    CTRL ctrl1(
+        .rst(rst),
+        .stallReqID_i(stallReqID_id_to_ctrl), .stallReqEX_i(stallReqEX_ex_to_ctrl),
+        .stall_o(stall_ctrl_to_all)
+    );
     
     PC pc1(
         .clk(clk), .rst(rst),
         .instAddr_i(instAddr_pc_adder_to_pc), .instAddr_o(instAddr_pc_to_if_id),
+        .stall_i(stall_ctrl_to_all),
         .ce_o(romEnable_o)
     );
     
@@ -99,7 +111,8 @@ module CPU(
     IF_ID if_id1(
         .clk(clk), .rst(rst),
         .instAddr_i(instAddr_pc_to_if_id), .inst_i(romData_i),
-        .instAddr_o(instAddr_if_id_to_id), .inst_o(inst_if_id_to_id)
+        .instAddr_o(instAddr_if_id_to_id), .inst_o(inst_if_id_to_id),
+        .stall_i(stall_ctrl_to_all)
     );
     
     ID id1(
@@ -117,7 +130,9 @@ module CPU(
         //from ex
         .ex_regWriteData_i(regWriteData_ex_to_ex_mem), .ex_regWriteAddr_i(regWriteAddr_ex_to_ex_mem),
         .ex_regWriteEnable_i(regWriteEnable_ex_to_ex_mem), .mem_regWriteData_i(regWriteData_mem_to_mem_wb),
-        .mem_regWriteAddr_i(regWriteAddr_mem_to_mem_wb), .mem_regWriteEnable_i(regWriteEnable_mem_to_mem_wb)
+        .mem_regWriteAddr_i(regWriteAddr_mem_to_mem_wb), .mem_regWriteEnable_i(regWriteEnable_mem_to_mem_wb),
+        
+        .stallReq_o(stallReqID_id_to_ctrl)
     );
     
     REG reg1(
@@ -135,9 +150,8 @@ module CPU(
         .regWriteAddr_i(regWriteAddr_id_to_id_ex), .regWriteEnable_i(regWriteEnable_id_to_id_ex),
         .aluOp_o(aluOp_id_ex_to_ex), .aluSel_o(aluSel_id_ex_to_ex),
         .operand1_o(operand1_id_ex_to_ex), .operand2_o(operand2_id_ex_to_ex),
-        .regWriteAddr_o(regWriteAddr_id_ex_to_ex), .regWriteEnable_o(regWriteEnable_id_ex_to_ex)
-        
-        
+        .regWriteAddr_o(regWriteAddr_id_ex_to_ex), .regWriteEnable_o(regWriteEnable_id_ex_to_ex),
+        .stall_i(stall_ctrl_to_all)
     );
     
     EX ex1(
@@ -154,7 +168,9 @@ module CPU(
         //from hilo
         .regHI_i(regHI_hilo_to_ex), .regLO_i(regLO_hilo_to_ex),
         
-        .regHILOEnable_o(regHILOEnable_ex_to_ex_mem), .regHI_o(regHI_ex_to_ex_mem), .regLO_o(regLO_ex_to_ex_mem)
+        .regHILOEnable_o(regHILOEnable_ex_to_ex_mem), .regHI_o(regHI_ex_to_ex_mem), .regLO_o(regLO_ex_to_ex_mem),
+        
+        .stallReq_o(stallReqEX_ex_to_ctrl)
     );
     
     EX_MEM ex_mem1(
@@ -166,7 +182,8 @@ module CPU(
         .regLO_i(regLO_ex_to_ex_mem),
         //ex_mem_to mem
         .regHILOEnable_o(regHILOEnable_ex_mem_to_mem), .regHI_o(regHI_ex_mem_to_mem),
-        .regLO_o(regLO_ex_mem_to_mem)
+        .regLO_o(regLO_ex_mem_to_mem),
+        .stall_i(stall_ctrl_to_all)
     );
     
     MEM mem1(
@@ -190,7 +207,8 @@ module CPU(
         .regLO_i(regLO_mem_to_mem_wb),
         //mem_wb to hilo
         .regHILOEnable_o(regHILOEnable_mem_wb_to_hilo), .regHI_o(regHI_mem_wb_to_hilo),
-        .regLO_o(regLO_mem_wb_to_hilo)
+        .regLO_o(regLO_mem_wb_to_hilo),
+        .stall_i(stall_ctrl_to_all)
     );
     
     HILO hilo1 (

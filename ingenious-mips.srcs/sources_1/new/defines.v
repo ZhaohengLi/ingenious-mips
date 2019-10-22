@@ -20,8 +20,6 @@
 `define TrapNotAssert 1'b0
 `define True_v 1'b1
 `define False_v 1'b0
-`define ChipEnable 1'b1
-`define ChipDisable 1'b0
 
 // Instruction
 `define EXE_ORI  6'b001101
@@ -53,7 +51,7 @@
 `define EXE_SLT  6'b101010
 `define EXE_SLTU  6'b101011
 `define EXE_SLTI  6'b001010
-`define EXE_SLTIU  6'b001011   
+`define EXE_SLTIU  6'b001011
 `define EXE_ADD  6'b100000
 `define EXE_ADDU  6'b100001
 

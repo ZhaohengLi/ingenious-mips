@@ -12,6 +12,8 @@ module ID_EX(
 	input wire[`RegAddrBus] regWriteAddr_i,
 	input wire regWriteEnable_i,
 	
+	input wire[5:0] stall_i,
+	
 	output reg[`AluOpBus] aluOp_o,
 	output reg[`AluSelBus] aluSel_o,
 	output reg[`RegBus] operand1_o,
@@ -20,20 +22,27 @@ module ID_EX(
 	output reg regWriteEnable_o
 );
     always @ (posedge clk) begin
-        if(rst == `Disable) begin
-            aluSel_o <= aluSel_i;
-            aluOp_o <= aluOp_i;
-            operand1_o <= operand1_i;
-            operand2_o <= operand2_i;
-            regWriteAddr_o <= regWriteAddr_i;
-            regWriteEnable_o <= regWriteEnable_i;
-        end else begin
+        if(rst == `Enable) begin
             aluSel_o <= `EXE_RES_NOP;
             aluOp_o <= `EXE_NOP_OP;
             operand1_o <= `ZeroWord;
             operand2_o <= `ZeroWord;
             regWriteAddr_o <= `NOPRegAddr;
             regWriteEnable_o <= `Disable;
+        end else if (stall_i[2] == `Stop && stall_i[3] == `NoStop) begin
+            aluSel_o <= `EXE_RES_NOP;
+            aluOp_o <= `EXE_NOP_OP;
+            operand1_o <= `ZeroWord;
+            operand2_o <= `ZeroWord;
+            regWriteAddr_o <= `NOPRegAddr;
+            regWriteEnable_o <= `Disable;
+        end else if (stall_i[2] == `NoStop) begin
+            aluSel_o <= aluSel_i;
+            aluOp_o <= aluOp_i;
+            operand1_o <= operand1_i;
+            operand2_o <= operand2_i;
+            regWriteAddr_o <= regWriteAddr_i;
+            regWriteEnable_o <= regWriteEnable_i;
         end
     end //always
 endmodule

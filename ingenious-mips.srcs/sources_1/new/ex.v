@@ -27,9 +27,14 @@ module EX(
 	
 	output reg regHILOEnable_o,
 	output reg[`RegBus] regHI_o,
-	output reg[`RegBus] regLO_o
+	output reg[`RegBus] regLO_o,
+	
+	output wire stallReq_o
 
 );
+
+    assign stallReq_o = `NoStop;
+    
     reg[`RegBus] logic_out;
     reg[`RegBus] shift_res;
     reg[`RegBus] move_res;
