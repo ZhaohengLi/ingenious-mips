@@ -106,10 +106,113 @@ module ID(
                     reg2Enable_o <= `Disable; //doesn't need to read from second register
                     valid_instruct <= `InstValid; //instruction valid
                 end
+                `EXE_SLTI:begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_SLT_OP;
+                    aluSel_o <= `EXE_RES_ARITHMETIC;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Disable;
+                    immediate <= {{16{inst_i[15]}}, inst_i[15:0]};
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_SLTIU:begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_SLTU_OP;
+                    aluSel_o <= `EXE_RES_ARITHMETIC;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Disable;
+                    immediate <= {{16{inst_i[15]}}, inst_i[15:0]};
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_ADDI:begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_ADDI_OP;
+                    aluSel_o <= `EXE_RES_ARITHMETIC;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Disable;
+                    immediate <= {{16{inst_i[15]}}, inst_i[15:0]};
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_ADDIU:begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_ADDIU_OP;
+                    aluSel_o <= `EXE_RES_ARITHMETIC;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Disable;
+                    immediate <= {{16{inst_i[15]}}, inst_i[15:0]};
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
                 `EXE_SPECIAL_INST: begin
                     case(shamt)
                         5'b00000: begin
                             case(func)
+                                `EXE_SLT: begin
+                                    regWriteEnable_o <= `Enable;
+                                    aluOp_o <= `EXE_SLT_OP;
+                                    aluSel_o <= `EXE_RES_ARITHMETIC;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_SLTU: begin
+                                    regWriteEnable_o <= `Enable;
+                                    aluOp_o <= `EXE_SLTU_OP;
+                                    aluSel_o <= `EXE_RES_ARITHMETIC;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_ADD: begin
+                                    regWriteEnable_o <= `Enable;
+                                    aluOp_o <= `EXE_ADD_OP;
+                                    aluSel_o <= `EXE_RES_ARITHMETIC;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_ADDU: begin
+                                    regWriteEnable_o <= `Enable;
+                                    aluOp_o <= `EXE_ADDU_OP;
+                                    aluSel_o <= `EXE_RES_ARITHMETIC;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_SUB: begin
+                                    regWriteEnable_o <= `Enable;
+                                    aluOp_o <= `EXE_SUB_OP;
+                                    aluSel_o <= `EXE_RES_ARITHMETIC;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_SUBU: begin
+                                    regWriteEnable_o <= `Enable;
+                                    aluOp_o <= `EXE_SUBU_OP;
+                                    aluSel_o <= `EXE_RES_ARITHMETIC;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_MULT: begin
+                                    regWriteEnable_o <= `Disable;
+                                    aluOp_o <= `EXE_MULT_OP;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_MULTU: begin
+                                    regWriteEnable_o <= `Disable;
+                                    aluOp_o <= `EXE_MULTU_OP;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                
                                 `EXE_MFHI: begin
                                     regWriteEnable_o <= `Enable;
                                     aluOp_o <= `EXE_MFHI_OP;
@@ -236,7 +339,36 @@ module ID(
                         end
                     endcase //shamt
                 end //exespecialinst             
-                
+                `EXE_SPECIAL2_INST:begin
+                    case(func)
+                        `EXE_CLZ:begin
+                            regWriteEnable_o <= `Enable;
+                            aluOp_o <= `EXE_CLZ_OP;
+                            aluSel_o <= `EXE_RES_ARITHMETIC;
+                            reg1Enable_o <= `Enable;
+                            reg2Enable_o <= `Disable;
+                            valid_instruct <= `InstValid;
+                        end
+                        `EXE_CLO:begin
+                            regWriteEnable_o <= `Enable;
+                            aluOp_o <= `EXE_CLO_OP;
+                            aluSel_o <= `EXE_RES_ARITHMETIC;
+                            reg1Enable_o <= `Enable;
+                            reg2Enable_o <= `Disable;
+                            valid_instruct <= `InstValid;
+                        end
+                        `EXE_MUL:begin
+                            regWriteEnable_o <= `Enable;
+                            aluOp_o <= `EXE_MUL_OP;
+                            aluSel_o <= `EXE_RES_MUL;
+                            reg1Enable_o <= `Enable;
+                            reg2Enable_o <= `Enable;
+                            valid_instruct <= `InstValid;
+                        end
+                        default:begin
+                        end
+                    endcase
+                end
                 default:begin
                 end
             endcase // op

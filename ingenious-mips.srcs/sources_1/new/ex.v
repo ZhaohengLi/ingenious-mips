@@ -36,6 +36,138 @@ module EX(
     reg[`RegBus] hi; // latest value of reg hi
     reg[`RegBus] lo; // latest value of reg lo
     
+    wire overflow; //ov_sum
+    wire operand1_eq_operand2; //reg1_eq_reg2
+    wire operand1_lt_operand2; //reg1_lt_reg2
+    reg[`RegBus] arithmetic_res; //arithmeticres
+    wire[`RegBus] operand2_twos; // reg2_i_mux
+    wire[`RegBus] operand1_not; // reg1_i_not
+    wire[`RegBus] sum_res; //result_sum
+    wire[`RegBus] mult1; //opdata1_mult
+    wire[`RegBus] mult2; //opdata2_mult
+    wire[`DoubleRegBus] hilo_res; //hilo_temp
+    reg[`DoubleRegBus] mul_res; //mulres
+    
+    assign operand2_twos = ((aluOp_i == `EXE_SUB_OP)||(aluOp_i == `EXE_SUBU_OP)||(aluOp_i == `EXE_SLT_OP)) ? (~operand2_i)+1 : operand2_i ;
+    assign sum_res = operand1_i + operand2_twos;
+    assign overflow = ((!operand1_i[31] && !operand2_twos[31]) && sum_res[31]) || ((operand1_i[31] && operand2_twos[31]) && (!sum_res[31]));
+    assign operand1_lt_operand2 = (aluOp_i == `EXE_SLT_OP) ? 
+                                  ((operand1_i[31] && !operand2_i[31])||(!operand1_i[31] && !operand2_i[31] && sum_res[31])||(operand1_i[31] && operand2_i[31] && sum_res[31])) :
+                                  (operand1_i < operand2_i) ;
+    assign operand1_not = ~operand1_i;
+    
+    // set arithmetic_res
+    always @ (*) begin
+        if( rst==`Enable ) begin
+            arithmetic_res <= `ZeroWord;
+        end else begin
+            case (aluOp_i)
+                `EXE_SLT_OP, `EXE_SLTU_OP: begin
+                    arithmetic_res <= operand1_lt_operand2;
+                end
+                `EXE_ADD_OP, `EXE_ADDU_OP, `EXE_ADDI_OP, `EXE_ADDIU_OP: begin
+                    arithmetic_res <= sum_res;
+                end
+                `EXE_SUB_OP, `EXE_SUBU_OP: begin
+                    arithmetic_res <= sum_res;
+                end
+                `EXE_CLZ_OP: begin
+                    arithmetic_res <= operand1_i[31] ? 0 :
+                                      operand1_i[30] ? 1 :
+                                      operand1_i[29] ? 2 :
+                                      operand1_i[28] ? 3 :
+                                      operand1_i[27] ? 4 :
+                                      operand1_i[26] ? 5 :
+                                      operand1_i[25] ? 6 :
+                                      operand1_i[24] ? 7 :
+                                      operand1_i[23] ? 8 :
+                                      operand1_i[22] ? 9 :
+                                      operand1_i[21] ? 10 :
+                                      operand1_i[20] ? 11 :
+                                      operand1_i[19] ? 12 :
+                                      operand1_i[18] ? 13 :
+                                      operand1_i[17] ? 14 :
+                                      operand1_i[16] ? 15 :
+                                      operand1_i[15] ? 16 :
+                                      operand1_i[14] ? 17 :
+                                      operand1_i[13] ? 18 :
+                                      operand1_i[12] ? 19 :
+                                      operand1_i[11] ? 20 :
+                                      operand1_i[10] ? 21 :
+                                      operand1_i[9] ? 22 :
+                                      operand1_i[8] ? 23 :
+                                      operand1_i[7] ? 24 :
+                                      operand1_i[6] ? 25 :
+                                      operand1_i[5] ? 26 :
+                                      operand1_i[4] ? 27 :
+                                      operand1_i[3] ? 28 :
+                                      operand1_i[2] ? 29 :
+                                      operand1_i[1] ? 30 :
+                                      operand1_i[0] ? 31 :
+                                      32 ;
+                end
+                `EXE_CLO_OP: begin
+                    arithmetic_res <= operand1_not[31] ? 0 :
+                                      operand1_not[30] ? 1 :
+                                      operand1_not[29] ? 2 :
+                                      operand1_not[28] ? 3 :
+                                      operand1_not[27] ? 4 :
+                                      operand1_not[26] ? 5 :
+                                      operand1_not[25] ? 6 :
+                                      operand1_not[24] ? 7 :
+                                      operand1_not[23] ? 8 :
+                                      operand1_not[22] ? 9 :
+                                      operand1_not[21] ? 10 :
+                                      operand1_not[20] ? 11 :
+                                      operand1_not[19] ? 12 :
+                                      operand1_not[18] ? 13 :
+                                      operand1_not[17] ? 14 :
+                                      operand1_not[16] ? 15 :
+                                      operand1_not[15] ? 16 :
+                                      operand1_not[14] ? 17 :
+                                      operand1_not[13] ? 18 :
+                                      operand1_not[12] ? 19 :
+                                      operand1_not[11] ? 20 :
+                                      operand1_not[10] ? 21 :
+                                      operand1_not[9] ? 22 :
+                                      operand1_not[8] ? 23 :
+                                      operand1_not[7] ? 24 :
+                                      operand1_not[6] ? 25 :
+                                      operand1_not[5] ? 26 :
+                                      operand1_not[4] ? 27 :
+                                      operand1_not[3] ? 28 :
+                                      operand1_not[2] ? 29 :
+                                      operand1_not[1] ? 30 :
+                                      operand1_not[0] ? 31 :
+                                      32 ;
+                end
+                default: begin
+                    arithmetic_res <= `ZeroWord;
+                end
+            endcase
+        end
+    end
+    
+    assign mult1 = (((aluOp_i == `EXE_MUL_OP)||(aluOp_i == `EXE_MULT_OP)) && (operand1_i[31])) ? (~operand1_i+1) : operand1_i ;
+    assign mult2 = (((aluOp_i == `EXE_MUL_OP)||(aluOp_i == `EXE_MULT_OP)) && (operand2_i[31])) ? (~operand2_i+1) : operand2_i ;
+    
+    assign hilo_res = mult1 * mult2;
+    
+    // set mul_res
+    always @ (*) begin
+        if (rst == `Enable) begin
+            mul_res <= {`ZeroWord, `ZeroWord};
+        end else if ((aluOp_i == `EXE_MULT_OP)||(aluOp_i == `EXE_MUL_OP)) begin
+            if (operand1_i[31] ^ operand2_i[31]) begin
+                mul_res <= ~hilo_res+1;
+            end else begin
+                mul_res <= hilo_res;
+            end
+        end else begin
+            mul_res <= hilo_res;
+        end
+    end
+    
     // set the latest value of reg hi & lo
     always @ (*) begin
         if (rst == `Enable) begin
@@ -84,6 +216,10 @@ module EX(
             regHILOEnable_o <= `Disable;
             regHI_o <= `ZeroWord;
             regLO_o <= `ZeroWord;
+        end else if ((aluOp_i == `EXE_MULT_OP) || (aluOp_i == `EXE_MULTU_OP)) begin
+            regHILOEnable_o <= `Enable;
+            regHI_o <= mul_res[63:32];
+            regLO_o <= mul_res[31:0];
         end else if (aluOp_i == `EXE_MTHI_OP) begin
             regHILOEnable_o <= `Enable;
             regHI_o <= operand1_i;
@@ -151,7 +287,11 @@ module EX(
     // set regWriteData_o
     always @(*) begin
         regWriteEnable_o <= regWriteEnable_i;
-        regWriteAddr_o <= regWriteAddr_i;
+        if (((aluOp_i == `EXE_ADD_OP) || (aluOp_i == `EXE_ADDI_OP) || (aluOp_i == `EXE_SUB_OP)) && overflow) begin
+            regWriteEnable_o <= `Disable;
+        end else begin
+            regWriteAddr_o <= regWriteAddr_i;
+        end
         case(aluSel_i)
             `EXE_RES_LOGIC: begin
                 regWriteData_o <= logic_out; //write out the logic operation result
@@ -161,6 +301,12 @@ module EX(
             end
             `EXE_RES_MOVE: begin
                 regWriteData_o <= move_res;
+            end
+            `EXE_RES_ARITHMETIC: begin
+                regWriteData_o <= arithmetic_res;
+            end
+            `EXE_RES_MUL: begin
+                regWriteData_o <= mul_res[31:0];
             end
             default: begin
                 regWriteData_o <= `ZeroWord;
