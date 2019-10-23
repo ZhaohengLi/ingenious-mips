@@ -370,6 +370,38 @@ module ID(
                             reg2Enable_o <= `Enable;
                             valid_instruct <= `InstValid;
                         end
+                        `EXE_MADD:begin
+                            regWriteEnable_o <= `Disable;
+                            aluOp_o <= `EXE_MADD_OP;
+                            aluSel_o <= `EXE_RES_MUL;
+                            reg1Enable_o <= `Enable;
+                            reg2Enable_o <= `Enable;
+                            valid_instruct <= `InstValid;
+                        end
+                        `EXE_MADDU:begin
+                            regWriteEnable_o <= `Disable;
+                            aluOp_o <= `EXE_MADDU_OP;
+                            aluSel_o <= `EXE_RES_MUL;
+                            reg1Enable_o <= `Enable;
+                            reg2Enable_o <= `Enable;
+                            valid_instruct <= `InstValid;
+                        end
+                        `EXE_MSUB:begin
+                            regWriteEnable_o <= `Disable;
+                            aluOp_o <= `EXE_MSUB_OP;
+                            aluSel_o <= `EXE_RES_MUL;
+                            reg1Enable_o <= `Enable;
+                            reg2Enable_o <= `Enable;
+                            valid_instruct <= `InstValid;
+                        end
+                        `EXE_MSUBU:begin
+                            regWriteEnable_o <= `Disable;
+                            aluOp_o <= `EXE_MSUBU_OP;
+                            aluSel_o <= `EXE_RES_MUL;
+                            reg1Enable_o <= `Enable;
+                            reg2Enable_o <= `Enable;
+                            valid_instruct <= `InstValid;
+                        end
                         default:begin
                         end
                     endcase
