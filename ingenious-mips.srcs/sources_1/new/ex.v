@@ -20,7 +20,16 @@ module EX(
 	input wire mem_wb_regHILOEnable_i,
 	input wire[`RegBus] mem_wb_regHI_i,
 	input wire[`RegBus] mem_wb_regLO_i,
-
+	
+	input wire[`DoubleRegBus] regHILOtemp_i,
+	input wire[1:0] cnt_i,
+    
+    input wire[`DoubleRegBus] div_quotient_i,
+    input wire div_finished_i,
+    
+    input wire is_in_delayslot_i,
+    input wire link_addr_i,
+    
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o,
 	output reg[`RegBus] regWriteData_o,
@@ -29,11 +38,20 @@ module EX(
 	output reg[`RegBus] regHI_o,
 	output reg[`RegBus] regLO_o,
 	
-	output wire stallReq_o
+	output reg[`DoubleRegBus] regHILOtemp_o,
+	output reg[1:0] cnt_o,
+	
+	output reg div_start_o,
+	output reg[`RegBus] div_operand1_o,
+	output reg[`RegBus] div_operand2_o,
+	output reg signed_div_o,
+	
+	output reg stallReq_o
 
 );
 
-    assign stallReq_o = `NoStop;
+    //assign stallReq_o = `NoStop;
+    reg stallReq_div;
     
     reg[`RegBus] logic_out;
     reg[`RegBus] shift_res;
@@ -51,6 +69,8 @@ module EX(
     wire[`RegBus] mult1; //opdata1_mult
     wire[`RegBus] mult2; //opdata2_mult
     wire[`DoubleRegBus] hilo_res; //hilo_temp
+    reg[`DoubleRegBus] hilo_res1; //hilo_temp1
+    reg madd_msub_stallreq; 
     reg[`DoubleRegBus] mul_res; //mulres
     
     assign operand2_twos = ((aluOp_i == `EXE_SUB_OP)||(aluOp_i == `EXE_SUBU_OP)||(aluOp_i == `EXE_SLT_OP)) ? (~operand2_i)+1 : operand2_i ;
@@ -60,7 +80,11 @@ module EX(
                                   ((operand1_i[31] && !operand2_i[31])||(!operand1_i[31] && !operand2_i[31] && sum_res[31])||(operand1_i[31] && operand2_i[31] && sum_res[31])) :
                                   (operand1_i < operand2_i) ;
     assign operand1_not = ~operand1_i;
-    
+    assign mult1 = (((aluOp_i == `EXE_MUL_OP)|| (aluOp_i == `EXE_MULT_OP) ||(aluOp_i == `EXE_MADD_OP) || (aluOp_i == `EXE_MSUB_OP)) &&
+                (operand1_i[31] == 1'b1)) ? (~operand1_i + 1): operand1_i;
+    assign mult2 = (((aluOp_i == `EXE_MUL_OP)|| (aluOp_i == `EXE_MULT_OP) ||(aluOp_i == `EXE_MADD_OP) || (aluOp_i == `EXE_MSUB_OP)) &&
+                (operand2_i[31] == 1'b1)) ? (~operand2_i + 1): operand2_i;
+    assign hilo_res = mult1 * mult2;
     // set arithmetic_res
     always @ (*) begin
         if( rst==`Enable ) begin
@@ -162,7 +186,7 @@ module EX(
     always @ (*) begin
         if (rst == `Enable) begin
             mul_res <= {`ZeroWord, `ZeroWord};
-        end else if ((aluOp_i == `EXE_MULT_OP)||(aluOp_i == `EXE_MUL_OP)) begin
+        end else if ((aluOp_i == `EXE_MULT_OP)||(aluOp_i == `EXE_MUL_OP) || (aluOp_i == `EXE_MADD_OP) || (aluOp_i == `EXE_MSUB_OP)) begin
             if (operand1_i[31] ^ operand2_i[31]) begin
                 mul_res <= ~hilo_res+1;
             end else begin
@@ -172,7 +196,112 @@ module EX(
             mul_res <= hilo_res;
         end
     end
+    //madd, maddu, msub, msubu
+    always @ (*) begin
+        if (rst == `Enable) begin
+            regHILOtemp_o <= {`ZeroWord, `ZeroWord};
+            cnt_o <= 2'b00;
+            madd_msub_stallreq <= `NoStop;
+        end else begin
+            case(aluOp_i)
+                `EXE_MADD_OP, `EXE_MADDU_OP: begin
+                    if(cnt_i == 2'b00) begin
+                        regHILOtemp_o <= mul_res;
+                        cnt_o <= 2'b01;
+                        hilo_res1 <= {`ZeroWord, `ZeroWord};
+                        madd_msub_stallreq <= `Stop;
+                    end else if (cnt_i == 2'b01) begin
+                        regHILOtemp_o <= {`ZeroWord, `ZeroWord};
+                        cnt_o <= 2'b10;
+                        hilo_res1 <= regHILOtemp_i + {hi, lo};
+                        madd_msub_stallreq <= `NoStop;
+                    end
+                end
+                `EXE_MSUB_OP, `EXE_MSUBU_OP: begin
+                    if(cnt_i == 2'b00) begin
+                        regHILOtemp_o <= ~mul_res + 1;
+                        cnt_o <= 2'b01;
+                        madd_msub_stallreq <= `Stop;
+                    end else if(2'b01) begin
+                        regHILOtemp_o <= {`ZeroWord, `ZeroWord};
+                        cnt_o <= 2'b10;
+                        hilo_res1 <= regHILOtemp_i + {hi, lo};
+                        madd_msub_stallreq <= `NoStop;
+                    end
+                end
+                default: begin
+                    regHILOtemp_o <= {`ZeroWord, `ZeroWord};
+                    cnt_o <= 2'b00;
+                    madd_msub_stallreq <= `NoStop;
+                end
+            endcase
+        end// if
+    end //always
+    //div
+    always @ (*) begin
+        if(rst ==`Enable) begin
+            stallReq_div <= `NoStop;
+            div_operand1_o <= `ZeroWord;
+            div_operand2_o <= `ZeroWord;
+            div_start_o <= `DivStop;
+            signed_div_o <= 1'b0;
+        end else begin
+            stallReq_div <= `NoStop;
+            div_operand1_o <= `ZeroWord;
+            div_operand2_o <= `ZeroWord;
+            div_start_o <= `DivStop;
+            signed_div_o <= 1'b0;
+            case(aluOp_i)
+                `EXE_DIV_OP: begin
+                    if (div_finished_i == `DivResultNotReady) begin
+                        div_operand1_o <= operand1_i;
+                        div_operand2_o <= operand2_i;
+                        div_start_o <= `DivStart;
+                        signed_div_o <= 1'b1;
+                        stallReq_div <= `Stop;
+                    end else if(div_finished_i == `DivResultReady) begin
+                        div_operand1_o <= operand1_i;
+                        div_operand2_o <= operand2_i;
+                        div_start_o <= `DivStop;
+                        signed_div_o <= 1'b1;
+                        stallReq_div <= `NoStop;
+                    end else begin
+                        div_operand1_o <= `ZeroWord;
+                        div_operand2_o <= `ZeroWord;
+                        div_start_o <= `DivStop;
+                        signed_div_o <= 1'b0;
+                        stallReq_div <= `NoStop;
+                    end
+                end
+                `EXE_DIVU_OP: begin
+                    if(div_finished_i == `DivResultNotReady) begin
+                        div_operand1_o <= operand1_i;
+                        div_operand2_o <= operand2_i;
+                        div_start_o <= `DivStart;
+                        signed_div_o <= 1'b0;
+                        stallReq_div <= `Stop;
+                    end else if (div_finished_i == `DivResultReady) begin
+                        div_operand1_o <= operand1_i;
+                        div_operand2_o <= operand2_i;
+                        div_start_o <= `DivStop;
+                        signed_div_o <= 1'b0;
+                        stallReq_div <= `NoStop;
+                    end else begin
+                        div_operand1_o <= `ZeroWord;
+                        div_operand2_o <= `ZeroWord;
+                        div_start_o <= `DivStop;
+                        signed_div_o <= 1'b0;
+                        stallReq_div <= `NoStop;
+                    end
+                end
+            endcase
+        end
+    end
     
+    //set stallReq_o
+    always @ (*) begin
+        stallReq_o <= madd_msub_stallreq || stallReq_div;
+    end//always
     // set the latest value of reg hi & lo
     always @ (*) begin
         if (rst == `Enable) begin
@@ -221,6 +350,14 @@ module EX(
             regHILOEnable_o <= `Disable;
             regHI_o <= `ZeroWord;
             regLO_o <= `ZeroWord;
+        end else if((aluOp_i == `EXE_MSUB_OP ) || (aluOp_i == `EXE_MSUBU_OP)) begin
+            regHILOEnable_o <= `Enable;
+            regHI_o <= hilo_res1[63:32];
+            regLO_o <= hilo_res1[31:0];
+        end else if((aluOp_i == `EXE_MADD_OP) || (aluOp_i == `EXE_MADDU_OP)) begin
+            regHILOEnable_o <= `Enable;
+            regHI_o <= hilo_res1[63:32];
+            regLO_o <= hilo_res1[31:0];
         end else if ((aluOp_i == `EXE_MULT_OP) || (aluOp_i == `EXE_MULTU_OP)) begin
             regHILOEnable_o <= `Enable;
             regHI_o <= mul_res[63:32];
@@ -233,6 +370,10 @@ module EX(
             regHILOEnable_o <= `Enable;
             regHI_o <= hi;
             regLO_o <= operand1_i;
+        end else if((aluOp_i == `EXE_DIV_OP) || (aluOp_i == `EXE_DIVU_OP)) begin
+            regHILOEnable_o <= `Enable;
+            regHI_o <= div_quotient_i[63:32];
+            regLO_o <= div_quotient_i[31:0];
         end else begin
             regHILOEnable_o <= `Disable;
             regHI_o <= `ZeroWord;
@@ -312,6 +453,9 @@ module EX(
             end
             `EXE_RES_MUL: begin
                 regWriteData_o <= mul_res[31:0];
+            end
+            `EXE_RES_JUMP_BRANCH: begin
+                regWriteData_o <= link_addr_i;
             end
             default: begin
                 regWriteData_o <= `ZeroWord;

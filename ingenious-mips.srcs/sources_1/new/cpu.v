@@ -34,7 +34,14 @@ module CPU(
     wire regWriteEnable_id_to_id_ex;
     wire[`RegAddrBus] regWriteAddr_id_to_id_ex;
     
+    wire is_in_delayslot_id_to_id_ex;
+    wire [`RegBus] link_addr_id_to_id_ex;
+    wire delayslot_inst_id_to_id_ex;
+    
     // ID_EX & EX & EX_MEM
+    
+    wire is_in_delayslot_id_ex_to_id;
+    
     
     wire[`AluOpBus] aluOp_id_ex_to_ex;
     wire[`AluSelBus] aluSel_id_ex_to_ex;
@@ -42,6 +49,8 @@ module CPU(
     wire[`RegBus] operand2_id_ex_to_ex;
     wire[`RegAddrBus] regWriteAddr_id_ex_to_ex;
     wire regWriteEnable_id_ex_to_ex;
+    wire [`RegBus] link_addr_id_ex_to_ex;
+    wire in_delayslot_id_ex_to_ex;
     
     wire[`RegAddrBus] regWriteAddr_ex_to_ex_mem;
     wire regWriteEnable_ex_to_ex_mem;
@@ -50,6 +59,12 @@ module CPU(
     wire regHILOEnable_ex_to_ex_mem;
     wire[`RegBus] regHI_ex_to_ex_mem;
     wire[`RegBus] regLO_ex_to_ex_mem;
+    
+    wire[`DoubleRegBus] regHILO_ex_to_ex_mem;
+    wire cnt_ex_to_ex_mem;
+    
+    wire[`DoubleRegBus] regHILO_ex_mem_to_ex;
+    wire cnt_ex_mem_to_ex;
         
     // EX_MEM & MEM & MEM_WB
     wire[`RegAddrBus] regWriteAddr_ex_mem_to_mem;
@@ -63,6 +78,7 @@ module CPU(
     wire regHILOEnable_ex_mem_to_mem;
     wire[`RegBus] regHI_ex_mem_to_mem;
     wire[`RegBus] regLO_ex_mem_to_mem;
+    
     
     // MEM_WB & REG
     
@@ -87,6 +103,14 @@ module CPU(
     wire[5:0] stall_ctrl_to_all;
     wire stallReqID_id_to_ctrl;
     wire stallReqEX_ex_to_ctrl;
+    
+    //EX and DIV
+    wire div_start_ex_to_div;
+    wire [`RegBus] operand1_ex_to_div;
+    wire [`RegBus] operand2_ex_to_div;
+    wire signed_ex_to_div;
+    wire[`DoubleRegBus] quotient_div_to_ex;
+    wire div_finished_div_to_ex;
    
     CTRL ctrl1(
         .rst(rst),
@@ -132,7 +156,11 @@ module CPU(
         .ex_regWriteEnable_i(regWriteEnable_ex_to_ex_mem), .mem_regWriteData_i(regWriteData_mem_to_mem_wb),
         .mem_regWriteAddr_i(regWriteAddr_mem_to_mem_wb), .mem_regWriteEnable_i(regWriteEnable_mem_to_mem_wb),
         
-        .stallReq_o(stallReqID_id_to_ctrl)
+        .stallReq_o(stallReqID_id_to_ctrl),
+        //branch
+        .is_in_delayslot_i(is_in_delayslot_id_ex_to_id), .is_in_delayslot_o(is_in_delayslot_id_to_id_ex),
+        .link_addr_o(link_addr_id_to_id_ex), .delayslot_inst_o(delayslot_inst_id_to_id_ex),
+        .branch_target_o(), .branch_flag_o()
     );
     
     REG reg1(
@@ -151,7 +179,10 @@ module CPU(
         .aluOp_o(aluOp_id_ex_to_ex), .aluSel_o(aluSel_id_ex_to_ex),
         .operand1_o(operand1_id_ex_to_ex), .operand2_o(operand2_id_ex_to_ex),
         .regWriteAddr_o(regWriteAddr_id_ex_to_ex), .regWriteEnable_o(regWriteEnable_id_ex_to_ex),
-        .stall_i(stall_ctrl_to_all)
+        .stall_i(stall_ctrl_to_all), 
+        .id_in_delayslot(is_in_delayslot_id_to_id_ex), .id_link_addr(link_addr_id_to_id_ex),
+        .delayslot_inst_i(delayslot_inst_id_to_id_ex), .is_in_delayslot_o(is_in_delayslot_id_ex_to_id),
+        .ex_in_delayslot(in_delayslot_id_ex_to_ex), .ex_link_addr(link_addr_id_ex_to_ex) 
     );
     
     EX ex1(
@@ -170,6 +201,13 @@ module CPU(
         
         .regHILOEnable_o(regHILOEnable_ex_to_ex_mem), .regHI_o(regHI_ex_to_ex_mem), .regLO_o(regLO_ex_to_ex_mem),
         
+        .regHILOtemp_i(regHILO_ex_mem_to_ex), .cnt_i(cnt_ex_mem_to_ex),
+        .regHILOtemp_o(regHILO_ex_to_ex_mem), .cnt_o(cnt_ex_to_ex_mem),
+        
+        .div_quotient_i(quotient_div_to_ex), .div_finished_i(div_finished_div_to_ex),
+        .div_start_o(div_start_ex_to_div), .signed_div_o(signed_ex_to_div),
+        .div_operand1_o(operand1_ex_to_div), .div_operand2_o(operand2_ex_to_div),
+        .is_in_delayslot_i(in_delayslot_id_ex_to_ex), .link_addr_i(link_addr_id_ex_to_ex),
         .stallReq_o(stallReqEX_ex_to_ctrl)
     );
     
@@ -183,6 +221,8 @@ module CPU(
         //ex_mem_to mem
         .regHILOEnable_o(regHILOEnable_ex_mem_to_mem), .regHI_o(regHI_ex_mem_to_mem),
         .regLO_o(regLO_ex_mem_to_mem),
+        .regHILO_i(regHILO_ex_to_ex_mem), .cnt_i(cnt_ex_to_ex_mem),
+        .regHILO_o(regHILO_ex_mem_to_ex), .cnt_o(cnt_ex_mem_to_ex),
         .stall_i(stall_ctrl_to_all)
     );
     
@@ -215,6 +255,13 @@ module CPU(
         .clk(clk), .rst(rst),
         .regHILOEnable_i(regHILOEnable_mem_wb_to_hilo), .regHI_i(regHI_mem_wb_to_hilo), .regLO_i(regLO_mem_wb_to_hilo),
         .regHI_o(regHI_hilo_to_ex), .regLO_o(regLO_hilo_to_ex)
+    );
+    DIV div1(
+        .rst(rst), .clk(clk),
+        .signed_div_i(signed_ex_to_div),
+        .operand1_i(operand1_ex_to_div), .operand2_i(operand2_ex_to_div),
+        .start_i(div_start_ex_to_div), .annul_i(1'b0),
+        .quotient_o(quotient_div_to_ex), .finished_o(div_finished_div_to_ex)
     );
     
 endmodule

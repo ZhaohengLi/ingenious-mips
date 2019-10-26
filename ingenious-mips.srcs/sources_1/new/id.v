@@ -2,10 +2,10 @@
 
 module ID(
     input wire rst,
-	input wire[`InstAddrBus] instAddr_i,
+	input wire[`InstAddrBus] instAddr_i, //pc
 	input wire[`InstBus] inst_i,
 
-	input wire[`RegBus] reg1Data_i,
+	input wire[`RegBus] reg1Data_i, 
 	input wire[`RegBus] reg2Data_i,
 
 	input wire[`RegBus] ex_regWriteData_i,
@@ -15,6 +15,8 @@ module ID(
 	input wire[`RegBus] mem_regWriteData_i,
 	input wire[`RegAddrBus] mem_regWriteAddr_i,
 	input wire mem_regWriteEnable_i,
+	
+	input wire is_in_delayslot_i,
 
 	output reg reg1Enable_o, //enable read reg1
 	output reg reg2Enable_o, //enable read reg2
@@ -25,13 +27,19 @@ module ID(
 	output reg[`AluOpBus] aluOp_o,
 	output reg[`AluSelBus] aluSel_o,
 
-	output reg[`RegBus] operand1_o, //reg1wdata_out
-	output reg[`RegBus] operand2_o, //reg2wdata_out
+	output reg[`RegBus] operand1_o, //reg1_o
+	output reg[`RegBus] operand2_o, //reg2_o
 
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o,
 	
-	output wire stallReq_o
+	output wire stallReq_o,
+	
+	output reg branch_flag_o,
+	output reg[`RegBus] branch_target_o,
+	output reg is_in_delayslot_o,
+	output reg[`RegBus] link_addr_o,
+	output reg delayslot_inst_o
 );
     
     assign stallReq_o = `NoStop;
@@ -49,6 +57,15 @@ module ID(
     reg [31:0] immediate;
     reg valid_instruct;
     
+    wire[`RegBus] instAddr_plus_8;
+    wire[`RegBus] instAddr_plus_4;
+    wire[`RegBus] imm_sll2_signedext;
+    
+    assign instAddr_plus_8 = instAddr_i + 8;
+    assign instAddr_plus_4 = instAddr_i + 4;
+    
+    assign imm_ssl2_signedext = {{14{inst_i[15]}}, inst_i[15:0], 2'b00};
+    
     always @(*) begin
         if(rst == `Disable) begin
             aluOp_o <= `EXE_NOP_OP;
@@ -61,6 +78,10 @@ module ID(
             reg1Addr_o <= rs;
             reg2Addr_o <= rt;
             immediate <= `ZeroWord;
+            link_addr_o <= `ZeroWord;
+            branch_target_o <= `ZeroWord;
+            branch_flag_o <= `NotBranch;
+            delayslot_inst_o <= `NotInDelaySlot;
 
             case(op)
                 `EXE_ORI: begin //rt <- rs | imm
@@ -151,6 +172,144 @@ module ID(
                     regWriteAddr_o <= rt;
                     valid_instruct <= `InstValid;
                 end
+                `EXE_J: begin
+                    regWriteEnable_o <= `Disable;
+                    aluOp_o <= `EXE_J_OP;
+                    aluSel_o <= `EXE_RES_JUMP_BRANCH;
+                    reg1Enable_o <= `Disable;
+                    reg2Enable_o <= `Disable;
+                    link_addr_o <= `ZeroWord;
+                    branch_flag_o <= `Branch;
+                    delayslot_inst_o <= `InDelaySlot;
+                    valid_instruct <= `InstValid;
+                    branch_target_o <= {instAddr_plus_4[31:28], inst_i[25:0], 2'b00};
+                end
+                `EXE_JAL: begin
+                    regWriteEnable_o <= `Disable;
+                    aluOp_o <= `EXE_JAL_OP;
+                    aluSel_o <= `EXE_RES_JUMP_BRANCH;
+                    reg1Enable_o <= `Disable;
+                    reg2Enable_o <= `Disable;
+                    link_addr_o <= instAddr_plus_8;
+                    branch_flag_o <= `Branch;
+                    delayslot_inst_o <= `InDelaySlot;
+                    valid_instruct <= `InstValid;
+                    branch_target_o <= {instAddr_plus_4[31:28], inst_i[25:0], 2'b00};
+                end
+                `EXE_BEQ: begin //not equal
+                    regWriteEnable_o <= `Disable;
+                    aluOp_o <= `EXE_BEQ_OP;
+                    aluSel_o <= `EXE_RES_JUMP_BRANCH;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Enable;
+                    valid_instruct <= `InstValid;
+                    if(operand1_o == operand2_o) begin
+                        branch_target_o <= instAddr_plus_4 + imm_sll2_signedext;
+                        branch_flag_o <= `Branch;
+                        delayslot_inst_o <= `InDelaySlot;
+                    end
+                end
+                `EXE_BGTZ: begin //greater than zero
+                    regWriteEnable_o <= `Disable;
+                    aluOp_o <= `EXE_BGTZ_OP;
+                    aluSel_o <= `EXE_RES_JUMP_BRANCH;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Disable;
+                    valid_instruct <= `InstValid;
+                    if((operand1_o[31] == 1'b0) && (operand1_o != `ZeroWord)) begin
+                        branch_target_o <= instAddr_plus_4 + imm_sll2_signedext;
+                        branch_flag_o <= `Branch;
+                        delayslot_inst_o <= `InDelaySlot;
+                    end
+                end
+                `EXE_BLEZ: begin //less than equal to zero
+                    regWriteEnable_o <= `Disable;
+                    aluOp_o <= `EXE_BLEZ_OP;
+                    aluSel_o <= `EXE_RES_JUMP_BRANCH;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Disable;
+                    valid_instruct <= `InstValid;
+                    if((operand1_o[31] == 1'b1) || (operand1_o == `ZeroWord)) begin
+                        branch_target_o <= instAddr_plus_4 + imm_sll2_signedext;
+                        branch_flag_o <= `Branch;
+                        delayslot_inst_o <= `InDelaySlot;
+                    end
+                end
+                `EXE_BNE: begin // not equal
+                    regWriteEnable_o <= `Disable;
+                    aluOp_o <= `EXE_BLEZ_OP;
+                    aluSel_o <= `EXE_RES_JUMP_BRANCH;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Enable;
+                    valid_instruct <= `InstValid;
+                    if(operand1_o != operand2_o) begin
+                        branch_target_o <= instAddr_plus_4 + imm_sll2_signedext;
+                        branch_flag_o <= `Branch;
+                        delayslot_inst_o <= `InDelaySlot;
+                    end
+                end
+                `EXE_REGIMM_INST: begin
+                    case (rt)
+                        `EXE_BGEZ : begin //greater than equal to zero
+                            regWriteEnable_o <= `Disable;
+                            aluOp_o <= `EXE_BGEZ_OP;
+                            aluSel_o <= `EXE_RES_JUMP_BRANCH;
+                            reg1Enable_o <= `Enable;
+                            reg2Enable_o <= `Disable;
+                            valid_instruct <= `InstValid;
+                            if(operand1_o[31] == 1'b0) begin
+                                branch_target_o <= instAddr_plus_4 + imm_sll2_signedext;
+                                branch_flag_o <= `Branch;
+                                delayslot_inst_o <= `InDelaySlot;
+                            end
+                        end
+                        `EXE_BGEZAL: begin
+                            regWriteEnable_o <= `Enable;
+                            aluOp_o <= `EXE_BGEZAL_OP;
+                            aluSel_o <= `EXE_RES_JUMP_BRANCH;
+                            reg1Enable_o <= `Enable;
+                            reg2Enable_o <= `Disable;
+                            link_addr_o <= instAddr_plus_8;
+                            regWriteAddr_o <= 5'b11111;
+                            valid_instruct <= `InstValid;
+                            if(operand1_o[31] == 1'b0) begin
+                                branch_target_o <= instAddr_plus_4 + imm_sll2_signedext;
+                                branch_flag_o <= `Branch;
+                                delayslot_inst_o <= `InDelaySlot;
+                            end
+                        end
+                        `EXE_BLTZ: begin //less than zero
+                            regWriteEnable_o <= `Disable;
+                            aluOp_o <= `EXE_BGEZAL_OP;
+                            aluSel_o <= `EXE_RES_JUMP_BRANCH;
+                            reg1Enable_o <= `Enable;
+                            reg2Enable_o <= `Disable;
+                            valid_instruct <= `InstValid;
+                            if(operand1_o[31] == 1'b1) begin
+                                branch_target_o <= instAddr_plus_4 + imm_sll2_signedext;
+                                branch_flag_o <= `Branch;
+                                delayslot_inst_o <= `InDelaySlot;
+                            end
+                        end
+                        `EXE_BLTZAL: begin
+                            regWriteEnable_o <= `Enable;
+                            aluOp_o <= `EXE_BGEZAL_OP;
+                            aluSel_o <= `EXE_RES_JUMP_BRANCH;
+                            reg1Enable_o <= `Enable;
+                            reg2Enable_o <= `Disable;
+                            link_addr_o <= instAddr_plus_8;
+                            regWriteAddr_o <= 5'b11111;
+                            valid_instruct <= `InstValid;
+                            if(operand1_o[31] == 1'b1) begin
+                                branch_target_o <= instAddr_plus_4 + imm_sll2_signedext;
+                                branch_flag_o <= `Branch;
+                                delayslot_inst_o <= `InDelaySlot;
+                            end
+                        end
+                        default: begin
+                        end
+                    endcase
+                end
                 `EXE_SPECIAL_INST: begin
                     case(shamt)
                         5'b00000: begin
@@ -213,6 +372,20 @@ module ID(
                                 `EXE_MULTU: begin
                                     regWriteEnable_o <= `Disable;
                                     aluOp_o <= `EXE_MULTU_OP;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_DIV: begin
+                                    regWriteEnable_o <= `Enable;
+                                    aluOp_o <= `EXE_DIV_OP;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Enable;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_DIVU: begin
+                                   regWriteEnable_o <= `Enable;
+                                    aluOp_o <= `EXE_DIVU_OP;
                                     reg1Enable_o <= `Enable;
                                     reg2Enable_o <= `Enable;
                                     valid_instruct <= `InstValid;
@@ -459,6 +632,10 @@ module ID(
             reg2Enable_o <= `Disable;
             valid_instruct <= `InstValid;
             immediate <= `ZeroWord;
+            link_addr_o <= `ZeroWord;
+            branch_target_o <= `ZeroWord;
+            branch_flag_o <= `NotBranch;
+            delayslot_inst_o <= `NotInDelaySlot;
         end //if
     end //always
     
