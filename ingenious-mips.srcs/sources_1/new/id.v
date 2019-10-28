@@ -64,7 +64,7 @@ module ID(
     assign instAddr_plus_8 = instAddr_i + 8;
     assign instAddr_plus_4 = instAddr_i + 4;
     
-    assign imm_ssl2_signedext = {{14{inst_i[15]}}, inst_i[15:0], 2'b00};
+    assign imm_sll2_signedext = {{14{inst_i[15]}}, inst_i[15:0], 2'b00};
     
     always @(*) begin
         if(rst == `Disable) begin
