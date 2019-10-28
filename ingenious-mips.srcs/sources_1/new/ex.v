@@ -80,11 +80,11 @@ module EX(
                                   ((operand1_i[31] && !operand2_i[31])||(!operand1_i[31] && !operand2_i[31] && sum_res[31])||(operand1_i[31] && operand2_i[31] && sum_res[31])) :
                                   (operand1_i < operand2_i) ;
     assign operand1_not = ~operand1_i;
-    assign mult1 = (((aluOp_i == `EXE_MUL_OP)|| (aluOp_i == `EXE_MULT_OP) ||(aluOp_i == `EXE_MADD_OP) || (aluOp_i == `EXE_MSUB_OP)) &&
-                (operand1_i[31] == 1'b1)) ? (~operand1_i + 1): operand1_i;
-    assign mult2 = (((aluOp_i == `EXE_MUL_OP)|| (aluOp_i == `EXE_MULT_OP) ||(aluOp_i == `EXE_MADD_OP) || (aluOp_i == `EXE_MSUB_OP)) &&
-                (operand2_i[31] == 1'b1)) ? (~operand2_i + 1): operand2_i;
-    assign hilo_res = mult1 * mult2;
+//    assign mult1 = (((aluOp_i == `EXE_MUL_OP)|| (aluOp_i == `EXE_MULT_OP) ||(aluOp_i == `EXE_MADD_OP) || (aluOp_i == `EXE_MSUB_OP)) &&
+//                (operand1_i[31] == 1'b1)) ? (~operand1_i + 1): operand1_i;
+//    assign mult2 = (((aluOp_i == `EXE_MUL_OP)|| (aluOp_i == `EXE_MULT_OP) ||(aluOp_i == `EXE_MADD_OP) || (aluOp_i == `EXE_MSUB_OP)) &&
+//                (operand2_i[31] == 1'b1)) ? (~operand2_i + 1): operand2_i;
+//    assign hilo_res = mult1 * mult2;
     // set arithmetic_res
     always @ (*) begin
         if( rst==`Enable ) begin
@@ -177,8 +177,8 @@ module EX(
         end
     end
     
-    assign mult1 = (((aluOp_i == `EXE_MUL_OP)||(aluOp_i == `EXE_MULT_OP)) && (operand1_i[31])) ? (~operand1_i+1) : operand1_i ;
-    assign mult2 = (((aluOp_i == `EXE_MUL_OP)||(aluOp_i == `EXE_MULT_OP)) && (operand2_i[31])) ? (~operand2_i+1) : operand2_i ;
+    assign mult1 = (((aluOp_i == `EXE_MUL_OP)||(aluOp_i == `EXE_MULT_OP)|| (aluOp_i == `EXE_MADD_OP) || (aluOp_i == `EXE_MSUB_OP)) && (operand1_i[31])) ? (~operand1_i+1) : operand1_i ;
+    assign mult2 = (((aluOp_i == `EXE_MUL_OP)||(aluOp_i == `EXE_MULT_OP)|| (aluOp_i == `EXE_MADD_OP) || (aluOp_i == `EXE_MSUB_OP)) && (operand2_i[31])) ? (~operand2_i+1) : operand2_i ;
     
     assign hilo_res = mult1 * mult2;
     

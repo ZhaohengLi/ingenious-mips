@@ -7,7 +7,14 @@ module ROM(
     reg[31:0] instractions[0:1024];
 
     initial begin
-        $readmemh("/media/psf/Home/Projects/ingenious-mips/ingenious-mips.test/7_1_4.txt", instractions,0,14);
+        instractions[0] <= 32'h3401ffff;
+        instractions[1] <= 32'h00010c00;
+        instractions[2] <= 32'h3421fffb;
+        instractions[3] <= 32'h34020006;
+//        instractions[4] <= 32'h00410018;
+        instractions[4] <= 32'h70410001;
+//        instractions[6] <= 32'h70410004;
+//        instractions[7] <= 32'h70410005;
     end
 
     always @ (*) begin

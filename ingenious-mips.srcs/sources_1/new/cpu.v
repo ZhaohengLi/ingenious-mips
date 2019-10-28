@@ -12,6 +12,8 @@ module CPU(
     // PC & PC_ADDER & IF_ID
     wire[`InstAddrBus] instAddr_pc_adder_to_pc;
     wire[`InstAddrBus] instAddr_pc_to_if_id;
+    wire[`RegBus] branch_target_id_to_pc;
+    wire branch_flag_id_to_pc;
     
     // IF_ID & REG & ID_EX
     wire[`InstBus] inst_if_id_to_id;
@@ -61,10 +63,10 @@ module CPU(
     wire[`RegBus] regLO_ex_to_ex_mem;
     
     wire[`DoubleRegBus] regHILO_ex_to_ex_mem;
-    wire cnt_ex_to_ex_mem;
+    wire [1:0] cnt_ex_to_ex_mem;
     
     wire[`DoubleRegBus] regHILO_ex_mem_to_ex;
-    wire cnt_ex_mem_to_ex;
+    wire [1:0] cnt_ex_mem_to_ex;
         
     // EX_MEM & MEM & MEM_WB
     wire[`RegAddrBus] regWriteAddr_ex_mem_to_mem;
@@ -121,6 +123,7 @@ module CPU(
     PC pc1(
         .clk(clk), .rst(rst),
         .instAddr_i(instAddr_pc_adder_to_pc), .instAddr_o(instAddr_pc_to_if_id),
+        .branch_target_i(branch_target_id_to_pc), .branch_flag_i(branch_flag_id_to_pc),
         .stall_i(stall_ctrl_to_all),
         .ce_o(romEnable_o)
     );
@@ -160,7 +163,7 @@ module CPU(
         //branch
         .is_in_delayslot_i(is_in_delayslot_id_ex_to_id), .is_in_delayslot_o(is_in_delayslot_id_to_id_ex),
         .link_addr_o(link_addr_id_to_id_ex), .delayslot_inst_o(delayslot_inst_id_to_id_ex),
-        .branch_target_o(), .branch_flag_o()
+        .branch_target_o(branch_target_id_to_pc), .branch_flag_o(branch_flag_id_to_pc)
     );
     
     REG reg1(
