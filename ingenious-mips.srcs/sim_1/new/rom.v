@@ -11,10 +11,11 @@ module ROM(
         instractions[1] <= 32'h00010c00;
         instractions[2] <= 32'h3421fffb;
         instractions[3] <= 32'h34020006;
-//        instractions[4] <= 32'h00410018;
-        instractions[4] <= 32'h70410001;
-//        instractions[6] <= 32'h70410004;
-//        instractions[7] <= 32'h70410005;
+        instractions[4] <= 32'h00220018; //mult $1 $2
+        instractions[5] <= 32'h70220000;
+        instractions[6] <= 32'h70220001;
+        instractions[7] <= 32'h70220004;
+        instractions[8] <= 32'h70220005;
     end
 
     always @ (*) begin

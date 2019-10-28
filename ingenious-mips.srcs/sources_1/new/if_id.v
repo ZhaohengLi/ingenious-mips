@@ -17,7 +17,7 @@ module IF_ID(
         end else if (stall_i[1] == `Stop && stall_i[2] == `NoStop) begin
             instAddr_o <= `ZeroWord;
             inst_o <= `ZeroWord;
-        end else begin
+        end else if(stall_i[1] == `NoStop) begin
             instAddr_o <= instAddr_i;
             inst_o <= inst_i;
         end
