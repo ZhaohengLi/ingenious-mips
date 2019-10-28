@@ -7,7 +7,7 @@ module ROM(
     reg[31:0] instractions[0:1024];
 
     initial begin
-        $readmemh("/media/psf/Home/Projects/ingenious-mips/ingenious-mips.test/7_2_2.txt", instractions,0,7);
+        $readmemh("/media/psf/Home/Projects/ingenious-mips/ingenious-mips.test/8_1.txt", instractions,0,35);
     end
 
     always @ (*) begin
