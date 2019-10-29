@@ -185,11 +185,12 @@ module ID(
                     branch_target_o <= {instAddr_plus_4[31:28], inst_i[25:0], 2'b00};
                 end
                 `EXE_JAL: begin
-                    regWriteEnable_o <= `Disable;
+                    regWriteEnable_o <= `Enable;
                     aluOp_o <= `EXE_JAL_OP;
                     aluSel_o <= `EXE_RES_JUMP_BRANCH;
                     reg1Enable_o <= `Disable;
                     reg2Enable_o <= `Disable;
+                    regWriteAddr_o <= 5'b11111;
                     link_addr_o <= instAddr_plus_8;
                     branch_flag_o <= `Branch;
                     delayslot_inst_o <= `InDelaySlot;
@@ -678,5 +679,13 @@ module ID(
             operand2_o <= `ZeroWord;
         end
     end //always
+    
+    always @ (*) begin
+        if(rst == `Enable) begin
+            is_in_delayslot_o <= `NotInDelaySlot;
+        end else begin
+            is_in_delayslot_o <= is_in_delayslot_i;
+        end
+    end
 
 endmodule

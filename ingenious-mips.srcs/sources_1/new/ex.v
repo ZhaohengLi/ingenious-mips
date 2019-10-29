@@ -28,7 +28,7 @@ module EX(
     input wire div_finished_i,
     
     input wire is_in_delayslot_i,
-    input wire link_addr_i,
+    input wire[`RegBus] link_addr_i,
     
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o,
