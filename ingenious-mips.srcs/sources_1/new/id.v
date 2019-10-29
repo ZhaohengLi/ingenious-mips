@@ -510,6 +510,31 @@ module ID(
                                     reg2Enable_o <= `Enable; 
                                     valid_instruct <= `InstValid; //instruction valid
                                 end
+                                `EXE_JR: begin
+                                    regWriteEnable_o <= `Disable;
+                                    aluOp_o <= `EXE_JR_OP;
+                                    aluSel_o <= `EXE_RES_JUMP_BRANCH;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Disable;
+                                    link_addr_o <= `ZeroWord;
+                                    branch_target_o <= operand1_o;
+                                    branch_flag_o <= `Branch;
+                                    delayslot_inst_o <= `InDelaySlot;
+                                    valid_instruct <= `InstValid;
+                                end
+                                `EXE_JALR: begin
+                                    regWriteEnable_o <= `Enable;
+                                    aluOp_o <= `EXE_JALR_OP;
+                                    aluSel_o <= `EXE_RES_JUMP_BRANCH;
+                                    reg1Enable_o <= `Enable;
+                                    reg2Enable_o <= `Disable;
+                                    regWriteAddr_o <= rd;
+                                    link_addr_o <= instAddr_plus_8;
+                                    branch_target_o <= operand1_o;
+                                    branch_flag_o <= `Branch;
+                                    delayslot_inst_o <= `InDelaySlot;
+                                    valid_instruct <= `InstValid;
+                                end
                                 default: begin
                                 end
                             endcase //func
