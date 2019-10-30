@@ -2,63 +2,64 @@
 
 module EX(
 	input wire rst,
-    
+
     input wire[`AluOpBus] aluOp_i,
 	input wire[`AluSelBus] aluSel_i,
 	input wire[`RegBus] operand1_i,
 	input wire[`RegBus] operand2_i,
 	input wire[`RegAddrBus] regWriteAddr_i,
 	input wire regWriteEnable_i,
-	
+
 	input wire[`RegBus] regHI_i,
 	input wire[`RegBus] regLO_i,
-	
+
 	input wire mem_regHILOEnable_i,
 	input wire[`RegBus] mem_regHI_i,
 	input wire[`RegBus] mem_regLO_i,
-	
+
 	input wire mem_wb_regHILOEnable_i,
 	input wire[`RegBus] mem_wb_regHI_i,
 	input wire[`RegBus] mem_wb_regLO_i,
-	
-	input wire[`DoubleRegBus] regHILOtemp_i,
+
+	input wire[`DoubleRegBus] regHILOTemp_i,
 	input wire[1:0] cnt_i,
-    
+	output reg[`DoubleRegBus] regHILOTemp_o,
+	output reg[1:0] cnt_o,
+
     input wire[`DoubleRegBus] div_quotient_i,
     input wire div_finished_i,
-    
+
     input wire is_in_delayslot_i,
     input wire[`RegBus] link_addr_i,
-    
+
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o,
 	output reg[`RegBus] regWriteData_o,
-	
+
 	output reg regHILOEnable_o,
 	output reg[`RegBus] regHI_o,
 	output reg[`RegBus] regLO_o,
-	
-	output reg[`DoubleRegBus] regHILOtemp_o,
-	output reg[1:0] cnt_o,
-	
+
+
+
 	output reg div_start_o,
 	output reg[`RegBus] div_operand1_o,
 	output reg[`RegBus] div_operand2_o,
 	output reg signed_div_o,
-	
+
 	output reg stallReq_o
 
 );
 
     //assign stallReq_o = `NoStop;
     reg stallReq_div;
-    
+
     reg[`RegBus] logic_out;
     reg[`RegBus] shift_res;
     reg[`RegBus] move_res;
     reg[`RegBus] hi; // latest value of reg hi
     reg[`RegBus] lo; // latest value of reg lo
-    
+
     wire overflow; //ov_sum
     wire operand1_eq_operand2; //reg1_eq_reg2
     wire operand1_lt_operand2; //reg1_lt_reg2
@@ -70,13 +71,13 @@ module EX(
     wire[`RegBus] mult2; //opdata2_mult
     wire[`DoubleRegBus] hilo_res; //hilo_temp
     reg[`DoubleRegBus] hilo_res1; //hilo_temp1
-    reg madd_msub_stallreq; 
+    reg madd_msub_stallreq;
     reg[`DoubleRegBus] mul_res; //mulres
-    
+
     assign operand2_twos = ((aluOp_i == `EXE_SUB_OP)||(aluOp_i == `EXE_SUBU_OP)||(aluOp_i == `EXE_SLT_OP)) ? (~operand2_i)+1 : operand2_i ;
     assign sum_res = operand1_i + operand2_twos;
     assign overflow = ((!operand1_i[31] && !operand2_twos[31]) && sum_res[31]) || ((operand1_i[31] && operand2_twos[31]) && (!sum_res[31]));
-    assign operand1_lt_operand2 = (aluOp_i == `EXE_SLT_OP) ? 
+    assign operand1_lt_operand2 = (aluOp_i == `EXE_SLT_OP) ?
                                   ((operand1_i[31] && !operand2_i[31])||(!operand1_i[31] && !operand2_i[31] && sum_res[31])||(operand1_i[31] && operand2_i[31] && sum_res[31])) :
                                   (operand1_i < operand2_i) ;
     assign operand1_not = ~operand1_i;
@@ -176,12 +177,12 @@ module EX(
             endcase
         end
     end
-    
+
     assign mult1 = (((aluOp_i == `EXE_MUL_OP)||(aluOp_i == `EXE_MULT_OP)|| (aluOp_i == `EXE_MADD_OP) || (aluOp_i == `EXE_MSUB_OP)) && (operand1_i[31])) ? (~operand1_i+1) : operand1_i ;
     assign mult2 = (((aluOp_i == `EXE_MUL_OP)||(aluOp_i == `EXE_MULT_OP)|| (aluOp_i == `EXE_MADD_OP) || (aluOp_i == `EXE_MSUB_OP)) && (operand2_i[31])) ? (~operand2_i+1) : operand2_i ;
-    
+
     assign hilo_res = mult1 * mult2;
-    
+
     // set mul_res
     always @ (*) begin
         if (rst == `Enable) begin
@@ -199,38 +200,38 @@ module EX(
     //madd, maddu, msub, msubu
     always @ (*) begin
         if (rst == `Enable) begin
-            regHILOtemp_o <= {`ZeroWord, `ZeroWord};
+            regHILOTemp_o <= {`ZeroWord, `ZeroWord};
             cnt_o <= 2'b00;
             madd_msub_stallreq <= `NoStop;
         end else begin
             case(aluOp_i)
                 `EXE_MADD_OP, `EXE_MADDU_OP: begin
                     if(cnt_i == 2'b00) begin
-                        regHILOtemp_o <= mul_res;
+                        regHILOTemp_o <= mul_res;
                         cnt_o <= 2'b01;
                         hilo_res1 <= {`ZeroWord, `ZeroWord};
                         madd_msub_stallreq <= `Stop;
                     end else if (cnt_i == 2'b01) begin
-                        regHILOtemp_o <= {`ZeroWord, `ZeroWord};
+                        regHILOTemp_o <= {`ZeroWord, `ZeroWord};
                         cnt_o <= 2'b10;
-                        hilo_res1 <= regHILOtemp_i + {hi, lo};
+                        hilo_res1 <= regHILOTemp_i + {hi, lo};
                         madd_msub_stallreq <= `NoStop;
                     end
                 end
                 `EXE_MSUB_OP, `EXE_MSUBU_OP: begin
                     if(cnt_i == 2'b00) begin
-                        regHILOtemp_o <= ~mul_res + 1;
+                        regHILOTemp_o <= ~mul_res + 1;
                         cnt_o <= 2'b01;
                         madd_msub_stallreq <= `Stop;
                     end else if(2'b01) begin
-                        regHILOtemp_o <= {`ZeroWord, `ZeroWord};
+                        regHILOTemp_o <= {`ZeroWord, `ZeroWord};
                         cnt_o <= 2'b10;
-                        hilo_res1 <= regHILOtemp_i + {hi, lo};
+                        hilo_res1 <= regHILOTemp_i + {hi, lo};
                         madd_msub_stallreq <= `NoStop;
                     end
                 end
                 default: begin
-                    regHILOtemp_o <= {`ZeroWord, `ZeroWord};
+                    regHILOTemp_o <= {`ZeroWord, `ZeroWord};
                     cnt_o <= 2'b00;
                     madd_msub_stallreq <= `NoStop;
                 end
@@ -297,7 +298,7 @@ module EX(
             endcase
         end
     end
-    
+
     //set stallReq_o
     always @ (*) begin
         stallReq_o <= madd_msub_stallreq || stallReq_div;
@@ -318,7 +319,7 @@ module EX(
             lo <= regLO_i;
         end
     end
-    
+
     // set move_res
     always @ (*) begin
         if (rst == `Enable) begin
@@ -343,7 +344,7 @@ module EX(
             endcase
         end
     end
-    
+
     // set regHI_o regLO_o regHILOEnable_o
     always @ (*) begin
         if (rst == `Enable) begin
@@ -380,7 +381,7 @@ module EX(
             regLO_o <= `ZeroWord;
         end
     end
-    
+
     // set logic_out
     always @ (*) begin
         if (rst == `Enable) begin //set logic output to zero
@@ -406,8 +407,8 @@ module EX(
             endcase
         end //if
     end //always
-    
-    
+
+
     // set shift_res
     always @(*) begin
         if(rst == `Enable) begin
@@ -429,7 +430,7 @@ module EX(
             endcase
         end//if
     end
-    
+
     // set regWriteData_o
     always @(*) begin
         regWriteEnable_o <= regWriteEnable_i;
