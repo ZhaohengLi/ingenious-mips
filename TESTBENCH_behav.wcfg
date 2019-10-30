@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="TESTBENCH_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="TESTBENCH" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="2000000001fs"></ZoomEndTime>
+      <Cursor1Time time="162540000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="332"></NameColumnWidth>
+      <ValueColumnWidth column_width="165"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="5" />
+   <wvobject type="logic" fp_name="/TESTBENCH/CLOCK_50">
+      <obj_property name="ElementShortName">CLOCK_50</obj_property>
+      <obj_property name="ObjectShortName">CLOCK_50</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TESTBENCH/rst">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/reg1/registers[1]">
+      <obj_property name="ElementShortName">[1][31:0]</obj_property>
+      <obj_property name="ObjectShortName">[1][31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/hilo1/regHI_o">
+      <obj_property name="ElementShortName">regHI_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">regHI_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/hilo1/regLO_o">
+      <obj_property name="ElementShortName">regLO_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">regLO_o[31:0]</obj_property>
+   </wvobject>
+</wave_config>
