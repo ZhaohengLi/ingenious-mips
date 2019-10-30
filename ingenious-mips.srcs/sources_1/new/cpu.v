@@ -107,12 +107,12 @@ module CPU(
     wire stallReqFromEX_ex_to_ctrl;
 
     //EX and DIV
-    wire div_start_ex_to_div;
-    wire [`RegBus] operand1_ex_to_div;
-    wire [`RegBus] operand2_ex_to_div;
-    wire signed_ex_to_div;
-    wire[`DoubleRegBus] quotient_div_to_ex;
-    wire div_finished_div_to_ex;
+    wire divStart_ex_to_div;
+    wire [`RegBus] divOperand1_ex_to_div;
+    wire [`RegBus] divOperand2_ex_to_div;
+    wire divSigned_ex_to_div;
+    wire[`DoubleRegBus] divResult_div_to_ex;
+    wire divFinished_div_to_ex;
 
     CTRL ctrl1(
         .rst(rst),
@@ -207,9 +207,9 @@ module CPU(
         .regHILOTemp_i(regHILOTemp_ex_mem_to_ex), .cnt_i(cnt_ex_mem_to_ex),
         .regHILOTemp_o(regHILOTemp_ex_to_ex_mem), .cnt_o(cnt_ex_to_ex_mem),
 
-        .div_quotient_i(quotient_div_to_ex), .div_finished_i(div_finished_div_to_ex),
-        .div_start_o(div_start_ex_to_div), .signed_div_o(signed_ex_to_div),
-        .div_operand1_o(operand1_ex_to_div), .div_operand2_o(operand2_ex_to_div),
+        .divResult_i(divResult_div_to_ex), .divFinished_i(divFinished_div_to_ex),
+        .divStart_o(divStart_ex_to_div), .divSigned_o(divSigned_ex_to_div),
+        .divOperand1_o(divOperand1_ex_to_div), .divOperand2_o(divOperand2_ex_to_div),
         .is_in_delayslot_i(in_delayslot_id_ex_to_ex), .link_addr_i(link_addr_id_ex_to_ex),
         .stallReq_o(stallReqFromEX_ex_to_ctrl)
     );
@@ -261,10 +261,10 @@ module CPU(
     );
     DIV div1(
         .rst(rst), .clk(clk),
-        .signed_div_i(signed_ex_to_div),
-        .operand1_i(operand1_ex_to_div), .operand2_i(operand2_ex_to_div),
-        .start_i(div_start_ex_to_div), .annul_i(1'b0),
-        .quotient_o(quotient_div_to_ex), .finished_o(div_finished_div_to_ex)
+        .signed_div_i(divSigned_ex_to_div),
+        .operand1_i(divOperand1_ex_to_div), .operand2_i(divOperand2_ex_to_div),
+        .start_i(divStart_ex_to_div), .annul_i(1'b0),
+        .quotient_o(divResult_div_to_ex), .finished_o(divFinished_div_to_ex)
     );
 
 endmodule

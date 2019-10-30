@@ -26,8 +26,8 @@ module EX(
 	output reg[`DoubleRegBus] regHILOTemp_o,
 	output reg[1:0] cnt_o,
 
-    input wire[`DoubleRegBus] div_quotient_i,
-    input wire div_finished_i,
+    input wire[`DoubleRegBus] divResult_i,
+    input wire divFinished_i,
 
     input wire is_in_delayslot_i,
     input wire[`RegBus] link_addr_i,
@@ -42,10 +42,10 @@ module EX(
 
 
 
-	output reg div_start_o,
-	output reg[`RegBus] div_operand1_o,
-	output reg[`RegBus] div_operand2_o,
-	output reg signed_div_o,
+	output reg divStart_o,
+	output reg[`RegBus] divOperand1_o,
+	output reg[`RegBus] divOperand2_o,
+	output reg divSigned_o,
 
 	output reg stallReq_o
 
@@ -242,56 +242,56 @@ module EX(
     always @ (*) begin
         if(rst ==`Enable) begin
             stallReq_div <= `NoStop;
-            div_operand1_o <= `ZeroWord;
-            div_operand2_o <= `ZeroWord;
-            div_start_o <= `DivStop;
-            signed_div_o <= 1'b0;
+            divOperand1_o <= `ZeroWord;
+            divOperand2_o <= `ZeroWord;
+            divStart_o <= `DivStop;
+            divSigned_o <= 1'b0;
         end else begin
             stallReq_div <= `NoStop;
-            div_operand1_o <= `ZeroWord;
-            div_operand2_o <= `ZeroWord;
-            div_start_o <= `DivStop;
-            signed_div_o <= 1'b0;
+            divOperand1_o <= `ZeroWord;
+            divOperand2_o <= `ZeroWord;
+            divStart_o <= `DivStop;
+            divSigned_o <= 1'b0;
             case(aluOp_i)
                 `EXE_DIV_OP: begin
-                    if (div_finished_i == `DivResultNotReady) begin
-                        div_operand1_o <= operand1_i;
-                        div_operand2_o <= operand2_i;
-                        div_start_o <= `DivStart;
-                        signed_div_o <= 1'b1;
+                    if (divFinished_i == `DivResultNotReady) begin
+                        divOperand1_o <= operand1_i;
+                        divOperand2_o <= operand2_i;
+                        divStart_o <= `DivStart;
+                        divSigned_o <= 1'b1;
                         stallReq_div <= `Stop;
-                    end else if(div_finished_i == `DivResultReady) begin
-                        div_operand1_o <= operand1_i;
-                        div_operand2_o <= operand2_i;
-                        div_start_o <= `DivStop;
-                        signed_div_o <= 1'b1;
+                    end else if(divFinished_i == `DivResultReady) begin
+                        divOperand1_o <= operand1_i;
+                        divOperand2_o <= operand2_i;
+                        divStart_o <= `DivStop;
+                        divSigned_o <= 1'b1;
                         stallReq_div <= `NoStop;
                     end else begin
-                        div_operand1_o <= `ZeroWord;
-                        div_operand2_o <= `ZeroWord;
-                        div_start_o <= `DivStop;
-                        signed_div_o <= 1'b0;
+                        divOperand1_o <= `ZeroWord;
+                        divOperand2_o <= `ZeroWord;
+                        divStart_o <= `DivStop;
+                        divSigned_o <= 1'b0;
                         stallReq_div <= `NoStop;
                     end
                 end
                 `EXE_DIVU_OP: begin
-                    if(div_finished_i == `DivResultNotReady) begin
-                        div_operand1_o <= operand1_i;
-                        div_operand2_o <= operand2_i;
-                        div_start_o <= `DivStart;
-                        signed_div_o <= 1'b0;
+                    if(divFinished_i == `DivResultNotReady) begin
+                        divOperand1_o <= operand1_i;
+                        divOperand2_o <= operand2_i;
+                        divStart_o <= `DivStart;
+                        divSigned_o <= 1'b0;
                         stallReq_div <= `Stop;
-                    end else if (div_finished_i == `DivResultReady) begin
-                        div_operand1_o <= operand1_i;
-                        div_operand2_o <= operand2_i;
-                        div_start_o <= `DivStop;
-                        signed_div_o <= 1'b0;
+                    end else if (divFinished_i == `DivResultReady) begin
+                        divOperand1_o <= operand1_i;
+                        divOperand2_o <= operand2_i;
+                        divStart_o <= `DivStop;
+                        divSigned_o <= 1'b0;
                         stallReq_div <= `NoStop;
                     end else begin
-                        div_operand1_o <= `ZeroWord;
-                        div_operand2_o <= `ZeroWord;
-                        div_start_o <= `DivStop;
-                        signed_div_o <= 1'b0;
+                        divOperand1_o <= `ZeroWord;
+                        divOperand2_o <= `ZeroWord;
+                        divStart_o <= `DivStop;
+                        divSigned_o <= 1'b0;
                         stallReq_div <= `NoStop;
                     end
                 end
@@ -373,8 +373,8 @@ module EX(
             regLO_o <= operand1_i;
         end else if((aluOp_i == `EXE_DIV_OP) || (aluOp_i == `EXE_DIVU_OP)) begin
             regHILOEnable_o <= `Enable;
-            regHI_o <= div_quotient_i[63:32];
-            regLO_o <= div_quotient_i[31:0];
+            regHI_o <= divResult_i[63:32];
+            regLO_o <= divResult_i[31:0];
         end else begin
             regHILOEnable_o <= `Disable;
             regHI_o <= `ZeroWord;
