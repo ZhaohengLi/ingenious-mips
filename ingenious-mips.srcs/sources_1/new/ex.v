@@ -29,8 +29,8 @@ module EX(
     input wire[`DoubleRegBus] divResult_i,
     input wire divFinished_i,
 
-    input wire is_in_delayslot_i,
-    input wire[`RegBus] link_addr_i,
+    input wire isInDelayslot_i,
+    input wire[`RegBus] linkAddr_i,
 
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o,
@@ -40,15 +40,12 @@ module EX(
 	output reg[`RegBus] regHI_o,
 	output reg[`RegBus] regLO_o,
 
-
-
 	output reg divStart_o,
 	output reg[`RegBus] divOperand1_o,
 	output reg[`RegBus] divOperand2_o,
 	output reg divSigned_o,
 
 	output reg stallReq_o
-
 );
 
     //assign stallReq_o = `NoStop;
@@ -456,7 +453,7 @@ module EX(
                 regWriteData_o <= mul_res[31:0];
             end
             `EXE_RES_JUMP_BRANCH: begin
-                regWriteData_o <= link_addr_i;
+                regWriteData_o <= linkAddr_i;
             end
             default: begin
                 regWriteData_o <= `ZeroWord;

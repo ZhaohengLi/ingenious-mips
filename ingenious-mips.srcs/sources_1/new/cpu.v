@@ -3,17 +3,15 @@
 module CPU(
     input wire clk,
     input wire rst,
-
     input wire[`InstBus] romData_i,
     output wire[`InstAddrBus] romAddr_o,
     output wire romEnable_o
-
 );
     // PC & PC_ADDER & IF_ID
     wire[`InstAddrBus] instAddr_pc_adder_to_pc;
     wire[`InstAddrBus] instAddr_pc_to_if_id;
-    wire[`RegBus] branch_target_id_to_pc;
-    wire branch_flag_id_to_pc;
+    wire[`RegBus] branchTarget_id_to_pc;
+    wire branchFlag_id_to_pc;
 
     // IF_ID & REG & ID_EX
     wire[`InstBus] inst_if_id_to_id;
@@ -29,21 +27,19 @@ module CPU(
 
     wire[`AluOpBus] aluOp_id_to_id_ex;
     wire[`AluSelBus] aluSel_id_to_id_ex;
-
     wire[`RegBus]operand1_id_to_id_ex;
     wire[`RegBus]operand2_id_to_id_ex;
 
     wire regWriteEnable_id_to_id_ex;
     wire[`RegAddrBus] regWriteAddr_id_to_id_ex;
 
-    wire is_in_delayslot_id_to_id_ex;
-    wire [`RegBus] link_addr_id_to_id_ex;
-    wire delayslot_inst_id_to_id_ex;
+    wire isInDelayslot_id_to_id_ex;
+    wire [`RegBus] linkAddr_id_to_id_ex;
+    wire nextInstInDelayslot_id_to_id_ex;
 
     // ID_EX & EX & EX_MEM
 
-    wire is_in_delayslot_id_ex_to_id;
-
+    wire isInDelayslot_id_ex_to_id;//P211 port "nextInstInDelayslot_o" of id_ex1 to port "isInDelayslot_i" of id1
 
     wire[`AluOpBus] aluOp_id_ex_to_ex;
     wire[`AluSelBus] aluSel_id_ex_to_ex;
@@ -51,8 +47,8 @@ module CPU(
     wire[`RegBus] operand2_id_ex_to_ex;
     wire[`RegAddrBus] regWriteAddr_id_ex_to_ex;
     wire regWriteEnable_id_ex_to_ex;
-    wire [`RegBus] link_addr_id_ex_to_ex;
-    wire in_delayslot_id_ex_to_ex;
+    wire [`RegBus] linkAddr_id_ex_to_ex;
+    wire isInDelayslot_id_ex_to_ex;
 
     wire[`RegAddrBus] regWriteAddr_ex_to_ex_mem;
     wire regWriteEnable_ex_to_ex_mem;
@@ -123,7 +119,7 @@ module CPU(
     PC pc1(
         .clk(clk), .rst(rst),
         .instAddr_i(instAddr_pc_adder_to_pc), .instAddr_o(instAddr_pc_to_if_id),
-        .branch_target_i(branch_target_id_to_pc), .branch_flag_i(branch_flag_id_to_pc),
+        .branchTargetAddr_i(branchTarget_id_to_pc), .branchFlag_i(branchFlag_id_to_pc),
         .stall_i(stall_ctrl_to_all),
         .ce_o(romEnable_o)
     );
@@ -161,9 +157,10 @@ module CPU(
 
         .stallReq_o(stallReqFromID_id_to_ctrl),
         //branch
-        .is_in_delayslot_i(is_in_delayslot_id_ex_to_id), .is_in_delayslot_o(is_in_delayslot_id_to_id_ex),
-        .link_addr_o(link_addr_id_to_id_ex), .delayslot_inst_o(delayslot_inst_id_to_id_ex),
-        .branch_target_o(branch_target_id_to_pc), .branch_flag_o(branch_flag_id_to_pc)
+        .isInDelayslot_i(isInDelayslot_id_ex_to_id), //P211 port "nextInstInDelayslot_o" of id_ex1 to port "isInDelayslot_i" of id1
+        .isInDelayslot_o(isInDelayslot_id_to_id_ex),
+        .linkAddr_o(linkAddr_id_to_id_ex), .nextInstInDelayslot_o(nextInstInDelayslot_id_to_id_ex),
+        .branchTargetAddr_o(branchTarget_id_to_pc), .branchFlag_o(branchFlag_id_to_pc)
     );
 
     REG reg1(
@@ -183,9 +180,9 @@ module CPU(
         .operand1_o(operand1_id_ex_to_ex), .operand2_o(operand2_id_ex_to_ex),
         .regWriteAddr_o(regWriteAddr_id_ex_to_ex), .regWriteEnable_o(regWriteEnable_id_ex_to_ex),
         .stall_i(stall_ctrl_to_all),
-        .id_in_delayslot(is_in_delayslot_id_to_id_ex), .id_link_addr(link_addr_id_to_id_ex),
-        .delayslot_inst_i(delayslot_inst_id_to_id_ex), .is_in_delayslot_o(is_in_delayslot_id_ex_to_id),
-        .ex_in_delayslot(in_delayslot_id_ex_to_ex), .ex_link_addr(link_addr_id_ex_to_ex)
+        .isInDelayslot_i(isInDelayslot_id_to_id_ex), .linkAddr_i(linkAddr_id_to_id_ex),
+        .isInDelayslot_o(isInDelayslot_id_ex_to_ex), .linkAddr_o(linkAddr_id_ex_to_ex),
+        .nextInstInDelayslot_i(nextInstInDelayslot_id_to_id_ex), .nextInstInDelayslot_o(isInDelayslot_id_ex_to_id)//P211 port "nextInstInDelayslot_o" of id_ex1 to port "isInDelayslot_i" of id1 , it is not a typo
     );
 
     EX ex1(
@@ -210,7 +207,7 @@ module CPU(
         .divResult_i(divResult_div_to_ex), .divFinished_i(divFinished_div_to_ex),
         .divStart_o(divStart_ex_to_div), .divSigned_o(divSigned_ex_to_div),
         .divOperand1_o(divOperand1_ex_to_div), .divOperand2_o(divOperand2_ex_to_div),
-        .is_in_delayslot_i(in_delayslot_id_ex_to_ex), .link_addr_i(link_addr_id_ex_to_ex),
+        .isInDelayslot_i(isInDelayslot_id_ex_to_ex), .linkAddr_i(linkAddr_id_ex_to_ex),
         .stallReq_o(stallReqFromEX_ex_to_ctrl)
     );
 
