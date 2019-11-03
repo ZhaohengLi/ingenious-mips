@@ -4,17 +4,17 @@ module ROM(
     output reg[31:0] romData_o
 );
 
-    reg[31:0] instractions[0:1024];
+    reg[31:0] instructions[0:1023];
 
     initial begin
-        $readmemh("/media/psf/Home/Projects/ingenious-mips/ingenious-mips.test/8_2.txt", instractions,0,100);
+        $readmemh("/media/psf/Home/Projects/ingenious-mips/ingenious-mips.test/9_1.txt", instructions,0,34);
     end
 
     always @ (*) begin
         if (romEnable_i == 1'b0) begin
             romData_o <= 32'b0;
         end else begin
-            romData_o <= instractions[romAddr_i[11:2]];
+            romData_o <= instructions[romAddr_i[11:2]];
         end
     end
 

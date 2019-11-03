@@ -16,7 +16,15 @@ module EX_MEM(
 
     input wire[`DoubleRegBus] regHILOTemp_i,
     input wire[1:0] cnt_i,
-
+    
+    input wire[`AluOpBus] aluOp_i,
+    input wire[`RegBus] memAddr_i,
+    input wire[`RegBus] operand2_i,
+    
+    output reg[`AluOpBus] aluOp_o,
+    output reg[`RegBus] memAddr_o,
+    output reg[`RegBus] operand2_o,
+    
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o,
 	output reg[`RegBus] regWriteData_o,
@@ -38,6 +46,9 @@ module EX_MEM(
             regLO_o <= `ZeroWord;
             regHILOTemp_o <= {`ZeroWord, `ZeroWord};
             cnt_o <= 2'b00;
+            aluOp_o <= `EXE_NOP_OP;
+            memAddr_o <= `ZeroWord;
+            operand2_o <= `ZeroWord;
         end else if (stall_i[3] == `Stop && stall_i[4] == `NoStop) begin
             regWriteAddr_o <= `NOPRegAddr;
             regWriteEnable_o <= `Disable;
@@ -47,6 +58,9 @@ module EX_MEM(
             regLO_o <= `ZeroWord;
             regHILOTemp_o <= regHILOTemp_i;
             cnt_o <= cnt_i;
+            aluOp_o <= `EXE_NOP_OP;
+            memAddr_o <= `ZeroWord;
+            operand2_o <= `ZeroWord;
         end else if (stall_i[3] == `NoStop) begin
             regWriteAddr_o <= regWriteAddr_i;
             regWriteEnable_o <= regWriteEnable_i;
@@ -56,6 +70,9 @@ module EX_MEM(
             regLO_o <=  regLO_i;
             regHILOTemp_o <= {`ZeroWord, `ZeroWord};
             cnt_o <= 2'b00;
+            aluOp_o <= aluOp_i;
+            memAddr_o <= memAddr_i;
+            operand2_o <= operand2_i;
         end else begin
             regHILOTemp_o <= regHILOTemp_i;
             cnt_o <= cnt_i;

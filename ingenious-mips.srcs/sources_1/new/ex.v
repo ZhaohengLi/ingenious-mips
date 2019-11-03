@@ -2,7 +2,8 @@
 
 module EX(
 	input wire rst,
-
+    
+    input wire[`RegBus] inst_i,
     input wire[`AluOpBus] aluOp_i,
 	input wire[`AluSelBus] aluSel_i,
 	input wire[`RegBus] operand1_i,
@@ -31,7 +32,11 @@ module EX(
 
     input wire isInDelayslot_i,
     input wire[`RegBus] linkAddr_i,
-
+    
+    output wire[`AluOpBus] aluOp_o,
+    output wire[`RegBus] memAddr_o, //mem_addr_o
+    output wire[`RegBus] operand2_o, //reg2_o
+    
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o,
 	output reg[`RegBus] regWriteData_o,
@@ -47,7 +52,11 @@ module EX(
 
 	output reg stallReq_o
 );
-
+    
+    assign aluOp_o = aluOp_i;
+    assign memAddr_o = operand1_i + {{16{inst_i[15]}}, {inst_i[15:0]}};
+    assign operand2_o = operand2_i;
+    
     //assign stallReq_o = `NoStop;
     reg stallReq_div;
 

@@ -11,7 +11,9 @@ module ID(
 	input wire[`RegBus] ex_regWriteData_i,
 	input wire[`RegAddrBus] ex_regWriteAddr_i,
 	input wire ex_regWriteEnable_i,
-
+    
+    input wire[`AluOpBus] ex_aluOp_i,
+    
 	input wire[`RegBus] mem_regWriteData_i,
 	input wire[`RegAddrBus] mem_regWriteAddr_i,
 	input wire mem_regWriteEnable_i,
@@ -39,10 +41,26 @@ module ID(
 	output reg[`RegBus] branchTargetAddr_o,
 	output reg isInDelayslot_o,
 	output reg[`RegBus] linkAddr_o,
-	output reg nextInstInDelayslot_o
+	output reg nextInstInDelayslot_o,
+	
+	output wire[`RegBus] inst_o
 );
-
-    assign stallReq_o = `NoStop;
+    reg stallReq_for_reg1_loadRelate;
+    reg stallReq_for_reg2_loadRelate;
+    wire pre_inst_is_load;
+    
+    assign pre_inst_is_load = ((ex_aluOp_i == `EXE_LB_OP) ||
+                               (ex_aluOp_i == `EXE_LBU_OP)||
+  							   (ex_aluOp_i == `EXE_LH_OP) ||
+  							   (ex_aluOp_i == `EXE_LHU_OP)||
+  							   (ex_aluOp_i == `EXE_LW_OP) ||
+  							   (ex_aluOp_i == `EXE_LWR_OP)||
+  							   (ex_aluOp_i == `EXE_LWL_OP)||
+  							   (ex_aluOp_i == `EXE_LL_OP) ||
+  							   (ex_aluOp_i == `EXE_SC_OP)) ? 1'b1 : 1'b0;
+    
+    assign stallReq_o = stallReq_for_reg1_loadRelate | stallReq_for_reg2_loadRelate;
+    assign inst_o = inst_i;
 
     //to see if it's an ori operation, look at 31:26
     //rd <- rs[reg1] (?) rt [reg2]
@@ -84,6 +102,110 @@ module ID(
             nextInstInDelayslot_o <= `NotInDelaySlot;
 
             case(op)
+                `EXE_LB: begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_LB_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Disable;
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_LBU: begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_LBU_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Disable;
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_LH: begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_LH_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Disable;
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_LHU: begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_LHU_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Disable;
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_LW: begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_LW_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Disable;
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_LWL: begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_LWL_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Enable;
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_LWR: begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_LWR_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Enable;
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_SB: begin
+                    regWriteEnable_o <= `Disable;
+                    aluOp_o <= `EXE_SB_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Enable;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_SH: begin
+                    regWriteEnable_o <= `Disable;
+                    aluOp_o <= `EXE_SH_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Enable;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_SW: begin
+                    regWriteEnable_o <= `Disable;
+                    aluOp_o <= `EXE_SW_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Enable;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_SWL: begin
+                    regWriteEnable_o <= `Disable;
+                    aluOp_o <= `EXE_SWL_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Enable;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_SWR: begin
+                    regWriteEnable_o <= `Disable;
+                    aluOp_o <= `EXE_SWR_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Enable;
+                    valid_instruct <= `InstValid;
+                end
+                
                 `EXE_ORI: begin //rt <- rs | imm
                     regWriteEnable_o <= `Enable; //enable writing the result of ori
                     aluOp_o <= `EXE_OR_OP; //belongs to the or type operation
@@ -668,13 +790,14 @@ module ID(
 
     //OPERAND1
     always @ (*) begin
+        stallReq_for_reg1_loadRelate <= `NoStop;
         if(rst == `Enable) begin
             operand1_o <= `ZeroWord;
-        end else if ((reg1Enable_o == `Enable) &&(ex_regWriteEnable_i == `Enable) &&
-        (ex_regWriteAddr_i == reg1Addr_o)) begin
+        end else if ((pre_inst_is_load == 1'b1) && (ex_regWriteAddr_i == reg1Addr_o) && (reg1Enable_o == `Enable)) begin
+            stallReq_for_reg1_loadRelate <= `Stop;
+        end else if ((reg1Enable_o == `Enable) &&(ex_regWriteEnable_i == `Enable) && (ex_regWriteAddr_i == reg1Addr_o)) begin
             operand1_o <= ex_regWriteData_i;
-        end else if ((reg1Enable_o == `Enable) &&(mem_regWriteEnable_i == `Enable) &&
-        (mem_regWriteAddr_i == reg1Addr_o)) begin
+        end else if ((reg1Enable_o == `Enable) &&(mem_regWriteEnable_i == `Enable) && (mem_regWriteAddr_i == reg1Addr_o)) begin
             operand1_o <= mem_regWriteData_i;
         end else if (reg1Enable_o == `Enable) begin
             operand1_o <= reg1Data_i;
@@ -688,8 +811,11 @@ module ID(
 
     //OPERAND2
     always @ (*) begin
+        stallReq_for_reg2_loadRelate <= `NoStop;
         if(rst == `Enable) begin
             operand2_o <= `ZeroWord;
+        end else if ((pre_inst_is_load == 1'b1) && (ex_regWriteAddr_i == reg2Addr_o) && (reg2Enable_o == `Enable)) begin
+            stallReq_for_reg2_loadRelate <= `Stop;
         end else if ((reg2Enable_o == `Enable) &&(ex_regWriteEnable_i == `Enable) &&
         (ex_regWriteAddr_i == reg2Addr_o)) begin
             operand2_o <= ex_regWriteData_i;

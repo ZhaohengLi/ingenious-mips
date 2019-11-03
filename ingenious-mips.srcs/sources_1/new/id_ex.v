@@ -11,7 +11,10 @@ module ID_EX(
 	input wire[`RegBus] operand2_i,
 	input wire[`RegAddrBus] regWriteAddr_i,
 	input wire regWriteEnable_i,
-
+	
+	input wire[`RegBus] inst_i,
+    output reg[`RegBus] inst_o,
+    
 	input wire isInDelayslot_i,//id_is_in_delayslot
 	input wire[`RegBus] linkAddr_i,//id_link_address
 	input wire nextInstInDelayslot_i,//next_inst_in_delayslot_i
@@ -41,6 +44,7 @@ module ID_EX(
             linkAddr_o <= `ZeroWord;
             isInDelayslot_o <= `NotInDelaySlot;
             nextInstInDelayslot_o <= `NotInDelaySlot;
+            inst_o <= `ZeroWord;
         end else if (stall_i[2] == `Stop && stall_i[3] == `NoStop) begin
             aluSel_o <= `EXE_RES_NOP;
             aluOp_o <= `EXE_NOP_OP;
@@ -50,6 +54,7 @@ module ID_EX(
             regWriteEnable_o <= `Disable;
             linkAddr_o <= `ZeroWord;
             isInDelayslot_o <= `NotInDelaySlot;
+            inst_o <= `ZeroWord;
         end else if (stall_i[2] == `NoStop) begin
             aluSel_o <= aluSel_i;
             aluOp_o <= aluOp_i;
@@ -60,6 +65,7 @@ module ID_EX(
             linkAddr_o <= linkAddr_i;
             isInDelayslot_o <= isInDelayslot_i;
             nextInstInDelayslot_o <= nextInstInDelayslot_i;
+            inst_o <= inst_i;
         end
     end //always
 endmodule
