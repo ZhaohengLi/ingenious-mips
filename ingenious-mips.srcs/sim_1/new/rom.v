@@ -6,9 +6,7 @@ module ROM(
 
     reg[31:0] instractions[0:1024];
 
-    initial begin
-        $readmemh("/media/psf/Home/Projects/ingenious-mips/ingenious-mips.test/8_2.txt", instractions,0,100);
-    end
+    
 
     always @ (*) begin
         if (romEnable_i == 1'b0) begin
