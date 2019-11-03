@@ -3,17 +3,17 @@
 module MEM(
 	input wire rst,
 
-	input wire[`RegAddrBus] regWriteAddr_i,
-	input wire regWriteEnable_i,
-	input wire[`RegBus] regWriteData_i,
+	input wire[`RegAddrBus] regWriteAddr_i, // wd_i
+	input wire regWriteEnable_i, //wreg_i
+	input wire[`RegBus] regWriteData_i,//wdata_i
 
-    input wire regHILOEnable_i,
-	input wire[`RegBus] regHI_i,
-	input wire[`RegBus] regLO_i,
+    input wire regHILOEnable_i, //whilo_i
+	input wire[`RegBus] regHI_i, //hi_i
+	input wire[`RegBus] regLO_i, //lo_i
 
-	output reg[`RegAddrBus] regWriteAddr_o,
-	output reg regWriteEnable_o,
-	output reg[`RegBus] regWriteData_o,
+	output reg[`RegAddrBus] regWriteAddr_o,//wd_o,
+	output reg regWriteEnable_o,//wreg_o,
+	output reg[`RegBus] regWriteData_o,//wdata_o
 	//HILO
 	output reg regHILOEnable_o,
 	output reg[`RegBus] regHI_o,
@@ -27,7 +27,14 @@ module MEM(
 	output wire memWriteEnable_o,
 	output reg[3:0] memSel_o,
 	output reg[`RegBus] memData_o,
-	output reg memEnable_o
+	output reg memEnable_o,
+
+	input wire LLbitData_i, //LLbit_i
+	input wire mem_wb_LLbitData_i,//wb_LLbit_value_i
+	input wire mem_wb_LLbitWriteEnable_i,//wb_LLbit_we_i
+
+	output reg LLbitData_o, //LLbit_value_o
+	output reg LLbitWriteEnable_o //LLbit_we_o
 
 );
 
@@ -36,6 +43,20 @@ module MEM(
 
     wire[`RegBus] ZERO;//temp value
     assign ZERO = `ZeroWord;
+
+    reg LLbitData;//latest value of LLbit (LLbit)
+
+    always @(*) begin
+        if(rst == `Enable) begin
+            LLbitData <= 1'b0;
+        end else begin
+            if(mem_wb_LLbitWriteEnable_i == `Enable) begin
+                LLbitData <= mem_wb_LLbitData_i;
+            end else begin
+                LLbitData <= LLbitData_i;
+            end
+        end
+    end
 
     always @(*) begin
         if(rst == `Enable) begin
@@ -50,6 +71,8 @@ module MEM(
             memSel_o <= 4'b0000;
             memData_o <= `ZeroWord;
             memEnable_o <= `Disable;
+            LLbitData_o <= 1'b0;
+            LLbitWriteEnable_o <= `Disable;
         end else begin
             regWriteAddr_o <= regWriteAddr_i;
             regWriteEnable_o <= regWriteEnable_i;
@@ -61,7 +84,32 @@ module MEM(
             memAddr_o <= `ZeroWord;
             memSel_o <= 4'b1111;
             memEnable_o <= `Disable;
+            LLbitData_o <= 1'b0;
+            LLbitWriteEnable_o <= `Disable;
             case(aluOp_i)
+                `EXE_LL_OP: begin
+                    memAddr_o <= memAddr_i;
+                    memWriteEnable <= `Disable;
+                    regWriteData_o <= memData_i;
+                    LLbitWriteEnable_o <= `Enable;
+                    LLbitData_o <= 1'b1;
+                    memSel_o <= 4'b1111;
+                    memEnable_o <= `Enable;
+                end
+                `EXE_SC_OP: begin
+                    if(LLbitData == 1'b1) begin
+                        LLbitWriteEnable_o <= `Enable;
+                        LLbitData_o <= 1'b0;
+                        memAddr_o <= memAddr_i;
+                        memWriteEnable <= `Enable;
+                        memData_o <= operand2_i;
+                        regWriteData_o <= 32'b1;
+                        memSel_o <= 4'b1111;
+                        memEnable_o <= `Enable;
+                    end else begin
+                        regWriteData_o <= `ZeroWord;
+                    end
+                end
                 `EXE_LB_OP:		begin
 					memAddr_o <= memAddr_i;
 					memWriteEnable <= `Disable;

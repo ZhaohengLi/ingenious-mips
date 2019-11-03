@@ -102,6 +102,24 @@ module ID(
             nextInstInDelayslot_o <= `NotInDelaySlot;
 
             case(op)
+                `EXE_LL: begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_LL_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Disable;
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
+                `EXE_SC: begin
+                    regWriteEnable_o <= `Enable;
+                    aluOp_o <= `EXE_SC_OP;
+                    aluSel_o <= `EXE_RES_LOAD_STORE;
+                    reg1Enable_o <= `Enable;
+                    reg2Enable_o <= `Enable;
+                    regWriteAddr_o <= rt;
+                    valid_instruct <= `InstValid;
+                end
                 `EXE_LB: begin
                     regWriteEnable_o <= `Enable;
                     aluOp_o <= `EXE_LB_OP;

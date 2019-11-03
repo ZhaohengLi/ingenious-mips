@@ -6,7 +6,7 @@ module CPU(
     input wire[`InstBus] romData_i,
     output wire[`InstAddrBus] romAddr_o,
     output wire romEnable_o,
-    
+
     input wire[`RegBus] ramData_i,
     output wire[`RegBus] ramAddr_o,
     output wire[`RegBus] ramData_o,
@@ -66,7 +66,7 @@ module CPU(
     wire regHILOEnable_ex_to_ex_mem;
     wire[`RegBus] regHI_ex_to_ex_mem;
     wire[`RegBus] regLO_ex_to_ex_mem;
-    
+
     wire[`AluOpBus] aluOp_ex_to_ex_mem;
     wire[`RegBus] memAddr_ex_to_ex_mem;
     wire[`RegBus] operand2_ex_to_ex_mem;
@@ -89,10 +89,13 @@ module CPU(
     wire regHILOEnable_ex_mem_to_mem;
     wire[`RegBus] regHI_ex_mem_to_mem;
     wire[`RegBus] regLO_ex_mem_to_mem;
-    
+
     wire[`AluOpBus] aluOp_ex_mem_to_mem;
     wire[`RegBus] memAddr_ex_mem_to_mem;
     wire[`RegBus] operand2_ex_mem_to_mem;
+
+    wire LLbitData_mem_to_mem_wb;
+    wire LLbitWriteEnable_mem_to_mem_wb;
 
 
     // MEM_WB & REG
@@ -126,6 +129,22 @@ module CPU(
     wire divSigned_ex_to_div;
     wire[`DoubleRegBus] divResult_div_to_ex;
     wire divFinished_div_to_ex;
+
+    // MEM_WB & LLBIT
+    wire LLbitWriteEnable_mem_wb_to_llbit;
+    wire LLbitData_mem_wb_to_llbit;
+
+    //LLBIT & MEM
+    wire LLbitData_llbit_to_mem;
+
+    LLBIT llbit1(
+        .rst(rst),
+        .clk(clk),
+        .LLbitFlush_i(1'b0),
+        .LLbitData_i(LLbitData_mem_wb_to_llbit),
+        .LLbitWriteEnable_i(LLbitWriteEnable_mem_wb_to_llbit),
+        .LLbitData_o(LLbitData_llbit_to_mem)
+    );
 
     CTRL ctrl1(
         .rst(rst),
@@ -171,7 +190,7 @@ module CPU(
         .ex_regWriteData_i(regWriteData_ex_to_ex_mem),
         .ex_regWriteAddr_i(regWriteAddr_ex_to_ex_mem),
         .ex_regWriteEnable_i(regWriteEnable_ex_to_ex_mem),
-        
+
         .mem_regWriteData_i(regWriteData_mem_to_mem_wb),
         .mem_regWriteAddr_i(regWriteAddr_mem_to_mem_wb),
         .mem_regWriteEnable_i(regWriteEnable_mem_to_mem_wb),
@@ -275,7 +294,12 @@ module CPU(
         .memWriteEnable_o(ramWriteEnable_o),
         .memSel_o(ramSel_o),
         .memData_o(ramData_o),
-        .memEnable_o(ramEnable_o)
+        .memEnable_o(ramEnable_o),
+        .LLbitData_i(LLbitData_llbit_to_mem),
+        .mem_wb_LLbitData_i(LLbitData_mem_wb_to_llbit),
+        .mem_wb_LLbitWriteEnable_i(LLbitWriteEnable_mem_wb_to_llbit),
+        .LLbitData_o(LLbitData_mem_to_mem_wb),
+        .LLbitWriteEnable_o(LLbitWriteEnable_mem_to_mem_wb)
     );
 
     MEM_WB mem_wb1 (
@@ -288,7 +312,12 @@ module CPU(
         //mem_wb to hilo
         .regHILOEnable_o(regHILOEnable_mem_wb_to_hilo), .regHI_o(regHI_mem_wb_to_hilo),
         .regLO_o(regLO_mem_wb_to_hilo),
-        .stall_i(stall_ctrl_to_all)
+        .stall_i(stall_ctrl_to_all),
+
+        .LLbitData_i(LLbitData_mem_to_mem_wb),
+        .LLbitWriteEnable_i(LLbitWriteEnable_mem_to_mem_wb),
+        .LLbitData_o(LLbitData_mem_wb_to_llbit),
+        .LLbitWriteEnable_o(LLbitWriteEnable_mem_wb_to_llbit)
     );
 
     HILO hilo1 (
