@@ -3,10 +3,7 @@ module ROM(
     input wire[31:0] romAddr_i,
     output reg[31:0] romData_o
 );
-
     reg[31:0] instructions[0:1023];
-
-
 
     always @ (*) begin
         if (romEnable_i == 1'b0) begin
