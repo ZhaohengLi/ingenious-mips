@@ -1,6 +1,15 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  VIVADO_PATH: "/opt/Xilinx/Vivado/2018.3/bin/vivado"
+  PROJECT_DIR: "vivado"
+  PROJECT_NAME: "ingenious-mips"
+  TOP_MODULE_NAME: "ThinPad"
+
 stages:
   - build
-  - test
+  - run_simulation
+  - secoder_record
+  
 
 bitstream:
   stage: build
@@ -9,7 +18,7 @@ bitstream:
   image: vivado2018:2018.3
   script:
     - env
-    - /opt/Xilinx/Vivado/2018.3/bin/vivado -mode tcl -source build.tcl ingenious-mips.xpr
+    - ${VIVADO_PATH} -mode tcl -source scripts/build.tcl ${PROJECT_NAME}.xpr
 
   artifacts:
     paths:
@@ -19,10 +28,24 @@ bitstream:
 
 sonar-scanner:
   image: harryleafchen/debian-curl-tar
-  stage: test
+  stage: secoder_record
   tags:
     - secoder
   script:
     - curl -s "http://10.0.0.11/sonar-scanner.tar.gz" -o "/tmp/sonar-scanner.tar.gz"
     - tar -xf "/tmp/sonar-scanner.tar.gz" -C /tmp
     - /tmp/sonar-scanner/bin/sonar-scanner
+
+run_all_testbenches:
+  image: vivado2018:2018.3
+  tags:
+    - vivado
+  stage: run_simulation
+  script:
+    - export SIMULATION=sim_cpu
+    - ${VIVADO_PATH} -mode tcl -source scripts/run_simulation.tcl ${PROJECT_NAME}.xpr
+    - bash scripts/check_simulation.sh
+  artifacts:
+    paths:
+      - ${PROJECT_NAME}.sim/*/behav/xsim/simulate
+    when: always
