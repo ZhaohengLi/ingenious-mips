@@ -42,7 +42,7 @@ run_all_testbenches:
     - vivado
   stage: run_simulation
   script:
-    - export SIMULATION=sim_cpu
+    - export SIMULATION=sim_1
     - ${VIVADO_PATH} -mode tcl -source scripts/run_simulation.tcl ${PROJECT_NAME}.xpr
     - bash scripts/check_simulation.sh
   artifacts:
