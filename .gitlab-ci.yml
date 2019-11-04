@@ -47,5 +47,5 @@ run_all_testbenches:
     - bash scripts/check_simulation.sh
   artifacts:
     paths:
-      - ${PROJECT_NAME}.sim/*/behav/xsim/simulate
+      - ${PROJECT_NAME}.sim/*/behav/xsim/simulate.log
     when: always
