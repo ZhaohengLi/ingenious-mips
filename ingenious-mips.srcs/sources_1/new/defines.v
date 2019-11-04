@@ -185,6 +185,8 @@
 `define EXE_SWR_OP  8'b11101110
 `define EXE_SYNC_OP  8'b00001111
 
+`define EXE_MFC0_OP 8'b01011101
+`define EXE_MTC0_OP 8'b01100000
 //  nop
 `define EXE_NOP_OP 8'b00000000
 
@@ -223,3 +225,11 @@
 `define DivResultReady 1'b1
 `define DivStart 1'b1
 `define DivStop 1'b0
+
+`define CP0_REG_COUNT    5'b01001        //可读写
+`define CP0_REG_COMPARE    5'b01011      //可读写
+`define CP0_REG_STATUS    5'b01100       //可读写
+`define CP0_REG_CAUSE    5'b01101        //只读
+`define CP0_REG_EPC    5'b01110          //可读写
+`define CP0_REG_PrId    5'b01111         //只读
+`define CP0_REG_CONFIG    5'b10000       //只读

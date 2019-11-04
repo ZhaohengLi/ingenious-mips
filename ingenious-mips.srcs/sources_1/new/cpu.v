@@ -12,7 +12,10 @@ module CPU(
     output wire[`RegBus] ramData_o,
     output wire ramWriteEnable_o,
     output wire[3:0] ramSel_o,
-    output wire ramEnable_o
+    output wire ramEnable_o,
+    
+    input wire[5:0] cp0Inte_i,
+    output wire cp0TimerInte_o
 );
     // PC & PC_ADDER & IF_ID
     wire[`InstAddrBus] instAddr_pc_adder_to_pc;
@@ -72,10 +75,15 @@ module CPU(
     wire[`RegBus] operand2_ex_to_ex_mem;
 
     wire[`DoubleRegBus] regHILOTemp_ex_to_ex_mem;
-    wire [1:0] cnt_ex_to_ex_mem;
+    wire[1:0] cnt_ex_to_ex_mem;
 
     wire[`DoubleRegBus] regHILOTemp_ex_mem_to_ex;
-    wire [1:0] cnt_ex_mem_to_ex;
+    wire[1:0] cnt_ex_mem_to_ex;
+    
+    wire[4:0] cp0ReadAddr_ex_to_cp0;
+    wire[`RegBus] cp0WriteData_ex_to_ex_mem;
+    wire[4:0] cp0WriteAddr_ex_to_ex_mem;
+    wire cp0WriteEnable_ex_to_ex_mem;
 
     // EX_MEM & MEM & MEM_WB
     wire[`RegAddrBus] regWriteAddr_ex_mem_to_mem;
@@ -96,6 +104,14 @@ module CPU(
 
     wire LLbitData_mem_to_mem_wb;
     wire LLbitWriteEnable_mem_to_mem_wb;
+    
+    wire[`RegBus] cp0WriteData_ex_mem_to_mem;
+    wire[4:0] cp0WriteAddr_ex_mem_to_mem;
+    wire cp0WriteEnable_ex_mem_to_mem;
+    
+    wire[`RegBus] cp0WriteData_mem_to_mem_wb;
+    wire[4:0] cp0WriteAddr_mem_to_mem_wb;
+    wire cp0WriteEnable_mem_to_mem_wb;
 
 
     // MEM_WB & REG
@@ -136,6 +152,14 @@ module CPU(
 
     //LLBIT & MEM
     wire LLbitData_llbit_to_mem;
+    
+    //MEME_WB & CP0
+    wire[`RegBus] cp0WriteData_mem_wb_to_cp0;
+    wire[4:0] cp0WriteAddr_mem_wb_to_cp0;
+    wire cp0WriteEnable_mem_wb_to_cp0;
+    
+    //EX & CP0
+    wire[`RegBus] cp0Data_cp0_to_ex;
 
     LLBIT llbit1(
         .rst(rst),
@@ -255,7 +279,19 @@ module CPU(
         .inst_i(inst_id_ex_to_ex),
         .aluOp_o(aluOp_ex_to_ex_mem),
         .memAddr_o(memAddr_ex_to_ex_mem),
-        .operand2_o(operand2_ex_to_ex_mem)
+        .operand2_o(operand2_ex_to_ex_mem),
+        
+        .cp0Data_i(cp0Data_cp0_to_ex),
+        .cp0ReadAddr_o(cp0ReadAddr_ex_to_cp0),
+        .cp0WriteEnable_o(cp0WriteEnable_ex_to_ex_mem),
+        .cp0WriteAddr_o(cp0WriteAddr_ex_to_ex_mem),
+        .cp0WriteData_o(cp0WriteData_ex_to_ex_mem),
+        .mem_cp0WriteEnable_i(cp0WriteEnable_mem_to_mem_wb),
+        .mem_cp0WriteAddr_i(cp0WriteAddr_mem_to_mem_wb),
+        .mem_cp0WriteData_i(cp0WriteData_mem_to_mem_wb),
+        .mem_wb_cp0WriteEnable_i(cp0WriteEnable_mem_wb_to_cp0),
+        .mem_wb_cp0WriteAddr_i(cp0WriteAddr_mem_wb_to_cp0),
+        .mem_wb_cp0WriteData_i(cp0WriteData_mem_wb_to_cp0)
     );
 
     EX_MEM ex_mem1(
@@ -273,7 +309,13 @@ module CPU(
         .stall_i(stall_ctrl_to_all),
         .aluOp_i(aluOp_ex_to_ex_mem), .aluOp_o(aluOp_ex_mem_to_mem),
         .memAddr_i(memAddr_ex_to_ex_mem), .memAddr_o(memAddr_ex_mem_to_mem),
-        .operand2_i(operand2_ex_to_ex_mem), .operand2_o(operand2_ex_mem_to_mem)
+        .operand2_i(operand2_ex_to_ex_mem), .operand2_o(operand2_ex_mem_to_mem),
+        .cp0WriteEnable_i(cp0WriteEnable_ex_to_ex_mem),
+        .cp0WriteAddr_i(cp0WriteAddr_ex_to_ex_mem),
+        .cp0WriteData_i(cp0WriteData_ex_to_ex_mem),
+        .cp0WriteEnable_o(cp0WriteEnable_ex_mem_to_mem),
+        .cp0WriteAddr_o(cp0WriteAddr_ex_mem_to_mem),
+        .cp0WriteData_o(cp0WriteData_ex_mem_to_mem)
     );
 
     MEM mem1(
@@ -299,7 +341,13 @@ module CPU(
         .mem_wb_LLbitData_i(LLbitData_mem_wb_to_llbit),
         .mem_wb_LLbitWriteEnable_i(LLbitWriteEnable_mem_wb_to_llbit),
         .LLbitData_o(LLbitData_mem_to_mem_wb),
-        .LLbitWriteEnable_o(LLbitWriteEnable_mem_to_mem_wb)
+        .LLbitWriteEnable_o(LLbitWriteEnable_mem_to_mem_wb),
+        .cp0WriteEnable_i(cp0WriteEnable_ex_mem_to_mem),
+        .cp0WriteAddr_i(cp0WriteAddr_ex_mem_to_mem),
+        .cp0WriteData_i(cp0WriteData_ex_mem_to_mem),
+        .cp0WriteEnable_o(cp0WriteEnable_mem_to_mem_wb),
+        .cp0WriteAddr_o(cp0WriteAddr_mem_to_mem_wb),
+        .cp0WriteData_o(cp0WriteData_mem_to_mem_wb)
     );
 
     MEM_WB mem_wb1 (
@@ -317,9 +365,26 @@ module CPU(
         .LLbitData_i(LLbitData_mem_to_mem_wb),
         .LLbitWriteEnable_i(LLbitWriteEnable_mem_to_mem_wb),
         .LLbitData_o(LLbitData_mem_wb_to_llbit),
-        .LLbitWriteEnable_o(LLbitWriteEnable_mem_wb_to_llbit)
+        .LLbitWriteEnable_o(LLbitWriteEnable_mem_wb_to_llbit),
+        .cp0WriteEnable_i(cp0WriteEnable_mem_to_mem_wb),
+        .cp0WriteAddr_i(cp0WriteAddr_mem_to_mem_wb),
+        .cp0WriteData_i(cp0WriteData_mem_to_mem_wb),
+        .cp0WriteEnable_o(cp0WriteEnable_mem_wb_to_cp0),
+        .cp0WriteAddr_o(cp0WriteAddr_mem_wb_to_cp0),
+        .cp0WriteData_o(cp0WriteData_mem_wb_to_cp0)
     );
-
+    
+    CP0 cp01(
+        .clk(clk),
+        .rst(rst),
+        .cp0ReadAddr_i(cp0ReadAddr_ex_to_cp0),
+        .cp0WriteEnable_i(cp0WriteEnable_mem_wb_to_cp0),
+        .cp0WriteData_i(cp0WriteData_mem_wb_to_cp0),
+        .cp0WriteAddr_i(cp0WriteAddr_mem_wb_to_cp0),
+        .cp0Data_o(cp0Data_cp0_to_ex),
+        .cp0Inte_i(cp0Inte_i),
+        .cp0TimerInte_o(cp0TimerInte_o)
+    );
     HILO hilo1 (
         .clk(clk), .rst(rst),
         .regHILOEnable_i(regHILOEnable_mem_wb_to_hilo), .regHI_i(regHI_mem_wb_to_hilo), .regLO_i(regLO_mem_wb_to_hilo),

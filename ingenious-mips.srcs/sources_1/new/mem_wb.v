@@ -26,7 +26,15 @@ module MEM_WB(
 	input wire LLbitData_i,
 	
 	output reg LLbitWriteEnable_o,
-	output reg LLbitData_o
+	output reg LLbitData_o,
+	
+	input wire cp0WriteEnable_i,
+	input wire[4:0] cp0WriteAddr_i,
+	input wire[`RegBus] cp0WriteData_i,
+	
+	output reg cp0WriteEnable_o,
+	output reg[4:0] cp0WriteAddr_o,
+	output reg[`RegBus] cp0WriteData_o
 );
     always @ (posedge clk) begin
         if(rst == `Enable) begin
@@ -38,6 +46,9 @@ module MEM_WB(
             regLO_o <= `ZeroWord;
             LLbitWriteEnable_o <= `Disable;
             LLbitData_o <= 1'b0;
+            cp0WriteEnable_o <= `Disable;
+            cp0WriteAddr_o <= 5'b00000;
+            cp0WriteData_o <= `ZeroWord;
         end else if (stall_i[4] == `Stop && stall_i[5] == `NoStop) begin
             regWriteAddr_o <= `NOPRegAddr;
             regWriteEnable_o <= `Disable;
@@ -47,6 +58,9 @@ module MEM_WB(
             regLO_o <= `ZeroWord;
             LLbitWriteEnable_o <= `Disable;
             LLbitData_o <= 1'b0;
+            cp0WriteEnable_o <= `Disable;
+            cp0WriteAddr_o <= 5'b00000;
+            cp0WriteData_o <= `ZeroWord;
         end else if (stall_i[4] == `NoStop) begin
             regWriteAddr_o <= regWriteAddr_i;
             regWriteEnable_o <= regWriteEnable_i;
@@ -56,6 +70,9 @@ module MEM_WB(
             regLO_o <= regLO_i;
             LLbitWriteEnable_o <= LLbitWriteEnable_i;
             LLbitData_o <= LLbitData_i;
+            cp0WriteEnable_o <= cp0WriteEnable_i;
+            cp0WriteAddr_o <= cp0WriteAddr_i;
+            cp0WriteData_o <= cp0WriteData_i;
         end
     end //always
 endmodule

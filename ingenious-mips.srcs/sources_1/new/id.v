@@ -223,7 +223,6 @@ module ID(
                     reg2Enable_o <= `Enable;
                     valid_instruct <= `InstValid;
                 end
-                
                 `EXE_ORI: begin //rt <- rs | imm
                     regWriteEnable_o <= `Enable; //enable writing the result of ori
                     aluOp_o <= `EXE_OR_OP; //belongs to the or type operation
@@ -761,7 +760,7 @@ module ID(
                         valid_instruct <= `InstValid; //instruction valid
                     end
                     `EXE_SRL: begin //rd <- rt >> shamt (logical)
-                         regWriteEnable_o <= `Enable;
+                        regWriteEnable_o <= `Enable;
                         aluOp_o <= `EXE_SRL_OP;
                         aluSel_o <= `EXE_RES_SHIFT;
                         reg1Enable_o <= `Disable;
@@ -771,7 +770,7 @@ module ID(
                         valid_instruct <= `InstValid; //instruction valid
                     end
                     `EXE_SRA:begin //rd <- rt >> shamt (arithmetic)
-                         regWriteEnable_o <= `Enable;
+                        regWriteEnable_o <= `Enable;
                         aluOp_o <= `EXE_SRA_OP; //belongs to the sra type operation
                         aluSel_o <= `EXE_RES_SHIFT;
                         reg1Enable_o <= `Disable;
@@ -782,8 +781,24 @@ module ID(
                     end
                     default: begin
                     end
-
                 endcase //func
+            end
+            if(inst_i[31:21] == 11'b01000000000 && inst_i[10:0] == 11'b00000000000) begin
+                aluOp_o <= `EXE_MFC0_OP;
+                aluSel_o <= `EXE_RES_MOVE;
+                regWriteAddr_o <= rt;
+                regWriteEnable_o <= `Enable;
+                valid_instruct <= `InstValid;
+                reg1Enable_o <= `Disable;
+                reg2Enable_o <= `Disable;
+            end else if(inst_i[31:21] == 11'b01000000100 && inst_i[10:0] == 11'b00000000000) begin
+                aluOp_o <= `EXE_MTC0_OP;
+                aluSel_o <= `EXE_RES_NOP;
+                regWriteEnable_o <= `Disable;
+                valid_instruct <= `InstValid;
+                reg1Enable_o <= `Enable;
+                reg2Enable_o <= `Disable;
+                reg1Addr_o <= rt;
             end
 
         end else begin

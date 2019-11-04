@@ -34,7 +34,15 @@ module MEM(
 	input wire mem_wb_LLbitWriteEnable_i,//wb_LLbit_we_i
 
 	output reg LLbitData_o, //LLbit_value_o
-	output reg LLbitWriteEnable_o //LLbit_we_o
+	output reg LLbitWriteEnable_o, //LLbit_we_o
+	
+	input wire cp0WriteEnable_i,
+	input wire[4:0] cp0WriteAddr_i,
+	input wire[`RegBus] cp0WriteData_i,
+	
+	output reg cp0WriteEnable_o,
+	output reg[4:0] cp0WriteAddr_o,
+	output reg[`RegBus] cp0WriteData_o
 
 );
 
@@ -73,6 +81,9 @@ module MEM(
             memEnable_o <= `Disable;
             LLbitData_o <= 1'b0;
             LLbitWriteEnable_o <= `Disable;
+            cp0WriteEnable_o <= `Disable;
+            cp0WriteAddr_o <= 5'b00000;
+            cp0WriteData_o <= `ZeroWord;
         end else begin
             regWriteAddr_o <= regWriteAddr_i;
             regWriteEnable_o <= regWriteEnable_i;
@@ -86,6 +97,9 @@ module MEM(
             memEnable_o <= `Disable;
             LLbitData_o <= 1'b0;
             LLbitWriteEnable_o <= `Disable;
+            cp0WriteEnable_o <= cp0WriteEnable_i;
+            cp0WriteAddr_o <= cp0WriteAddr_i;
+            cp0WriteData_o <= cp0WriteData_i;
             case(aluOp_i)
                 `EXE_LL_OP: begin
                     memAddr_o <= memAddr_i;
