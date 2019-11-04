@@ -5,7 +5,14 @@ module CPU(
     input wire rst,
     input wire[`InstBus] romData_i,
     output wire[`InstAddrBus] romAddr_o,
-    output wire romEnable_o
+    output wire romEnable_o,
+
+    input wire[`RegBus] ramData_i,
+    output wire[`RegBus] ramAddr_o,
+    output wire[`RegBus] ramData_o,
+    output wire ramWriteEnable_o,
+    output wire[3:0] ramSel_o,
+    output wire ramEnable_o
 );
     // PC & PC_ADDER & IF_ID
     wire[`InstAddrBus] instAddr_pc_adder_to_pc;
@@ -29,6 +36,7 @@ module CPU(
     wire[`AluSelBus] aluSel_id_to_id_ex;
     wire[`RegBus]operand1_id_to_id_ex;
     wire[`RegBus]operand2_id_to_id_ex;
+    wire[`RegBus]inst_id_to_id_ex;
 
     wire regWriteEnable_id_to_id_ex;
     wire[`RegAddrBus] regWriteAddr_id_to_id_ex;
@@ -47,8 +55,9 @@ module CPU(
     wire[`RegBus] operand2_id_ex_to_ex;
     wire[`RegAddrBus] regWriteAddr_id_ex_to_ex;
     wire regWriteEnable_id_ex_to_ex;
-    wire [`RegBus] linkAddr_id_ex_to_ex;
+    wire[`RegBus] linkAddr_id_ex_to_ex;
     wire isInDelayslot_id_ex_to_ex;
+    wire[`RegBus] inst_id_ex_to_ex;
 
     wire[`RegAddrBus] regWriteAddr_ex_to_ex_mem;
     wire regWriteEnable_ex_to_ex_mem;
@@ -57,6 +66,10 @@ module CPU(
     wire regHILOEnable_ex_to_ex_mem;
     wire[`RegBus] regHI_ex_to_ex_mem;
     wire[`RegBus] regLO_ex_to_ex_mem;
+
+    wire[`AluOpBus] aluOp_ex_to_ex_mem;
+    wire[`RegBus] memAddr_ex_to_ex_mem;
+    wire[`RegBus] operand2_ex_to_ex_mem;
 
     wire[`DoubleRegBus] regHILOTemp_ex_to_ex_mem;
     wire [1:0] cnt_ex_to_ex_mem;
@@ -76,6 +89,13 @@ module CPU(
     wire regHILOEnable_ex_mem_to_mem;
     wire[`RegBus] regHI_ex_mem_to_mem;
     wire[`RegBus] regLO_ex_mem_to_mem;
+
+    wire[`AluOpBus] aluOp_ex_mem_to_mem;
+    wire[`RegBus] memAddr_ex_mem_to_mem;
+    wire[`RegBus] operand2_ex_mem_to_mem;
+
+    wire LLbitData_mem_to_mem_wb;
+    wire LLbitWriteEnable_mem_to_mem_wb;
 
 
     // MEM_WB & REG
@@ -109,6 +129,22 @@ module CPU(
     wire divSigned_ex_to_div;
     wire[`DoubleRegBus] divResult_div_to_ex;
     wire divFinished_div_to_ex;
+
+    // MEM_WB & LLBIT
+    wire LLbitWriteEnable_mem_wb_to_llbit;
+    wire LLbitData_mem_wb_to_llbit;
+
+    //LLBIT & MEM
+    wire LLbitData_llbit_to_mem;
+
+    LLBIT llbit1(
+        .rst(rst),
+        .clk(clk),
+        .LLbitFlush_i(1'b0),
+        .LLbitData_i(LLbitData_mem_wb_to_llbit),
+        .LLbitWriteEnable_i(LLbitWriteEnable_mem_wb_to_llbit),
+        .LLbitData_o(LLbitData_llbit_to_mem)
+    );
 
     CTRL ctrl1(
         .rst(rst),
@@ -151,16 +187,22 @@ module CPU(
         .operand1_o(operand1_id_to_id_ex), .operand2_o(operand2_id_to_id_ex),
         .regWriteEnable_o(regWriteEnable_id_to_id_ex), .regWriteAddr_o(regWriteAddr_id_to_id_ex),
         //from ex
-        .ex_regWriteData_i(regWriteData_ex_to_ex_mem), .ex_regWriteAddr_i(regWriteAddr_ex_to_ex_mem),
-        .ex_regWriteEnable_i(regWriteEnable_ex_to_ex_mem), .mem_regWriteData_i(regWriteData_mem_to_mem_wb),
-        .mem_regWriteAddr_i(regWriteAddr_mem_to_mem_wb), .mem_regWriteEnable_i(regWriteEnable_mem_to_mem_wb),
+        .ex_regWriteData_i(regWriteData_ex_to_ex_mem),
+        .ex_regWriteAddr_i(regWriteAddr_ex_to_ex_mem),
+        .ex_regWriteEnable_i(regWriteEnable_ex_to_ex_mem),
+
+        .mem_regWriteData_i(regWriteData_mem_to_mem_wb),
+        .mem_regWriteAddr_i(regWriteAddr_mem_to_mem_wb),
+        .mem_regWriteEnable_i(regWriteEnable_mem_to_mem_wb),
 
         .stallReq_o(stallReqFromID_id_to_ctrl),
         //branch
         .isInDelayslot_i(isInDelayslot_id_ex_to_id), //P211 port "nextInstInDelayslot_o" of id_ex1 to port "isInDelayslot_i" of id1
         .isInDelayslot_o(isInDelayslot_id_to_id_ex),
         .linkAddr_o(linkAddr_id_to_id_ex), .nextInstInDelayslot_o(nextInstInDelayslot_id_to_id_ex),
-        .branchTargetAddr_o(branchTarget_id_to_pc), .branchFlag_o(branchFlag_id_to_pc)
+        .branchTargetAddr_o(branchTarget_id_to_pc), .branchFlag_o(branchFlag_id_to_pc),
+        .inst_o(inst_id_to_id_ex),
+        .ex_aluOp_i(aluOp_ex_to_ex_mem)
     );
 
     REG reg1(
@@ -182,6 +224,7 @@ module CPU(
         .stall_i(stall_ctrl_to_all),
         .isInDelayslot_i(isInDelayslot_id_to_id_ex), .linkAddr_i(linkAddr_id_to_id_ex),
         .isInDelayslot_o(isInDelayslot_id_ex_to_ex), .linkAddr_o(linkAddr_id_ex_to_ex),
+        .inst_i(inst_id_to_id_ex), .inst_o(inst_id_ex_to_ex),
         .nextInstInDelayslot_i(nextInstInDelayslot_id_to_id_ex), .nextInstInDelayslot_o(isInDelayslot_id_ex_to_id)//P211 port "nextInstInDelayslot_o" of id_ex1 to port "isInDelayslot_i" of id1 , it is not a typo
     );
 
@@ -208,7 +251,11 @@ module CPU(
         .divStart_o(divStart_ex_to_div), .divSigned_o(divSigned_ex_to_div),
         .divOperand1_o(divOperand1_ex_to_div), .divOperand2_o(divOperand2_ex_to_div),
         .isInDelayslot_i(isInDelayslot_id_ex_to_ex), .linkAddr_i(linkAddr_id_ex_to_ex),
-        .stallReq_o(stallReqFromEX_ex_to_ctrl)
+        .stallReq_o(stallReqFromEX_ex_to_ctrl),
+        .inst_i(inst_id_ex_to_ex),
+        .aluOp_o(aluOp_ex_to_ex_mem),
+        .memAddr_o(memAddr_ex_to_ex_mem),
+        .operand2_o(operand2_ex_to_ex_mem)
     );
 
     EX_MEM ex_mem1(
@@ -223,7 +270,10 @@ module CPU(
         .regLO_o(regLO_ex_mem_to_mem),
         .regHILOTemp_i(regHILOTemp_ex_to_ex_mem), .cnt_i(cnt_ex_to_ex_mem),
         .regHILOTemp_o(regHILOTemp_ex_mem_to_ex), .cnt_o(cnt_ex_mem_to_ex),
-        .stall_i(stall_ctrl_to_all)
+        .stall_i(stall_ctrl_to_all),
+        .aluOp_i(aluOp_ex_to_ex_mem), .aluOp_o(aluOp_ex_mem_to_mem),
+        .memAddr_i(memAddr_ex_to_ex_mem), .memAddr_o(memAddr_ex_mem_to_mem),
+        .operand2_i(operand2_ex_to_ex_mem), .operand2_o(operand2_ex_mem_to_mem)
     );
 
     MEM mem1(
@@ -235,7 +285,21 @@ module CPU(
         .regLO_i(regLO_ex_mem_to_mem),
         //mem to mem_wb hilo
         .regHILOEnable_o(regHILOEnable_mem_to_mem_wb), .regHI_o(regHI_mem_to_mem_wb),
-        .regLO_o(regLO_mem_to_mem_wb)
+        .regLO_o(regLO_mem_to_mem_wb),
+        .memData_i(ramData_i),
+        .aluOp_i(aluOp_ex_mem_to_mem),
+        .memAddr_i(memAddr_ex_mem_to_mem),
+        .operand2_i(operand2_ex_mem_to_mem),
+        .memAddr_o(ramAddr_o),
+        .memWriteEnable_o(ramWriteEnable_o),
+        .memSel_o(ramSel_o),
+        .memData_o(ramData_o),
+        .memEnable_o(ramEnable_o),
+        .LLbitData_i(LLbitData_llbit_to_mem),
+        .mem_wb_LLbitData_i(LLbitData_mem_wb_to_llbit),
+        .mem_wb_LLbitWriteEnable_i(LLbitWriteEnable_mem_wb_to_llbit),
+        .LLbitData_o(LLbitData_mem_to_mem_wb),
+        .LLbitWriteEnable_o(LLbitWriteEnable_mem_to_mem_wb)
     );
 
     MEM_WB mem_wb1 (
@@ -248,7 +312,12 @@ module CPU(
         //mem_wb to hilo
         .regHILOEnable_o(regHILOEnable_mem_wb_to_hilo), .regHI_o(regHI_mem_wb_to_hilo),
         .regLO_o(regLO_mem_wb_to_hilo),
-        .stall_i(stall_ctrl_to_all)
+        .stall_i(stall_ctrl_to_all),
+
+        .LLbitData_i(LLbitData_mem_to_mem_wb),
+        .LLbitWriteEnable_i(LLbitWriteEnable_mem_to_mem_wb),
+        .LLbitData_o(LLbitData_mem_wb_to_llbit),
+        .LLbitWriteEnable_o(LLbitWriteEnable_mem_wb_to_llbit)
     );
 
     HILO hilo1 (

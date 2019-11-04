@@ -4,15 +4,15 @@ module ROM(
     output reg[31:0] romData_o
 );
 
-    reg[31:0] instractions[0:1024];
+    reg[31:0] instructions[0:1023];
 
-    
+
 
     always @ (*) begin
         if (romEnable_i == 1'b0) begin
             romData_o <= 32'b0;
         end else begin
-            romData_o <= instractions[romAddr_i[11:2]];
+            romData_o <= instructions[romAddr_i[11:2]];
         end
     end
 
