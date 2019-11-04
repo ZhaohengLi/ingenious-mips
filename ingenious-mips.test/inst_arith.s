@@ -12,8 +12,7 @@ _start:
 
 	addu $3, $2, $1     # ans: $3=0x00000011
 	add  $1, $2, $1     # overflow, $1 unchanged
-	# ans: skip
-	# ans: skip
+
 	ori $1, $1, 0x0000  # ans: $1=0x80000010
 	ori $1, $1, 0xffff  # ans: $1=0x8000ffff
 
@@ -28,8 +27,7 @@ _start:
 	ori $2, $0, 0x0000   # ans: $2=0x00000000
 	lui $2, 0xff00       # ans: $2=0xff000000
 	sub $2, $2, $1   # underflow, $2 unchanged
-	# ans: skip
-	# ans: skip
+
 	ori $2, $2, 0x0000  # ans: $2=0xff000000
 
 	# === CLO, CLZ ===
@@ -44,7 +42,7 @@ _start:
 	clz $3, $3             # ans: $3=0x00000017
 
 	# === MUL, MULT, MULTU ===
-	lui $1, 0xffff         # ans: skip
+	lui $1, 0xffff         # ans: $1=0xffff0000
 	ori $1, $1, 0xfffb     # ans: $1=0xfffffffb
 	ori $2, $0, 0x0006     # ans: $2=0x00000006
 	mul $3, $1, $2         # ans: $3=0xffffffe2
