@@ -84,6 +84,7 @@ module TESTBENCH();
 	   unitTest("inst_jump");
 	   $display("Unit Test Finished.\n");
 	   $finish;
+	   $stop;
     end
 
 endmodule
