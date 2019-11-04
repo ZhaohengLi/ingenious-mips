@@ -82,6 +82,7 @@ module TESTBENCH();
 	   //unitTest("inst_move");
 	   //unitTest("inst_arith");
 	   unitTest("inst_jump");
+	   $display("[Done]", 0);
 	   $display("Unit Test Finished.\n");
 	   $finish;
 	   $stop;
