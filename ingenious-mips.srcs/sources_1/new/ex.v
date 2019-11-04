@@ -50,7 +50,22 @@ module EX(
 	output reg[`RegBus] divOperand2_o,
 	output reg divSigned_o,
 
-	output reg stallReq_o
+	output reg stallReq_o,
+	
+	input wire mem_cp0WriteEnable_i,
+	input wire[4:0] mem_cp0WriteAddr_i,
+	input wire[`RegBus] mem_cp0WriteData_i,
+	
+	input wire mem_wb_cp0WriteEnable_i,
+	input wire[4:0] mem_wb_cp0WriteAddr_i,
+	input wire[`RegBus] mem_wb_cp0WriteData_i,
+	
+	input wire[`RegBus] cp0Data_i,
+	output reg[4:0] cp0ReadAddr_o,
+	
+	output reg cp0WriteEnable_o,
+	output reg[4:0] cp0WriteAddr_o,
+	output reg[`RegBus] cp0WriteData_o
 );
     
     assign aluOp_o = aluOp_i;
@@ -93,6 +108,7 @@ module EX(
 //                (operand2_i[31] == 1'b1)) ? (~operand2_i + 1): operand2_i;
 //    assign hilo_res = mult1 * mult2;
     // set arithmetic_res
+    
     always @ (*) begin
         if( rst==`Enable ) begin
             arithmetic_res <= `ZeroWord;
@@ -343,7 +359,16 @@ module EX(
                     move_res <= operand1_i;
                 end
                 `EXE_MOVN_OP: begin
-                    move_res <= operand2_i;
+                    move_res <= operand1_i;
+                end
+                `EXE_MFC0_OP: begin
+                    cp0ReadAddr_o <= inst_i[15:11];
+                    move_res <= cp0Data_i;
+                    if(mem_cp0WriteEnable_i == `Enable && mem_cp0WriteAddr_i == inst_i[15:11]) begin
+                        move_res <= mem_cp0WriteData_i;
+                    end else if(mem_wb_cp0WriteEnable_i == `Enable && mem_wb_cp0WriteAddr_i == inst_i[15:11]) begin
+                        move_res <= mem_wb_cp0WriteData_i;
+                    end
                 end
                 default: begin
                 end
@@ -469,5 +494,20 @@ module EX(
             end
         endcase
     end
-
+    
+    always @ (*) begin
+		if(rst == `Enable) begin
+			cp0WriteAddr_o <= 5'b00000;
+			cp0WriteEnable_o <= `Disable;
+			cp0WriteData_o <= `ZeroWord;
+		end else if(aluOp_i == `EXE_MTC0_OP) begin
+			cp0WriteAddr_o <= inst_i[15:11];
+			cp0WriteEnable_o <= `Enable;
+			cp0WriteData_o <= operand1_i;
+	  end else begin
+			cp0WriteAddr_o <= 5'b00000;
+			cp0WriteEnable_o <= `Disable;
+			cp0WriteData_o <= `ZeroWord;
+		end				
+	end	
 endmodule
