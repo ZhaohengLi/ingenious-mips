@@ -21,11 +21,11 @@ module REG(
     integer i;
     //on posedge clk, if rst is enabled, check if write is enabled and writeReg isn't all 0, then write writeData to register[writeReg]
     always @(posedge clk) begin
-        if(rst == `Enable)
-        for(i=0;i<`RegNum;i=i+1) begin
-        registers[i] = `ZeroWord;
-        end
-        if(rst == `Disable) begin
+        if(rst == `Enable) begin
+            for(i=0; i<`RegNum; i=i+1) begin
+                registers[i] = `ZeroWord;
+            end
+        end else begin
             if((regWriteEnable_i == `Enable) && (regWriteAddr_i != `ZeroWord)) begin
                 registers[regWriteAddr_i] <= regWriteData_i;
             end

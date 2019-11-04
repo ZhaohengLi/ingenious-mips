@@ -1,7 +1,7 @@
 module SOPC(
     input wire clk,
     input wire rst,
-    input wire[4:0] cp0Inte_i,
+    input wire[5:0] cp0Inte_i,
     output wire cp0TimerInte_o
 );
 
@@ -16,7 +16,8 @@ module SOPC(
     wire[31:0] ramData_ram_to_cpu;
 
     CPU cpu1(
-        .clk(clk), .rst(rst),
+        .clk(clk),
+        .rst(rst),
         .romAddr_o(romAddr_cpu_to_rom),
         .romEnable_o(romEnable_cpu_to_rom),
         .romData_i(romData_rom_to_cpu),
