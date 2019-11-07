@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="951492287fs"></ZoomStartTime>
-      <ZoomEndTime time="1009701543fs"></ZoomEndTime>
-      <Cursor1Time time="1000000000fs"></Cursor1Time>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="1814000001fs"></ZoomEndTime>
+      <Cursor1Time time="187230000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="231"></NameColumnWidth>
-      <ValueColumnWidth column_width="104"></ValueColumnWidth>
+      <ValueColumnWidth column_width="92"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="18" />
+   <WVObjectSize size="5" />
    <wvobject type="logic" fp_name="/TESTBENCH/CLOCK_50">
       <obj_property name="ElementShortName">CLOCK_50</obj_property>
       <obj_property name="ObjectShortName">CLOCK_50</obj_property>
@@ -28,61 +28,9 @@
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/ex1/inst_i">
-      <obj_property name="ElementShortName">inst_i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">inst_i[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/ex1/aluOp_i">
-      <obj_property name="ElementShortName">aluOp_i[7:0]</obj_property>
-      <obj_property name="ObjectShortName">aluOp_i[7:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/ex1/aluSel_i">
-      <obj_property name="ElementShortName">aluSel_i[2:0]</obj_property>
-      <obj_property name="ObjectShortName">aluSel_i[2:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/ex1/operand1_i">
-      <obj_property name="ElementShortName">operand1_i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">operand1_i[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/ex1/operand2_i">
-      <obj_property name="ElementShortName">operand2_i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">operand2_i[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/TESTBENCH/sopc1/cpu1/ex1/regWriteEnable_i">
-      <obj_property name="ElementShortName">regWriteEnable_i</obj_property>
-      <obj_property name="ObjectShortName">regWriteEnable_i</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/ex1/regWriteAddr_i">
-      <obj_property name="ElementShortName">regWriteAddr_i[4:0]</obj_property>
-      <obj_property name="ObjectShortName">regWriteAddr_i[4:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/reg1/regWriteAddr_i">
-      <obj_property name="ElementShortName">regWriteAddr_i[4:0]</obj_property>
-      <obj_property name="ObjectShortName">regWriteAddr_i[4:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/reg1/regWriteData_i">
-      <obj_property name="ElementShortName">regWriteData_i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">regWriteData_i[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/TESTBENCH/sopc1/cpu1/reg1/regWriteEnable_i">
-      <obj_property name="ElementShortName">regWriteEnable_i</obj_property>
-      <obj_property name="ObjectShortName">regWriteEnable_i</obj_property>
-   </wvobject>
    <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/reg1/registers[1]">
       <obj_property name="ElementShortName">[1][31:0]</obj_property>
       <obj_property name="ObjectShortName">[1][31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/reg1/registers[2]">
-      <obj_property name="ElementShortName">[2][31:0]</obj_property>
-      <obj_property name="ObjectShortName">[2][31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/reg1/registers[3]">
-      <obj_property name="ElementShortName">[3][31:0]</obj_property>
-      <obj_property name="ObjectShortName">[3][31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/reg1/registers[4]">
-      <obj_property name="ElementShortName">[4][31:0]</obj_property>
-      <obj_property name="ObjectShortName">[4][31:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TESTBENCH/sopc1/cpu1/hilo1/regHI_o">
       <obj_property name="ElementShortName">regHI_o[31:0]</obj_property>

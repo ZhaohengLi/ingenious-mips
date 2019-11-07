@@ -8,6 +8,7 @@ module DIV(
 	input wire[`RegBus] operand2_i,
 	input wire start_i,
 	input wire annul_i,
+	
 	output reg[`DoubleRegBus] quotient_o,
 	output reg finished_o
 );
@@ -21,7 +22,7 @@ module DIV(
 	reg[31:0] temp_op2;
 
 	assign div_temp = {1'b0,dividend[63:32]} - {1'b0,divisor};
-	
+
 	always @ (posedge clk) begin
 	    if (rst == `Enable) begin
 	       state <= `DivFree;

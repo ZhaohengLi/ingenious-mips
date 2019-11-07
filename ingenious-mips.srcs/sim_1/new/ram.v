@@ -5,6 +5,7 @@ module RAM(
 	input wire[31:0] ramAddr_i,
 	input wire[3:0] ramSel_i,
 	input wire[31:0] ramData_i,
+	
 	output reg[31:0] ramData_o
 );
 

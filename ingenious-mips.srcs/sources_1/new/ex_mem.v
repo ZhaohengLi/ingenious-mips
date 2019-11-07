@@ -3,49 +3,46 @@
 module EX_MEM(
 	input wire clk,
 	input wire rst,
-
+	input wire flush_i,
 	input wire[`RegAddrBus] regWriteAddr_i,
 	input wire regWriteEnable_i,
 	input wire[`RegBus] regWriteData_i,
-
     input wire regHILOEnable_i,
 	input wire[`RegBus] regHI_i,
 	input wire[`RegBus] regLO_i,
-
 	input wire[5:0] stall_i,
-
     input wire[`DoubleRegBus] regHILOTemp_i,
     input wire[1:0] cnt_i,
-    
     input wire[`AluOpBus] aluOp_i,
     input wire[`RegBus] memAddr_i,
     input wire[`RegBus] operand2_i,
-    
-    output reg[`AluOpBus] aluOp_o,
-    output reg[`RegBus] memAddr_o,
-    output reg[`RegBus] operand2_o,
-    
-	output reg[`RegAddrBus] regWriteAddr_o,
-	output reg regWriteEnable_o,
-	output reg[`RegBus] regWriteData_o,
-	//HILO
-	output reg regHILOEnable_o,
-	output reg[`RegBus] regHI_o,
-	output reg[`RegBus] regLO_o,
-
-	output reg[`DoubleRegBus] regHILOTemp_o,
-	output reg[1:0] cnt_o,
-	
 	input wire cp0WriteEnable_i,
 	input wire[4:0] cp0WriteAddr_i,
 	input wire[`RegBus] cp0WriteData_i,
-	
+	input wire[`RegBus] exceptionType_i,
+	input wire[`RegBus] instAddr_i,
+	input wire isInDelayslot_i,
+
+    output reg[`AluOpBus] aluOp_o,
+    output reg[`RegBus] memAddr_o,
+    output reg[`RegBus] operand2_o,
+	output reg[`RegAddrBus] regWriteAddr_o,
+	output reg regWriteEnable_o,
+	output reg[`RegBus] regWriteData_o,
+	output reg regHILOEnable_o,
+	output reg[`RegBus] regHI_o,
+	output reg[`RegBus] regLO_o,
+	output reg[`DoubleRegBus] regHILOTemp_o,
+	output reg[1:0] cnt_o,
 	output reg cp0WriteEnable_o,
 	output reg[4:0] cp0WriteAddr_o,
-	output reg[`RegBus] cp0WriteData_o
+	output reg[`RegBus] cp0WriteData_o,
+	output reg[`RegBus] exceptionType_o,
+	output reg[`RegBus] instAddr_o,
+	output reg isInDelayslot_o
 );
     always @ (posedge clk) begin
-        if(rst == `Enable) begin
+        if(rst == `Enable || flush_i == 1'b1) begin
             regWriteAddr_o <= `NOPRegAddr;
             regWriteEnable_o <= `Disable;
             regWriteData_o <= `ZeroWord;
@@ -60,6 +57,9 @@ module EX_MEM(
             cp0WriteEnable_o <= `Disable;
             cp0WriteAddr_o <= 5'b00000;
             cp0WriteData_o <= `ZeroWord;
+			exceptionType_o <= `ZeroWord;
+			isInDelayslot_o <= `NotInDelaySlot;
+			instAddr_o <= `ZeroWord;
         end else if (stall_i[3] == `Stop && stall_i[4] == `NoStop) begin
             regWriteAddr_o <= `NOPRegAddr;
             regWriteEnable_o <= `Disable;
@@ -75,6 +75,9 @@ module EX_MEM(
             cp0WriteEnable_o <= `Disable;
             cp0WriteAddr_o <= 5'b00000;
             cp0WriteData_o <= `ZeroWord;
+			exceptionType_o <= `ZeroWord;
+			isInDelayslot_o <= `NotInDelaySlot;
+			instAddr_o <= `ZeroWord;
         end else if (stall_i[3] == `NoStop) begin
             regWriteAddr_o <= regWriteAddr_i;
             regWriteEnable_o <= regWriteEnable_i;
@@ -90,6 +93,9 @@ module EX_MEM(
             cp0WriteEnable_o <= cp0WriteEnable_i;
             cp0WriteAddr_o <= cp0WriteAddr_i;
             cp0WriteData_o <= cp0WriteData_i;
+			exceptionType_o <= exceptionType_i;
+			isInDelayslot_o <= isInDelayslot_i;
+			instAddr_o <= instAddr_i;
         end else begin
             regHILOTemp_o <= regHILOTemp_i;
             cnt_o <= cnt_i;

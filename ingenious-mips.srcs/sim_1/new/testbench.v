@@ -76,12 +76,13 @@ module TESTBENCH();
 	initial begin
 	   wait (rst == 1'b0);
 	   $display("Unit Test Started.\n");
-	   //unitTest("inst_ori");
-	   //unitTest("inst_logical");
-	   //unitTest("inst_shift");
-	   //unitTest("inst_move");
+	   unitTest("inst_ori");
+	   unitTest("inst_logical");
+	   unitTest("inst_shift");
+	   unitTest("inst_move");
 	   //unitTest("inst_arith");
 	   unitTest("inst_jump");
+	   //unitTest("test1");
 	   $display("[Done]", 0);
 	   $display("Unit Test Finished.\n");
 	   $finish;

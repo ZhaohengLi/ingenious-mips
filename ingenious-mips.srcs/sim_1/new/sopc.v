@@ -1,8 +1,6 @@
 module SOPC(
     input wire clk,
-    input wire rst,
-    input wire[5:0] cp0Inte_i,
-    output wire cp0TimerInte_o
+    input wire rst
 );
 
     wire[31:0] romAddr_cpu_to_rom;
@@ -14,6 +12,10 @@ module SOPC(
     wire ramWriteEnable_cpu_to_ram;
     wire ramEnable_cpu_to_ram;
     wire[31:0] ramData_ram_to_cpu;
+    wire[5:0] cp0Inte_cpu_to_cpu;
+    wire cp0TimerInte_cpu_to_cpu;
+
+    assign cp0Inte_cpu_to_cpu = {5'b0, cp0TimerInte_cpu_to_cpu};
 
     CPU cpu1(
         .clk(clk),
@@ -27,8 +29,8 @@ module SOPC(
         .ramSel_o(ramSel_cpu_to_ram),
         .ramWriteEnable_o(ramWriteEnable_cpu_to_ram),
         .ramEnable_o(ramEnable_cpu_to_ram),
-        .cp0Inte_i(cp0Inte_i),
-        .cp0TimerInte_o(cp0TimerInte_o)
+        .cp0Inte_i(cp0Inte_cpu_to_cpu),
+        .cp0TimerInte_o(cp0TimerInte_cpu_to_cpu)
     );
 
     ROM rom1(

@@ -1,6 +1,7 @@
 module ROM(
     input wire romEnable_i,
     input wire[31:0] romAddr_i,
+    
     output reg[31:0] romData_o
 );
     reg[31:0] instructions[0:1023];
