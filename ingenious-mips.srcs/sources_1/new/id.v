@@ -498,8 +498,8 @@ module ID(
                             regWriteEnable_o <= `Disable;
                             aluOp_o <= `EXE_TEQ_OP;
                             aluSel_o <= `EXE_RES_NOP;
-                            reg1Enable_o <= `Disable;
-                            reg2Enable_o <= `Disable;
+                            reg1Enable_o <= `Enable;
+                            reg2Enable_o <= `Enable;
                             instruction_is_valid <= `InstValid;
                         end
                         `EXE_TGE: begin
