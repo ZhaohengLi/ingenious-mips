@@ -47,14 +47,14 @@ module TESTBENCH();
 	   fans = $fopen({ `PATH_PREFIX1, name, ".ans"}, "r");
 	   $display("File .ans Loaded.");
 	   if(fans) begin
-	       $readmemh({ `PATH_PREFIX1, name, ".mem" }, sopc1.rom1.instructions,0,100);
+	       $readmemh({ `PATH_PREFIX1, name, ".mem" }, sopc1.rom1.instructions,0,1023);
            $display("File .mem Loaded.");
 	   end
 	   begin
 	       rst = 1'b1;
 	       #50 rst = 1'b0;
 	   end
-	   
+
 	   cycle = 0;
 	   while(!$feof(fans))
 	   begin @(negedge CLOCK_50);
@@ -76,13 +76,14 @@ module TESTBENCH();
 	initial begin
 	   wait (rst == 1'b0);
 	   $display("Unit Test Started.\n");
-	   unitTest("inst_ori");
-	   unitTest("inst_logical");
-	   unitTest("inst_shift");
-	   unitTest("inst_move");
+	   //unitTest("inst_mem_aligned");
+	   //unitTest("inst_mem_all");
+	   //unitTest("inst_logical");
+	   //unitTest("inst_shift");
+	   //unitTest("inst_move");
 	   //unitTest("inst_arith");
-	   unitTest("inst_jump");
-	   //unitTest("test1");
+	   unitTest("inst_trap");
+	   //unitTest("inst_jump");
 	   $display("[Done]", 0);
 	   $display("Unit Test Finished.\n");
 	   $finish;
