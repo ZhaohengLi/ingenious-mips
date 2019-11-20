@@ -8,6 +8,9 @@ module CP0(
 	input wire[4:0] cp0ReadAddr_i,//raddr_i
 	input wire[`RegBus] cp0WriteData_i,//data_i
 	input wire[5:0] cp0Inte_i,//int_i
+	input wire[`RegBus] exceptionType_i,
+	input wire[`RegBus] instAddr_i,
+	input wire isInDelayslot_i,
 
 	output reg[`RegBus] cp0Data_o,//data_o
 	output reg[`RegBus] cp0Count_o,//count_o
@@ -31,6 +34,77 @@ module CP0(
 			cp0PRId_o <= 32'b00000000010011000000000100000010;
 			cp0TimerInte_o <= `InterruptNotAssert;
 		end else begin
+			case (exceptionType_i)
+				32'h00000001: begin
+					if(isInDelayslot_i == `InDelaySlot ) begin
+						cp0EPC_o <= instAddr_i - 4 ;
+						cp0Cause_o[31] <= 1'b1;
+					end else begin
+					  cp0EPC_o <= instAddr_i;
+					  cp0Cause_o[31] <= 1'b0;
+					end
+					cp0Status_o[1] <= 1'b1;
+					cp0Cause_o[6:2] <= 5'b00000;
+
+				end
+				32'h00000008: begin
+					if(cp0Status_o[1] == 1'b0) begin
+						if(isInDelayslot_i == `InDelaySlot ) begin
+							cp0EPC_o <= instAddr_i - 4 ;
+							cp0Cause_o[31] <= 1'b1;
+						end else begin
+						cp0EPC_o <= instAddr_i;
+						cp0Cause_o[31] <= 1'b0;
+						end
+					end
+					cp0Status_o[1] <= 1'b1;
+					cp0Cause_o[6:2] <= 5'b01000;
+				end
+				32'h0000000a: begin
+					if(cp0Status_o[1] == 1'b0) begin
+						if(isInDelayslot_i == `InDelaySlot ) begin
+							cp0EPC_o <= instAddr_i - 4 ;
+							cp0Cause_o[31] <= 1'b1;
+						end else begin
+						cp0EPC_o <= instAddr_i;
+						cp0Cause_o[31] <= 1'b0;
+						end
+					end
+					cp0Status_o[1] <= 1'b1;
+					cp0Cause_o[6:2] <= 5'b01010;
+				end
+				32'h0000000d: begin
+					if(cp0Status_o[1] == 1'b0) begin
+						if(isInDelayslot_i == `InDelaySlot ) begin
+							cp0EPC_o <= instAddr_i - 4 ;
+							cp0Cause_o[31] <= 1'b1;
+						end else begin
+						cp0EPC_o <= instAddr_i;
+						cp0Cause_o[31] <= 1'b0;
+						end
+					end
+					cp0Status_o[1] <= 1'b1;
+					cp0Cause_o[6:2] <= 5'b01101;
+				end
+				32'h0000000c: begin
+					if(cp0Status_o[1] == 1'b0) begin
+						if(isInDelayslot_i == `InDelaySlot ) begin
+							cp0EPC_o <= instAddr_i - 4 ;
+							cp0Cause_o[31] <= 1'b1;
+						end else begin
+						cp0EPC_o <= instAddr_i;
+						cp0Cause_o[31] <= 1'b0;
+						end
+					end
+					cp0Status_o[1] <= 1'b1;
+					cp0Cause_o[6:2] <= 5'b01100;
+				end
+				32'h0000000e:   begin
+					cp0Status_o[1] <= 1'b0;
+				end
+				default: begin
+				end
+			endcase
 			cp0Count_o <= cp0Count_o + 1 ;
 			cp0Cause_o[15:10] <= cp0Inte_i;
 			if(cp0Compare_o != `ZeroWord && cp0Count_o == cp0Compare_o) begin

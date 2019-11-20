@@ -4,15 +4,16 @@ module CPU(
     input wire clk,
     input wire rst,
     input wire[`InstBus] romData_i,
+    input wire[5:0] cp0Inte_i,
+    input wire[`RegBus] ramData_i,
+
+    output wire[`RegBus] ramAddr_o,
     output wire[`InstAddrBus] romAddr_o,
     output wire romEnable_o,
-    input wire[`RegBus] ramData_i,
-    output wire[`RegBus] ramAddr_o,
     output wire[`RegBus] ramData_o,
     output wire ramWriteEnable_o,
     output wire[3:0] ramSel_o,
     output wire ramEnable_o,
-    input wire[5:0] cp0Inte_i,
     output wire cp0TimerInte_o
 );
     // PC & PC_ADDER & IF_ID
@@ -124,6 +125,28 @@ module CPU(
     wire cp0WriteEnable_mem_wb_to_cp0;
     //EX & CP0
     wire[`RegBus] cp0Data_cp0_to_ex;
+    wire flush_ctrl_to_all;
+    wire[`RegBus] newInstAddr_ctrl_to_pc;
+    wire[`RegBus] exceptionType_id_to_id_ex;
+    wire[`RegBus] instAddr_id_to_id_ex;
+    wire[`RegBus] exceptionType_id_ex_to_ex;
+    wire[`RegBus] instAddr_id_ex_to_ex;
+    wire[`RegBus] exceptionType_ex_to_ex_mem;
+    wire[`RegBus] instAddr_ex_to_ex_mem;
+    wire isInDelayslot_ex_to_ex_mem;
+    wire[`RegBus] exceptionType_ex_mem_to_mem;
+    wire[`RegBus] instAddr_ex_mem_to_mem;
+    wire isInDelayslot_ex_mem_to_mem;
+    wire[`RegBus] cp0Status_cp0_to_mem;
+    wire[`RegBus] cp0Cause_cp0_to_mem;
+    wire[`RegBus] cp0EPC_cp0_to_mem;
+    wire[`RegBus] exceptionType_mem_to_cp0;
+    wire[`RegBus] instAddr_mem_to_cp0;
+    wire isInDelayslot_mem_to_cp0;
+    wire[`RegBus] cp0EPC_mem_to_ctrl;
+
+
+    assign romAddr_o = instAddr_pc_to_if_id;
 
     PC pc1(
         .clk(clk),
@@ -133,10 +156,10 @@ module CPU(
         .branchTargetAddr_i(branchTarget_id_to_pc),
         .branchFlag_i(branchFlag_id_to_pc),
         .stall_i(stall_ctrl_to_all),
-        .ce_o(romEnable_o)
+        .ce_o(romEnable_o),
+        .flush_i(flush_ctrl_to_all),
+        .newInstAddr_i(newInstAddr_ctrl_to_pc)
     );
-
-    assign romAddr_o = instAddr_pc_to_if_id;
 
     PC_ADDER pc_adder1(
         .rst(rst),
@@ -151,7 +174,8 @@ module CPU(
         .inst_i(romData_i),
         .instAddr_o(instAddr_if_id_to_id),
         .inst_o(inst_if_id_to_id),
-        .stall_i(stall_ctrl_to_all)
+        .stall_i(stall_ctrl_to_all),
+        .flush_i(flush_ctrl_to_all)
     );
 
     ID id1(
@@ -189,7 +213,9 @@ module CPU(
         .branchTargetAddr_o(branchTarget_id_to_pc),
         .branchFlag_o(branchFlag_id_to_pc),
         .inst_o(inst_id_to_id_ex),
-        .ex_aluOp_i(aluOp_ex_to_ex_mem)
+        .ex_aluOp_i(aluOp_ex_to_ex_mem),
+        .exceptionType_o(exceptionType_id_to_id_ex),
+        .instAddr_o(instAddr_id_to_id_ex)
     );
 
     REG reg1(
@@ -229,7 +255,12 @@ module CPU(
         .inst_i(inst_id_to_id_ex),
         .inst_o(inst_id_ex_to_ex),
         .nextInstInDelayslot_i(nextInstInDelayslot_id_to_id_ex),
-        .nextInstInDelayslot_o(isInDelayslot_id_ex_to_id)//P211 port "nextInstInDelayslot_o" of id_ex1 to port "isInDelayslot_i" of id1 , it is not a typo
+        .nextInstInDelayslot_o(isInDelayslot_id_ex_to_id),//P211 port "nextInstInDelayslot_o" of id_ex1 to port "isInDelayslot_i" of id1 , it is not a typo
+        .flush_i(flush_ctrl_to_all),
+        .exceptionType_i(exceptionType_id_to_id_ex),
+        .instAddr_i(instAddr_id_to_id_ex),
+        .exceptionType_o(exceptionType_id_ex_to_ex),
+        .instAddr_o(instAddr_id_ex_to_ex)
     );
 
     EX ex1(
@@ -243,26 +274,21 @@ module CPU(
         .regWriteAddr_o(regWriteAddr_ex_to_ex_mem),
         .regWriteData_o(regWriteData_ex_to_ex_mem),
         .regWriteEnable_o(regWriteEnable_ex_to_ex_mem),
-
         .mem_regHILOEnable_i(regHILOEnable_mem_to_mem_wb),
         .mem_regHI_i(regHI_mem_to_mem_wb),
         .mem_regLO_i(regLO_mem_to_mem_wb),
         .mem_wb_regHILOEnable_i(regHILOEnable_mem_wb_to_hilo),
         .mem_wb_regHI_i(regHI_mem_wb_to_hilo),
         .mem_wb_regLO_i(regLO_mem_wb_to_hilo),
-
         //from hilo
         .regHI_i(regHI_hilo_to_ex),
         .regLO_i(regLO_hilo_to_ex),
-
         .regHILOEnable_o(regHILOEnable_ex_to_ex_mem),
         .regHI_o(regHI_ex_to_ex_mem), .regLO_o(regLO_ex_to_ex_mem),
-
         .regHILOTemp_i(regHILOTemp_ex_mem_to_ex),
         .cnt_i(cnt_ex_mem_to_ex),
         .regHILOTemp_o(regHILOTemp_ex_to_ex_mem),
         .cnt_o(cnt_ex_to_ex_mem),
-
         .divResult_i(divResult_div_to_ex),
         .divFinished_i(divFinished_div_to_ex),
         .divStart_o(divStart_ex_to_div),
@@ -276,7 +302,6 @@ module CPU(
         .aluOp_o(aluOp_ex_to_ex_mem),
         .memAddr_o(memAddr_ex_to_ex_mem),
         .operand2_o(operand2_ex_to_ex_mem),
-
         .cp0Data_i(cp0Data_cp0_to_ex),
         .cp0ReadAddr_o(cp0ReadAddr_ex_to_cp0),
         .cp0WriteEnable_o(cp0WriteEnable_ex_to_ex_mem),
@@ -287,7 +312,12 @@ module CPU(
         .mem_cp0WriteData_i(cp0WriteData_mem_to_mem_wb),
         .mem_wb_cp0WriteEnable_i(cp0WriteEnable_mem_wb_to_cp0),
         .mem_wb_cp0WriteAddr_i(cp0WriteAddr_mem_wb_to_cp0),
-        .mem_wb_cp0WriteData_i(cp0WriteData_mem_wb_to_cp0)
+        .mem_wb_cp0WriteData_i(cp0WriteData_mem_wb_to_cp0),
+        .exceptionType_i(exceptionType_id_ex_to_ex),
+        .instAddr_i(instAddr_id_ex_to_ex),
+        .exceptionType_o(exceptionType_ex_to_ex_mem),
+        .instAddr_o(instAddr_ex_to_ex_mem),
+        .isInDelayslot_o(isInDelayslot_ex_to_ex_mem)
     );
 
     EX_MEM ex_mem1(
@@ -323,7 +353,14 @@ module CPU(
         .cp0WriteData_i(cp0WriteData_ex_to_ex_mem),
         .cp0WriteEnable_o(cp0WriteEnable_ex_mem_to_mem),
         .cp0WriteAddr_o(cp0WriteAddr_ex_mem_to_mem),
-        .cp0WriteData_o(cp0WriteData_ex_mem_to_mem)
+        .cp0WriteData_o(cp0WriteData_ex_mem_to_mem),
+        .flush_i(flush_ctrl_to_all),
+        .exceptionType_i(exceptionType_ex_to_ex_mem),
+        .instAddr_i(instAddr_ex_to_ex_mem),
+        .isInDelayslot_i(isInDelayslot_ex_to_ex_mem),
+        .exceptionType_o(exceptionType_ex_mem_to_mem),
+        .instAddr_o(instAddr_ex_mem_to_mem),
+        .isInDelayslot_o(isInDelayslot_ex_mem_to_mem)
     );
 
     MEM mem1(
@@ -361,7 +398,20 @@ module CPU(
         .cp0WriteData_i(cp0WriteData_ex_mem_to_mem),
         .cp0WriteEnable_o(cp0WriteEnable_mem_to_mem_wb),
         .cp0WriteAddr_o(cp0WriteAddr_mem_to_mem_wb),
-        .cp0WriteData_o(cp0WriteData_mem_to_mem_wb)
+        .cp0WriteData_o(cp0WriteData_mem_to_mem_wb),
+        .exceptionType_i(exceptionType_ex_mem_to_mem),
+        .instAddr_i(instAddr_ex_mem_to_mem),
+        .isInDelayslot_i(isInDelayslot_ex_mem_to_mem),
+        .cp0Status_i(cp0Status_cp0_to_mem),
+        .cp0Cause_i(cp0Cause_cp0_to_mem),
+        .cp0EPC_i(cp0EPC_cp0_to_mem),
+        .mem_wb_cp0WriteEnable_i(cp0WriteEnable_mem_wb_to_cp0),
+        .mem_wb_cp0WriteAddr_i(cp0WriteAddr_mem_wb_to_cp0),
+        .mem_wb_cp0WriteData_i(cp0WriteData_mem_wb_to_cp0),
+        .exceptionType_o(exceptionType_mem_to_cp0),
+        .instAddr_o(instAddr_mem_to_cp0),
+        .isInDelayslot_o(isInDelayslot_mem_to_cp0),
+        .cp0EPC_o(cp0EPC_mem_to_ctrl)
     );
 
     MEM_WB mem_wb1 (
@@ -382,7 +432,6 @@ module CPU(
         .regHI_o(regHI_mem_wb_to_hilo),
         .regLO_o(regLO_mem_wb_to_hilo),
         .stall_i(stall_ctrl_to_all),
-
         .LLbitData_i(LLbitData_mem_to_mem_wb),
         .LLbitWriteEnable_i(LLbitWriteEnable_mem_to_mem_wb),
         .LLbitData_o(LLbitData_mem_wb_to_llbit),
@@ -392,7 +441,8 @@ module CPU(
         .cp0WriteData_i(cp0WriteData_mem_to_mem_wb),
         .cp0WriteEnable_o(cp0WriteEnable_mem_wb_to_cp0),
         .cp0WriteAddr_o(cp0WriteAddr_mem_wb_to_cp0),
-        .cp0WriteData_o(cp0WriteData_mem_wb_to_cp0)
+        .cp0WriteData_o(cp0WriteData_mem_wb_to_cp0),
+        .flush_i(flush_ctrl_to_all)
     );
 
     CP0 cp01(
@@ -404,7 +454,13 @@ module CPU(
         .cp0WriteAddr_i(cp0WriteAddr_mem_wb_to_cp0),
         .cp0Data_o(cp0Data_cp0_to_ex),
         .cp0Inte_i(cp0Inte_i),
-        .cp0TimerInte_o(cp0TimerInte_o)
+        .cp0TimerInte_o(cp0TimerInte_o),
+        .exceptionType_i(exceptionType_mem_to_cp0),
+        .instAddr_i(instAddr_mem_to_cp0),
+        .isInDelayslot_i(isInDelayslot_mem_to_cp0),
+        .cp0Status_o(cp0Status_cp0_to_mem),
+        .cp0Cause_o(cp0Cause_cp0_to_mem),
+        .cp0EPC_o(cp0EPC_cp0_to_mem)
     );
 
     HILO hilo1 (
@@ -432,7 +488,7 @@ module CPU(
     LLBIT llbit1(
         .rst(rst),
         .clk(clk),
-        .LLbitFlush_i(1'b0),
+        .flush_i(flush_ctrl_to_all),
         .LLbitData_i(LLbitData_mem_wb_to_llbit),
         .LLbitWriteEnable_i(LLbitWriteEnable_mem_wb_to_llbit),
         .LLbitData_o(LLbitData_llbit_to_mem)
@@ -442,7 +498,11 @@ module CPU(
         .rst(rst),
         .stallReqFromID_i(stallReqFromID_id_to_ctrl),
         .stallReqFromEX_i(stallReqFromEX_ex_to_ctrl),
-        .stall_o(stall_ctrl_to_all)
+        .stall_o(stall_ctrl_to_all),
+        .cp0EPC_i(cp0EPC_mem_to_ctrl),
+        .exceptionType_i(exceptionType_mem_to_cp0),
+        .newInstAddr_o(newInstAddr_ctrl_to_pc),
+        .flush_o(flush_ctrl_to_all)
     );
 
 endmodule

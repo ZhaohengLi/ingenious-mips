@@ -3,41 +3,34 @@
 module MEM_WB(
 	input wire clk,
 	input wire rst,
-	
+	input wire flush_i,
 	input wire[`RegAddrBus] regWriteAddr_i,
 	input wire regWriteEnable_i,
 	input wire[`RegBus] regWriteData_i,
-	
 	input wire regHILOEnable_i,
 	input wire[`RegBus] regHI_i,
 	input wire[`RegBus] regLO_i,
-	
 	input wire[5:0] stall_i,
+	input wire LLbitWriteEnable_i,
+	input wire LLbitData_i,
+	input wire cp0WriteEnable_i,
+	input wire[4:0] cp0WriteAddr_i,
+	input wire[`RegBus] cp0WriteData_i,
 
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o,
 	output reg[`RegBus] regWriteData_o,
-	
 	output reg regHILOEnable_o,
 	output reg[`RegBus] regHI_o,
 	output reg[`RegBus] regLO_o,
-	
-	input wire LLbitWriteEnable_i,
-	input wire LLbitData_i,
-	
 	output reg LLbitWriteEnable_o,
 	output reg LLbitData_o,
-	
-	input wire cp0WriteEnable_i,
-	input wire[4:0] cp0WriteAddr_i,
-	input wire[`RegBus] cp0WriteData_i,
-	
 	output reg cp0WriteEnable_o,
 	output reg[4:0] cp0WriteAddr_o,
 	output reg[`RegBus] cp0WriteData_o
 );
     always @ (posedge clk) begin
-        if(rst == `Enable) begin
+        if(rst == `Enable || flush_i == 1'b1) begin
             regWriteAddr_o <= `NOPRegAddr;
             regWriteEnable_o <= `Disable;
             regWriteData_o <= `ZeroWord;
