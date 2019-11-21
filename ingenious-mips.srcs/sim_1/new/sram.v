@@ -33,7 +33,7 @@ module SRAM(
 			baseRAM_Data <= ramData_i;
 		end else begin
 			waitstate <= waitstate + 4'h0;
-			if(waitstate == 4'h2) begin
+			if(waitstate == 4'h1) begin
 				ramData_o <= baseRAM_Data;
 				waitstate <= 4'h0;
 			end

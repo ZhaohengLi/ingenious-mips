@@ -10,7 +10,7 @@ module FLASH(
 	input [7:0] flash_Data_i,
 	output flash_rst_o,
 	output flash_ce_o,
-	output flash_oe_o,
+	output flash_oe_o, 
 	output flash_we_o,
 	
     reg [3:0] waitstate
