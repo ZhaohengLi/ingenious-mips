@@ -16,7 +16,7 @@ module TESTBENCH();
         .clk(CLOCK_50),
         .rst(rst)
     );
-	
+
 	reg dbus_we_delay;
 	reg [15:0] dbus_addr_delay;
 	reg [31:0] dbus_data_delay;
@@ -27,15 +27,15 @@ module TESTBENCH();
 	dbus_addr_delay <= {sopc1.ram1.ramAddr_i[15:2], 2'b0};
 	dbus_data_delay <= sopc1.ram1.data_w;
 	end
-    
+
     reg post_stall;
     always @(negedge CLOCK_50)
     begin
 	post_stall <= sopc1.ram1.stall;
     end
 
-	
-	
+
+
 	task judge;
     input integer fans, cycle;
     input reg[8*25:1] out;
@@ -81,7 +81,7 @@ module TESTBENCH();
 	   while(!$feof(fans))
 	   begin @(negedge CLOCK_50);
 	       cycle = cycle + 1;
-	       
+
 	       //if(!post_stall) begin
                if(sopc1.cpu1.regWriteAddr_mem_wb_to_reg && sopc1.cpu1.regWriteEnable_mem_wb_to_reg) begin
                    //$display(" %0x",sopc1.cpu1.id1.inst_i);
@@ -110,7 +110,7 @@ module TESTBENCH();
 	   wait (rst == 1'b0);
 	   $display("Unit Test Started.\n");
 	   unitTest("except_delayslot");
-	   unitTest("except");
+	   //unitTest("except");
 	   unitTest("inst_arith");
 	   //unitTest("inst_ext");
 	   unitTest("inst_mem_all");
