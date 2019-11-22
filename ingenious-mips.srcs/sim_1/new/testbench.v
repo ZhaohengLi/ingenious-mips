@@ -88,14 +88,18 @@ module TESTBENCH();
                    $sformat(out, "$%0d=0x%x", sopc1.cpu1.regWriteAddr_mem_wb_to_reg, sopc1.cpu1.regWriteData_mem_wb_to_reg);
                    judge(fans, cycle, out);
                end
-               if( sopc1.cpu1.regHILOEnable_mem_wb_to_hilo ) begin
+               if(sopc1.cpu1.regHILOEnable_mem_wb_to_hilo) begin
                    $sformat(out, "$hilo=0x%x%x", sopc1.cpu1.regHI_mem_wb_to_hilo, sopc1.cpu1.regLO_mem_wb_to_hilo);
                    judge(fans, cycle, out);
                end
                if(dbus_we_delay) begin
                     $sformat(out, "[0x%x]=0x%x", dbus_addr_delay[15:0], dbus_data_delay);
                     judge(fans, cycle, out);
-                end 
+               end
+               if(sopc1.cpu1.cp0WriteEnable_mem_wb_to_cp0 && sopc1.cpu1.cp0WriteAddr_mem_wb_to_cp0 == 5'b01101 ) begin
+                    $sformat(out, "[exc_code]=0x%x", sopc1.cpu1.cp0WriteData_mem_wb_to_cp0[6:2]);
+                   judge(fans, cycle, out);
+               end
             //end
 	   end
 	   $display("======= Unit Test : %0s Finished =======\n", name, name);
@@ -105,12 +109,18 @@ module TESTBENCH();
 	initial begin
 	   wait (rst == 1'b0);
 	   $display("Unit Test Started.\n");
-	   //unitTest("inst_mem_aligned");
+	   unitTest("except_delayslot");
+	   unitTest("except");
+	   unitTest("inst_arith");
+	   //unitTest("inst_ext");
 	   unitTest("inst_mem_all");
-	   //unitTest("inst_logical");
-	   //unitTest("inst_shift");
-	   //unitTest("inst_move");
-	   //unitTest("inst_arith");
+	   unitTest("inst_logical");
+	   unitTest("inst_shift");
+	   unitTest("inst_llsc");
+	   unitTest("inst_trap");
+	   unitTest("inst_move");
+	   unitTest("inst_multicyc");
+	   unitTest("inst_ori");
 	   unitTest("inst_jump");
 	   $display("[Done]", 0);
 	   $display("Unit Test Finished.\n");
