@@ -3,17 +3,19 @@
 module CPU(
     input wire clk,
     input wire rst,
-    input wire[`InstBus] romData_i,
     input wire[5:0] cp0Inte_i,
+    input wire[`InstBus] romData_i,
     input wire[`RegBus] ramData_i,
+    input wire romStallReq_i,
+    input wire ramStallReq_i,
 
     output wire[`RegBus] ramAddr_o,
     output wire[`InstAddrBus] romAddr_o,
     output wire romEnable_o,
+    output wire ramEnable_o,
     output wire[`RegBus] ramData_o,
     output wire ramWriteEnable_o,
     output wire[3:0] ramSel_o,
-    output wire ramEnable_o,
     output wire cp0TimerInte_o
 );
     // PC & PC_ADDER & IF_ID
@@ -502,7 +504,9 @@ module CPU(
         .cp0EPC_i(cp0EPC_mem_to_ctrl),
         .exceptionType_i(exceptionType_mem_to_cp0),
         .newInstAddr_o(newInstAddr_ctrl_to_pc),
-        .flush_o(flush_ctrl_to_all)
+        .flush_o(flush_ctrl_to_all),
+        .stallReqFromIF_i(romStallReq_i),
+        .stallReqFromMEM_i(ramStallReq_i)
     );
 
 endmodule
