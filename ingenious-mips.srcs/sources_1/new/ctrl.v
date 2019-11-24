@@ -4,6 +4,8 @@ module CTRL(
   input wire rst,
   input wire stallReqFromID_i,
   input wire stallReqFromEX_i,
+  input wire stallReqFromIF_i,
+  input wire stallReqFromMEM_i,
   input wire[`RegBus] exceptionType_i,
   input wire[`RegBus] cp0EPC_i,
 
@@ -42,10 +44,16 @@ module CTRL(
 				default	: begin
 				end
             endcase
+        end else if (stallReqFromMEM_i == `Stop) begin
+            stall_o <= 6'b011111;
+            flush_o <= 1'b0;
         end else if (stallReqFromEX_i == `Stop) begin
             stall_o <= 6'b001111;
             flush_o <= 1'b0;
         end else if (stallReqFromID_i == `Stop) begin
+            stall_o <= 6'b000111;
+            flush_o <= 1'b0;
+        end else if (stallReqFromIF_i == `Stop) begin
             stall_o <= 6'b000111;
             flush_o <= 1'b0;
         end else begin
