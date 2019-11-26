@@ -226,7 +226,14 @@
 `define CP0_REG_PrId    5'b01111
 `define CP0_REG_CONFIG    5'b10000
 
+`define BUS_IDLE 2'b00
+`define BUS_BUSY 2'b01
 `define WB_IDLE 2'b00
 `define WB_BUSY 2'b01
 `define WB_WAIT_FOR_FLUSHING 2'b10
 `define WB_WAIT_FOR_STALL 2'b11
+
+`define baseRAM_Border_l 32'h08000000
+`define baseRAM_Border_r 32'h08100000
+`define romBorder_l    32'h04000000
+`define romBorder_r    32'h08000000

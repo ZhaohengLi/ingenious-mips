@@ -33,21 +33,13 @@ module SOPC(
         .cp0TimerInte_o(cp0TimerInte_cpu_to_cpu)
     );
 
-    /*ROM rom1(
-        .romAddr_i(romAddr_cpu_to_rom),
-        .romEnable_i(romEnable_cpu_to_rom),
-        .romData_o(romData_rom_to_cpu)
-    );*/
-    
-    FLASH rom1(
-        .clk_i(clk),
-        .rst_i(rst),
+    ROM rom1(
         .romAddr_i(romAddr_cpu_to_rom),
         .romEnable_i(romEnable_cpu_to_rom),
         .romData_o(romData_rom_to_cpu)
     );
 
-    /*RAM ram1(
+    RAM ram1(
         .clk(clk),
         .ramAddr_i(ramAddr_cpu_to_ram),
         .ramData_i(ramData_cpu_to_ram),
@@ -55,17 +47,7 @@ module SOPC(
         .ramWriteEnable_i(ramWriteEnable_cpu_to_ram),
         .ramEnable_i(ramEnable_cpu_to_ram),
         .ramData_o(ramData_ram_to_cpu)
-    );*/
+    );
 	
-	SRAM ram1(
-        .clk_i(clk),
-		.rst_i(rst),
-        .ramAddr_i(ramAddr_cpu_to_ram),
-        .ramData_i(ramData_cpu_to_ram),
-        .ramSel_i(ramSel_cpu_to_ram),
-        .ramWriteEnable_i(ramWriteEnable_cpu_to_ram),
-        .ramEnable_i(ramEnable_cpu_to_ram),
-        .ramData_o(ramData_ram_to_cpu)
-	);
 
 endmodule;

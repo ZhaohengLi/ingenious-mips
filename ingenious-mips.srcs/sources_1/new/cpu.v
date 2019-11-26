@@ -3,38 +3,21 @@
 module CPU(
     input wire clk,
     input wire rst,
-    input wire[`InstBus] romData_i,
     input wire[5:0] cp0Inte_i,
+    input wire[`InstBus] romData_i,
     input wire[`RegBus] ramData_i,
+    input wire romStallReq_i,
+    input wire ramStallReq_i,
 
     output wire[`RegBus] ramAddr_o,
     output wire[`InstAddrBus] romAddr_o,
     output wire romEnable_o,
-    output wire[`RegBus] ramData_o,
-    output wire ramWriteEnable_o,
-    output wire[3:0] ramSel_o,
     output wire ramEnable_o,
-    output wire cp0TimerInte_o,
-    
-    
-	input wire[`RegBus]           iwishboneData_i,
-	input wire                    iwishboneAck_i,
-	output wire[`RegBus]           iwishboneAddr_o,
-	output wire[`RegBus]           iwishboneData_o,
-	output wire                    iwishboneWE_o,
-	output wire[3:0]               iwishboneSel_o,
-	output wire                    iwishboneStb_o,
-	output wire                    iwishboneCyc_o, 
+    output wire[`RegBus] ramData_o,
+    output wire ramWriteEnable_o,   
+    output wire[3:0] ramSel_o,
 	
-	input wire[`RegBus]           dwishboneData_i,
-	input wire                    dwishboneAck_i,
-	output wire[`RegBus]           dwishboneAddr_o,
-	output wire[`RegBus]           dwishboneData_o,
-	output wire                    dwishboneWE_o,
-	output wire[3:0]               dwishboneSel_o,
-	output wire                    dwishboneStb_o,
-	output wire                    dwishboneCyc_o
-    
+	output wire cp0TimerInte_o
 );
     // PC & PC_ADDER & IF_ID
     wire[`InstAddrBus] instAddr_pc_adder_to_pc;
@@ -166,6 +149,24 @@ module CPU(
     wire[`RegBus] instAddr_mem_to_cp0;
     wire isInDelayslot_mem_to_cp0;
     wire[`RegBus] cp0EPC_mem_to_ctrl;
+    
+    wire[`InstAddrBus]  pc_cpu_to_bus;
+    
+    wire enable_bus_to_baseRAM;
+    wire writeEnable_bus_to_baseRAM;
+    wire[3:0] sel_bus_to_baseRAM;
+    wire[`RegBus] data_bus_to_baseRAM;
+    wire[`RegBus] addr_bus_to_baseRAM;
+    wire[`RegBus] data_baseRAM_to_bus;
+    wire rdy_baseRAM_to_bus;
+    
+    wire enable_bus_to_flash;
+    wire writeEnable_bus_to_flash;
+    wire[3:0] sel_bus_to_flash;
+    wire[`RegBus] data_bus_to_flash;
+    wire[`RegBus] addr_bus_to_flash;
+    wire[`RegBus] data_flash_to_bus;
+    wire rdy_flash_to_bus;
 
 
     assign romAddr_o = instAddr_pc_to_if_id;
@@ -526,10 +527,83 @@ module CPU(
         .cp0EPC_i(cp0EPC_mem_to_ctrl),
         .exceptionType_i(exceptionType_mem_to_cp0),
         .newInstAddr_o(newInstAddr_ctrl_to_pc),
-        .flush_o(flush_ctrl_to_all)
+        .flush_o(flush_ctrl_to_all),
+        .stallReqFromIF_i(romStallReq_i),
+        .stallReqFromMEM_i(ramStallReq_i)
     );
     
-    WISHBONE_BUS_IF dwishbone_bus_if(
+    IF_BUS ibus(
+    
+        .clk(clk),
+        .rst(rst),
+        
+        .stall_i(stall_ctrl_to_all),
+        .flush_i(flush_ctrl_to_all),
+        
+        .cpuEnable_i(romEnable_o),
+        .cpuWriteEnable_i(1'b0),
+        .cpuSel_i(4'b1111),
+        .cpuAddr_i(pc_cpu_to_bus),
+        .cpuData_i(32'h00000000),
+        .cpuData_o(romData_i),
+        
+		.stallReq(stallReqFromMEM_id_to_ctrl),
+		
+		.ramEnable_o(enable_bus_to_baseRAM),
+		.ramWriteEnable_o(writeEnable_bus_to_baseRAM),
+		.ramData_o(data_bus_to_baseRAM),
+		.ramAddr_o(addr_bus_to_baseRAM),
+		.ramSel_o(sel_bus_to_baseRAM),
+		.ramData_i(data_baseRAM_to_bus),
+		.ramRdy_i(rdy_baseRAM_to_bus),
+	
+		.romEnable_o(enable_bus_to_flash),
+		.romWriteEnable_o(writeEnable_bus_to_flash),
+		.romData_o(data_bus_to_flash),
+		.romAddr_o(addr_bus_to_flash),
+		.romSel_o(sel_bus_to_flash),
+		.romData_i(data_flash_to_bus),
+		.romRdy_i(rdy_flash_to_bus)
+		
+    );
+    
+    RAM base_ram(
+    
+	   .clk_i(clk),
+	   .rst_i(rst),
+	   
+	   .ramEnable_i(enable_bus_to_baseRAM),
+	   .ramWriteEnable_i(writeEnable_bus_to_baseRAM),
+	   .ramData_i(data_bus_to_baseRAM),
+	   .ramAddr_i(addr_bus_to_baseRAM),
+	   .ramSel_i(sel_bus_to_baseRAM),
+	   .ramData_o(data_baseRAM_to_bus),
+	   .ramRdy_o(rdy_baseRAM_to_bus)
+	   
+	   /*.SRAM_CE_o,
+	   .SRAM_OE_o,
+	   .SRAM_WE_o,
+	   .SRAM_BE_o,
+	   .SRAM_Data,
+	   .SRAM_Addr_o,*/
+    );
+    
+    ROM flash(
+    
+	   .clk_i(clk),
+	   .rst_i(rst),
+	   
+	   .romEnable_i(enable_bus_to_flash),
+	   .romWriteEnable_i(writeEnable_bus_to_flash),
+	   .romData_i(data_bus_to_flash),
+	   .romAddr_i(addr_bus_to_flash),
+	   .romSel_i(sel_bus_to_flash),
+	   .romData_o(data_flash_to_bus),
+	   .romRdy_o(rdy_flash_to_bus)
+	   
+    );
+    
+    /*WISHBONE_BUS_IF dwishbone_bus_if(
         .clk(clk),
         .rst(rst),
         
@@ -582,6 +656,6 @@ module CPU(
 
 		.stallReq(stallReqFromIF_id_to_ctrl)
         
-    );
+    );*/
 
 endmodule
