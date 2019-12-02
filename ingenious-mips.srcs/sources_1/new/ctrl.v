@@ -9,8 +9,6 @@ module CTRL(
   input wire stallReqFromEX_i,
   input wire stallReqFromMEM_i,
   
-  input wire stallReqFromIF_i,
-  input wire stallReqFromMEM_i,
   input wire[`RegBus] exceptionType_i,
   input wire[`RegBus] cp0EPC_i,
 

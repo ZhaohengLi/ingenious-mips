@@ -1,6 +1,6 @@
 `include "defines.v"
 
-module IF_BUS(
+module DATA_BUS(
 	input wire clk_i,
 	input wire rst_i,
 	
@@ -15,19 +15,14 @@ module IF_BUS(
 	
 	output reg       ramEnable_o,
 	output reg       ramWriteEnable_o,
+	output reg       uartEnable_o,
+	output reg       uartWriteEnable_o,
 	output reg[31:0] ramData_o,
 	output reg[31:0] ramAddr_o,
 	output reg[3:0]  ramSel_o,
-	input  wire[31:0] ramData_i,
-	input  wire       ramRdy_i,
-	
-	output reg       romEnable_o,
-	output reg       romWriteEnable_o,
-	output reg[31:0] romData_o,
-	output reg[31:0] romAddr_o,
-	output reg[3:0]  romSel_o,
-	input  wire[31:0] romData_i,
-	input  wire       romRdy_i
+	input  wire[31:0]ramData_i,
+	input  wire      ramRdy_i,
+	input  wire      uartRdy_i
 	
 );
 
@@ -41,77 +36,102 @@ module IF_BUS(
 			ramSel_o <= 4'b0000;
 			ramWriteEnable_o <= `Disable;
 			ramEnable_o <= `Disable;
-			romAddr_o <= `ZeroWord;
-			romData_o <= `ZeroWord;
-			romSel_o <= 4'b0000;
-			romWriteEnable_o <= `Disable;
-			romEnable_o <= `Disable;
+			uartWriteEnable_o <= `Disable;
+			uartEnable_o <= `Disable;
 		end else begin
 			case (busState)
 				`BUS_IDLE: begin
 					if(cpuEnable_i == `Enable) begin
-						if(`extRAM_Border_l <= cpuAddr_i && cpuAddr_i < `extRAM_Border_r) begin
-							ramAddr_o <= cpuAddr_i - `extRAM_Border_l;
+						if(`baseRAM_Border_l <= cpuAddr_i && cpuAddr_i < `baseRAM_Border_r) begin
+							ramAddr_o <= cpuAddr_i - `baseRAM_Border_l;
 							ramData_o <= cpuData_i;
 							ramSel_o <=  cpuSel_i;
 							ramWriteEnable_o <= cpuWriteEnable_i;
 							ramEnable_o <= cpuEnable_i;
 						end
-						else if(`romBorder_l <= cpuAddr_i && cpuAddr_i < `romBorder_r) begin
-							romAddr_o <= cpuAddr_i - `romBorder_l;
-							romData_o <= cpuData_i;
-							romSel_o <=  cpuSel_i;
-							romWriteEnable_o <= cpuWriteEnable_i;
-							romEnable_o <= cpuEnable_i;
+						else if(`uartBorder_l <= cpuAddr_i && cpuAddr_i < `uartBorder_r) begin
+							ramAddr_o <= cpuAddr_i - `uartBorder_l;
+							ramData_o <= cpuData_i;
+							ramSel_o <=  cpuSel_i;
+							uartWriteEnable_o <= cpuWriteEnable_i;
+							uartEnable_o <= cpuEnable_i;
+						end else begin
+						
 						end
 						busState <= `BUS_BUSY;
 					end							
 				end
 				`BUS_BUSY: begin
-					if(ramRdy_i == `Enable) begin
+					if(ramRdy_i == 1'b1) begin
 						ramAddr_o <= `ZeroWord;
 						ramData_o <= `ZeroWord;
 						ramSel_o <=  4'b0000;
 						ramWriteEnable_o <= `Disable;
 						ramEnable_o <= `Disable;
 						busState <= `BUS_IDLE;
-					end else if(romRdy_i == `Enable) begin
-						romAddr_o <= `ZeroWord;
-						romData_o <= `ZeroWord;
-						romSel_o <=  4'b0000;
-						romWriteEnable_o <= `Disable;
-						romEnable_o <= `Disable;
+					end else if(uartRdy_i == 1'b1) begin
+						ramAddr_o <= `ZeroWord;
+						ramData_o <= `ZeroWord;
+						ramSel_o <=  4'b0000;
+						uartWriteEnable_o <= `Disable;
+						uartEnable_o <= `Disable;
 						busState <= `BUS_IDLE;
 					end
 				end
 				default: begin
+				    busState <= `BUS_IDLE;
+				end 
+			endcase
+		end
+	end
+	
+	always @ (*) begin
+		if(rst_i == `Enable) begin
+			stallReq <= `NoStop;
+			cpuData_o <= 32'h000000aa;
+		end else begin
+			case (busState)
+				`BUS_IDLE: begin
+					if(cpuEnable_i == `Enable) begin
+						stallReq <= `Stop;
+					end
+				end
+				`BUS_BUSY: begin
+					if(ramRdy_i == 1'b1 || uartRdy_i == 1'b1) begin
+						stallReq <= `NoStop;
+						if(cpuWriteEnable_i == `Disable) begin
+							cpuData_o <= ramData_i;
+						end
+					end else begin
+						stallReq <= `Stop;
+					end
+				end
+				default: begin
+		          	stallReq <= `NoStop;
 				end 
 			endcase
 		end
 	end
 			
 
-	always @ (*) begin
-		if(rst_i == `Enable) begin
+	/*always @ (*) begin
+		if(rst == `Enable) begin
 			stallReq <= `NoStop;
 			cpuData_o <= `ZeroWord;
 		end else begin
-			case (busState)
-				`BUS_IDLE: begin
+			stallReq <= `NoStop;
+			case (wishboneState)
+				`WB_IDLE: begin
 					if(cpuEnable_i == `Enable) begin
 						stallReq <= `Stop;
 						cpuData_o <= `ZeroWord;				
 					end
 				end
-				`BUS_BUSY: begin
-					if(ramRdy_i == `Enable || romRdy_i == `Enable) begin
+				`WB_BUSY: begin
+					if(ramRdy_i == `Enable || uartStall_i == `Enable) begin
 						stallReq <= `NoStop;
-						if(cpuWriteEnable_i == `Disable) begin
-							if(ramRdy_i == `Enable) begin
-							    cpuData_o <= ramData_i;
-							end else if(romRdy_i == `Enable) begin
-							    cpuData_o <= romData_i;
-							end
+						if(cpuWriteEnable_o == `Disable) begin
+							cpuData_o <= regBuf;
 						end else begin
 							cpuData_o <= `ZeroWord;
 						end							
@@ -121,10 +141,9 @@ module IF_BUS(
 					end
 				end
 				default: begin
-		          	stallReq <= `NoStop;
 				end 
 			endcase
 		end
-	end
+	end*/
 
 endmodule

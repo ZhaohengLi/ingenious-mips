@@ -1,6 +1,6 @@
 `include "defines.v"
 
-module FLASH(
+module ROM(
 
 	input wire clk_i,
 	input wire rst_i,

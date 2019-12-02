@@ -23,7 +23,7 @@ module PC(
 
     always @(posedge clk) begin
         if (ce_o == `Disable) begin
-            instAddr_o <= `ZeroWord;
+            instAddr_o <= `extRAM_Border_l;
         end else begin
             if (flush_i == 1'b1) begin
                 instAddr_o <= newInstAddr_i;
