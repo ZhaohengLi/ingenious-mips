@@ -32,7 +32,7 @@ module RAM_UART(
 
 reg[3:0] ramState;
 
-assign SRAM_BE_o = !ramSel_i;
+assign SRAM_BE_o = ~ramSel_i;
 assign SRAM_Addr_o = ramAddr_i[21:2]; 
 assign SRAM_CE_o = !(ramEnable_i && !uartEnable_i);
 assign SRAM_Data = (ramWriteEnable_i || uartWriteEnable_i)? ramData_i : 32'bz;

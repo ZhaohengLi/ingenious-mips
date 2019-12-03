@@ -45,14 +45,22 @@ module DATA_BUS(
 						if(`baseRAM_Border_l <= cpuAddr_i && cpuAddr_i < `baseRAM_Border_r) begin
 							ramAddr_o <= cpuAddr_i - `baseRAM_Border_l;
 							ramData_o <= cpuData_i;
-							ramSel_o <=  cpuSel_i;
+							if(cpuWriteEnable_i == `Enable) begin
+							    ramSel_o <= cpuSel_i;
+							end else begin
+							    ramSel_o <= 4'hf;
+							end
 							ramWriteEnable_o <= cpuWriteEnable_i;
 							ramEnable_o <= cpuEnable_i;
 						end
 						else if(`uartBorder_l <= cpuAddr_i && cpuAddr_i < `uartBorder_r) begin
 							ramAddr_o <= cpuAddr_i - `uartBorder_l;
 							ramData_o <= cpuData_i;
-							ramSel_o <=  cpuSel_i;
+							if(cpuWriteEnable_i == `Enable) begin
+							    ramSel_o <= cpuSel_i;
+							end else begin
+							    ramSel_o <= 4'hf;
+							end
 							uartWriteEnable_o <= cpuWriteEnable_i;
 							uartEnable_o <= cpuEnable_i;
 						end else begin

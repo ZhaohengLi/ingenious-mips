@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="21643000000fs"></ZoomStartTime>
+      <ZoomEndTime time="21865000001fs"></ZoomEndTime>
+      <Cursor1Time time="21754800000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="246"></NameColumnWidth>
+      <ValueColumnWidth column_width="143"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="30" />
+   <wvobject type="logic" fp_name="/tb/clk_50M">
+      <obj_property name="ElementShortName">clk_50M</obj_property>
+      <obj_property name="ObjectShortName">clk_50M</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/dbus/cpuEnable_i">
+      <obj_property name="ElementShortName">cpuEnable_i</obj_property>
+      <obj_property name="ObjectShortName">cpuEnable_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/dbus/cpuWriteEnable_i">
+      <obj_property name="ElementShortName">cpuWriteEnable_i</obj_property>
+      <obj_property name="ObjectShortName">cpuWriteEnable_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/dbus/cpuSel_i">
+      <obj_property name="ElementShortName">cpuSel_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">cpuSel_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/dbus/cpuAddr_i">
+      <obj_property name="ElementShortName">cpuAddr_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cpuAddr_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/dbus/cpuData_i">
+      <obj_property name="ElementShortName">cpuData_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cpuData_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/dbus/cpuData_o">
+      <obj_property name="ElementShortName">cpuData_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cpuData_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/dbus/stallReq">
+      <obj_property name="ElementShortName">stallReq</obj_property>
+      <obj_property name="ObjectShortName">stallReq</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/dbus/ramEnable_o">
+      <obj_property name="ElementShortName">ramEnable_o</obj_property>
+      <obj_property name="ObjectShortName">ramEnable_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/dbus/ramWriteEnable_o">
+      <obj_property name="ElementShortName">ramWriteEnable_o</obj_property>
+      <obj_property name="ObjectShortName">ramWriteEnable_o</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/dbus/ramData_o">
+      <obj_property name="ElementShortName">ramData_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ramData_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/dbus/ramAddr_o">
+      <obj_property name="ElementShortName">ramAddr_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ramAddr_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/dbus/ramSel_o">
+      <obj_property name="ElementShortName">ramSel_o[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ramSel_o[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/dbus/ramData_i">
+      <obj_property name="ElementShortName">ramData_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ramData_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/dbus/ramRdy_i">
+      <obj_property name="ElementShortName">ramRdy_i</obj_property>
+      <obj_property name="ObjectShortName">ramRdy_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/dbus/busState">
+      <obj_property name="ElementShortName">busState[1:0]</obj_property>
+      <obj_property name="ObjectShortName">busState[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/base_ram/SRAM_CE_o">
+      <obj_property name="ElementShortName">SRAM_CE_o</obj_property>
+      <obj_property name="ObjectShortName">SRAM_CE_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/base_ram/SRAM_OE_o">
+      <obj_property name="ElementShortName">SRAM_OE_o</obj_property>
+      <obj_property name="ObjectShortName">SRAM_OE_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/base_ram/SRAM_WE_o">
+      <obj_property name="ElementShortName">SRAM_WE_o</obj_property>
+      <obj_property name="ObjectShortName">SRAM_WE_o</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/base_ram/SRAM_BE_o">
+      <obj_property name="ElementShortName">SRAM_BE_o[3:0]</obj_property>
+      <obj_property name="ObjectShortName">SRAM_BE_o[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/base_ram/SRAM_Data">
+      <obj_property name="ElementShortName">SRAM_Data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">SRAM_Data[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/base_ram/SRAM_Addr_o">
+      <obj_property name="ElementShortName">SRAM_Addr_o[19:0]</obj_property>
+      <obj_property name="ObjectShortName">SRAM_Addr_o[19:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/base_ram/ramState">
+      <obj_property name="ElementShortName">ramState[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ramState[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/cpu1/if_id1/instAddr_o">
+      <obj_property name="ElementShortName">instAddr_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">instAddr_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/cpu1/if_id1/inst_o">
+      <obj_property name="ElementShortName">inst_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">inst_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/cpu1/ctrl1/stallReqFromIF_i">
+      <obj_property name="ElementShortName">stallReqFromIF_i</obj_property>
+      <obj_property name="ObjectShortName">stallReqFromIF_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/cpu1/ctrl1/stallReqFromID_i">
+      <obj_property name="ElementShortName">stallReqFromID_i</obj_property>
+      <obj_property name="ObjectShortName">stallReqFromID_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/cpu1/ctrl1/stallReqFromEX_i">
+      <obj_property name="ElementShortName">stallReqFromEX_i</obj_property>
+      <obj_property name="ObjectShortName">stallReqFromEX_i</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb/dut/cpu1/ctrl1/stallReqFromMEM_i">
+      <obj_property name="ElementShortName">stallReqFromMEM_i</obj_property>
+      <obj_property name="ObjectShortName">stallReqFromMEM_i</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb/dut/cpu1/ctrl1/stall_o">
+      <obj_property name="ElementShortName">stall_o[5:0]</obj_property>
+      <obj_property name="ObjectShortName">stall_o[5:0]</obj_property>
+   </wvobject>
+</wave_config>

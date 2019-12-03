@@ -53,14 +53,22 @@ module IF_BUS(
 						if(`extRAM_Border_l <= cpuAddr_i && cpuAddr_i < `extRAM_Border_r) begin
 							ramAddr_o <= cpuAddr_i - `extRAM_Border_l;
 							ramData_o <= cpuData_i;
-							ramSel_o <=  cpuSel_i;
+							if(cpuWriteEnable_i == `Enable) begin
+							    ramSel_o <= cpuSel_i;
+							end else begin
+							    ramSel_o <= 4'hf;
+							end
 							ramWriteEnable_o <= cpuWriteEnable_i;
 							ramEnable_o <= cpuEnable_i;
 						end
 						else if(`romBorder_l <= cpuAddr_i && cpuAddr_i < `romBorder_r) begin
 							romAddr_o <= cpuAddr_i - `romBorder_l;
 							romData_o <= cpuData_i;
-							romSel_o <=  cpuSel_i;
+							if(cpuWriteEnable_i == `Enable) begin
+							    romSel_o <= cpuSel_i;
+							end else begin
+							    romSel_o <= 4'hf;
+							end
 							romWriteEnable_o <= cpuWriteEnable_i;
 							romEnable_o <= cpuEnable_i;
 						end
