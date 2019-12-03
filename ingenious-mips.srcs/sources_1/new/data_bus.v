@@ -26,7 +26,7 @@ module DATA_BUS(
 	
 );
 
-	reg[1:0] busState;
+	reg[2:0] busState;
 
 	always @ (posedge clk_i) begin
 		if(rst_i == `Enable) begin
@@ -68,19 +68,22 @@ module DATA_BUS(
 						ramSel_o <=  4'b0000;
 						ramWriteEnable_o <= `Disable;
 						ramEnable_o <= `Disable;
-						busState <= `BUS_IDLE;
+						busState <= `BUS_WAIT;
 					end else if(uartRdy_i == 1'b1) begin
 						ramAddr_o <= `ZeroWord;
 						ramData_o <= `ZeroWord;
 						ramSel_o <=  4'b0000;
 						uartWriteEnable_o <= `Disable;
 						uartEnable_o <= `Disable;
-						busState <= `BUS_IDLE;
+						busState <= `BUS_WAIT;
 					end
+				end
+				`BUS_WAIT: begin
+				    busState <= `BUS_IDLE;
 				end
 				default: begin
 				    busState <= `BUS_IDLE;
-				end 
+				end
 			endcase
 		end
 	end

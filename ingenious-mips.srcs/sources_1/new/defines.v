@@ -228,6 +228,7 @@
 
 `define BUS_IDLE 2'b00
 `define BUS_BUSY 2'b01
+`define BUS_WAIT 2'b10
 
 `define extRAM_Border_l   32'h80000000
 `define extRAM_Border_r   32'h80400000
