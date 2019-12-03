@@ -7,9 +7,8 @@ variables:
 
 stages:
   - build
-  - run_simulation
   - secoder_record
-  
+
 
 bitstream:
   stage: build
