@@ -9,7 +9,7 @@ module PC_ADDER(
 
     always @ (*) begin
         case (rst)
-        `Enable : instAddr_o <= `ZeroWord;
+        `Enable : instAddr_o <= `extRAM_Border_l;
         `Disable : instAddr_o <= instAddr_i + 32'd4;
         endcase
     end

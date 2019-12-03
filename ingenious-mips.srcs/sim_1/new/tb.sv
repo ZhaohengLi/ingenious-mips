@@ -52,20 +52,26 @@ parameter FLASH_INIT_FILE = "../../../../ingenious-mips.kernel/kernel1.bin";    
 
 assign rxd = 1'b1; //idle state
 
-initial begin 
-    //在这里可以自定义测试输入序列，例如：
-    dip_sw = 32'h2;
-    touch_btn = 0;
-    for (integer i = 0; i < 20; i = i+1) begin
-        #100; //等待100ns
-        clock_btn = 1; //按下手工时钟按钮
-        #100; //等待100ns
-        clock_btn = 0; //松开手工时钟按钮
-    end
-    // 模拟PC通过串口发送字符
-    cpld.pc_send_byte(8'h32);
-    #10000;
-    cpld.pc_send_byte(8'h33);
+//initial begin 
+//    //在这里可以自定义测试输入序列，例如：
+//    dip_sw = 32'h2;
+//    touch_btn = 0;
+//    for (integer i = 0; i < 20; i = i+1) begin
+//        #100; //等待100ns
+//        clock_btn = 1; //按下手工时钟按钮
+//        #100; //等待100ns
+//        clock_btn = 0; //松开手工时钟按钮
+//    end
+//    // 模拟PC通过串口发送字符
+//    cpld.pc_send_byte(8'h32);
+//    #10000;
+//    cpld.pc_send_byte(8'h33);
+//end
+
+initial begin
+reset_btn = 1'b1;
+#100
+reset_btn = 1'b0;
 end
 
 // 待测试用户设计
@@ -179,27 +185,27 @@ initial begin
     $stop;
 end
 
-// 从文件加载 BaseRAM
-initial begin 
-    reg [31:0] tmp_array[0:1048575];
-    integer n_File_ID, n_Init_Size;
-    n_File_ID = $fopen(BASE_RAM_INIT_FILE, "rb");
-    if(!n_File_ID)begin 
-        n_Init_Size = 0;
-        $display("Failed to open BaseRAM init file");
-    end else begin
-        n_Init_Size = $fread(tmp_array, n_File_ID);
-        n_Init_Size /= 4;
-        $fclose(n_File_ID);
-    end
-    $display("BaseRAM Init Size(words): %d",n_Init_Size);
-    for (integer i = 0; i < n_Init_Size; i++) begin
-        base1.mem_array0[i] = tmp_array[i][24+:8];
-        base1.mem_array1[i] = tmp_array[i][16+:8];
-        base2.mem_array0[i] = tmp_array[i][8+:8];
-        base2.mem_array1[i] = tmp_array[i][0+:8];
-    end
-end
+//// 从文件加载 BaseRAM
+//initial begin 
+//    reg [31:0] tmp_array[0:1048575];
+//    integer n_File_ID, n_Init_Size;
+//    n_File_ID = $fopen(BASE_RAM_INIT_FILE, "rb");
+//    if(!n_File_ID)begin 
+//        n_Init_Size = 0;
+//        $display("Failed to open BaseRAM init file");
+//    end else begin
+//        n_Init_Size = $fread(tmp_array, n_File_ID);
+//        n_Init_Size /= 4;
+//        $fclose(n_File_ID);
+//    end
+//    $display("BaseRAM Init Size(words): %d",n_Init_Size);
+//    for (integer i = 0; i < n_Init_Size; i++) begin
+//        base1.mem_array0[i] = tmp_array[i][24+:8];
+//        base1.mem_array1[i] = tmp_array[i][16+:8];
+//        base2.mem_array0[i] = tmp_array[i][8+:8];
+//        base2.mem_array1[i] = tmp_array[i][0+:8];
+//    end
+//end
 
 // 从文件加载 ExtRAM
 initial begin 

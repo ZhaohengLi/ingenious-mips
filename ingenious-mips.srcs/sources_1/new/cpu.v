@@ -3,12 +3,12 @@
 module CPU(
     input wire clk,
     input wire rst,
-    
+
     input wire[5:0] cp0Inte_i,
-    
+
     input wire[`InstBus] romData_i,
     input wire[`RegBus] ramData_i,
-    
+
     input wire romStallReq_i,
     input wire ramStallReq_i,
 
@@ -17,9 +17,9 @@ module CPU(
     output wire romEnable_o,
     output wire ramEnable_o,
     output wire[`RegBus] ramData_o,
-    output wire ramWriteEnable_o,   
+    output wire ramWriteEnable_o,
     output wire[3:0] ramSel_o,
-	
+
 	output wire cp0TimerInte_o
 );
     // PC & PC_ADDER & IF_ID
@@ -111,10 +111,8 @@ module CPU(
     wire[`RegBus] regLO_hilo_to_ex;
     // CTRL
     wire[5:0] stall_ctrl_to_all;
-    wire stallReqFromIF_id_to_ctrl;
     wire stallReqFromID_id_to_ctrl;
     wire stallReqFromEX_ex_to_ctrl;
-    wire stallReqFromMEM_id_to_ctrl;
     //EX and DIV
     wire divStart_ex_to_div;
     wire [`RegBus] divOperand1_ex_to_div;
@@ -504,10 +502,10 @@ module CPU(
 
     CTRL ctrl1(
         .rst(rst),
-        .stallReqFromIF_i(stallReqFromIF_id_to_ctrl),
+        .stallReqFromIF_i(romStallReq_i),
         .stallReqFromID_i(stallReqFromID_id_to_ctrl),
         .stallReqFromEX_i(stallReqFromEX_ex_to_ctrl),
-        .stallReqFromMEM_i(stallReqFromMEM_id_to_ctrl),
+        .stallReqFromMEM_i(ramStallReq_i),
         .stall_o(stall_ctrl_to_all),
         .cp0EPC_i(cp0EPC_mem_to_ctrl),
         .exceptionType_i(exceptionType_mem_to_cp0),
