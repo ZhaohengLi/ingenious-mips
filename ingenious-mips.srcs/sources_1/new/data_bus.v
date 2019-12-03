@@ -26,7 +26,7 @@ module DATA_BUS(
 	
 );
 
-	reg[2:0] busState;
+	reg[1:0] busState;
 
 	always @ (posedge clk_i) begin
 		if(rst_i == `Enable) begin
