@@ -197,20 +197,20 @@ module MEM(
 					memEnable_o <= `Enable;
 					case (memAddr_i[1:0])
 						2'b00:	begin
-							regWriteData_o <= {{24{memData_i[31]}},memData_i[31:24]};
-							memSel_o <= 4'b1000;
+							regWriteData_o <= {{24{memData_i[7]}},memData_i[7:0]};
+							memSel_o <= 4'b0001;
 						end
 						2'b01:	begin
-							regWriteData_o <= {{24{memData_i[23]}},memData_i[23:16]};
-							memSel_o <= 4'b0100;
-						end
-						2'b10:	begin
 							regWriteData_o <= {{24{memData_i[15]}},memData_i[15:8]};
 							memSel_o <= 4'b0010;
 						end
+						2'b10:	begin
+							regWriteData_o <= {{24{memData_i[23]}},memData_i[23:16]};
+							memSel_o <= 4'b0100;
+						end
 						2'b11:	begin
-							regWriteData_o <= {{24{memData_i[7]}},memData_i[7:0]};
-							memSel_o <= 4'b0001;
+							regWriteData_o <= {{24{memData_i[31]}},memData_i[31:24]};
+							memSel_o <= 4'b1000;
 						end
 						default:	begin
 							regWriteData_o <= `ZeroWord;
@@ -223,20 +223,20 @@ module MEM(
 					memEnable_o <= `Enable;
 					case (memAddr_i[1:0])
 						2'b00:	begin
-							regWriteData_o <= {{24{1'b0}},memData_i[31:24]};
-							memSel_o <= 4'b1000;
+							regWriteData_o <= {{24{1'b0}},memData_i[7:0]};
+							memSel_o <= 4'b0001;
 						end
 						2'b01:	begin
-							regWriteData_o <= {{24{1'b0}},memData_i[23:16]};
-							memSel_o <= 4'b0100;
-						end
-						2'b10:	begin
 							regWriteData_o <= {{24{1'b0}},memData_i[15:8]};
 							memSel_o <= 4'b0010;
 						end
+						2'b10:	begin
+							regWriteData_o <= {{24{1'b0}},memData_i[23:16]};
+							memSel_o <= 4'b0100;
+						end
 						2'b11:	begin
-							regWriteData_o <= {{24{1'b0}},memData_i[7:0]};
-							memSel_o <= 4'b0001;
+							regWriteData_o <= {{24{1'b0}},memData_i[31:24]};
+							memSel_o <= 4'b1000;
 						end
 						default:	begin
 							regWriteData_o <= `ZeroWord;
@@ -249,12 +249,12 @@ module MEM(
 					memEnable_o <= `Enable;
 					case (memAddr_i[1:0])
 						2'b00:	begin
-							regWriteData_o <= {{16{memData_i[31]}},memData_i[31:16]};
-							memSel_o <= 4'b1100;
-						end
-						2'b10:	begin
 							regWriteData_o <= {{16{memData_i[15]}},memData_i[15:0]};
 							memSel_o <= 4'b0011;
+						end
+						2'b10:	begin
+							regWriteData_o <= {{16{memData_i[31]}},memData_i[31:16]};
+							memSel_o <= 4'b1100;
 						end
 						default:	begin
 							regWriteData_o <= `ZeroWord;
@@ -267,12 +267,12 @@ module MEM(
 					memEnable_o <= `Enable;
 					case (memAddr_i[1:0])
 						2'b00:	begin
-							regWriteData_o <= {{16{1'b0}},memData_i[31:16]};
-							memSel_o <= 4'b1100;
-						end
-						2'b10:	begin
 							regWriteData_o <= {{16{1'b0}},memData_i[15:0]};
 							memSel_o <= 4'b0011;
+						end
+						2'b10:	begin
+							regWriteData_o <= {{16{1'b0}},memData_i[31:16]};
+							memSel_o <= 4'b1100;
 						end
 						default:	begin
 							regWriteData_o <= `ZeroWord;
@@ -293,16 +293,16 @@ module MEM(
 					memEnable_o <= `Enable;
 					case (memAddr_i[1:0])
 						2'b00:	begin
-							regWriteData_o <= memData_i[31:0];
+							regWriteData_o <= {memData_i[7:0],operand2_i[23:0]};
 						end
 						2'b01:	begin
-							regWriteData_o <= {memData_i[23:0],operand2_i[7:0]};
-						end
-						2'b10:	begin
 							regWriteData_o <= {memData_i[15:0],operand2_i[15:0]};
 						end
+						2'b10:	begin
+							regWriteData_o <= {memData_i[23:0],operand2_i[7:0]};
+						end
 						2'b11:	begin
-							regWriteData_o <= {memData_i[7:0],operand2_i[23:0]};
+							regWriteData_o <= memData_i[31:0];
 						end
 						default:	begin
 							regWriteData_o <= `ZeroWord;
@@ -316,16 +316,16 @@ module MEM(
 					memEnable_o <= `Enable;
 					case (memAddr_i[1:0])
 						2'b00:	begin
-							regWriteData_o <= {operand2_i[31:8],memData_i[31:24]};
+							regWriteData_o <= memData_i;
 						end
 						2'b01:	begin
-							regWriteData_o <= {operand2_i[31:16],memData_i[31:16]};
-						end
-						2'b10:	begin
 							regWriteData_o <= {operand2_i[31:24],memData_i[31:8]};
 						end
+						2'b10:	begin
+							regWriteData_o <= {operand2_i[31:16],memData_i[31:16]};
+						end
 						2'b11:	begin
-							regWriteData_o <= memData_i;
+							regWriteData_o <= {operand2_i[31:8],memData_i[31:24]};
 						end
 						default:	begin
 							regWriteData_o <= `ZeroWord;
@@ -339,16 +339,16 @@ module MEM(
 					memEnable_o <= `Enable;
 					case (memAddr_i[1:0])
 						2'b00:	begin
-							memSel_o <= 4'b1000;
+							memSel_o <= 4'b0001;
 						end
 						2'b01:	begin
-							memSel_o <= 4'b0100;
-						end
-						2'b10:	begin
 							memSel_o <= 4'b0010;
 						end
+						2'b10:	begin
+							memSel_o <= 4'b0100;
+						end
 						2'b11:	begin
-							memSel_o <= 4'b0001;
+							memSel_o <= 4'b1000;
 						end
 						default:	begin
 							memSel_o <= 4'b0000;
@@ -362,10 +362,10 @@ module MEM(
 					memEnable_o <= `Enable;
 					case (memAddr_i[1:0])
 						2'b00:	begin
-							memSel_o <= 4'b1100;
+							memSel_o <= 4'b0011;
 						end
 						2'b10:	begin
-							memSel_o <= 4'b0011;
+							memSel_o <= 4'b1100;
 						end
 						default:	begin
 							memSel_o <= 4'b0000;
@@ -385,20 +385,20 @@ module MEM(
 					memEnable_o <= `Enable;
 					case (memAddr_i[1:0])
 						2'b00:	begin
-							memSel_o <= 4'b1111;
-							memData_o <= operand2_i;
+							memSel_o <= 4'b0001;
+							memData_o <= {ZERO[23:0],operand2_i[31:24]};
 						end
 						2'b01:	begin
-							memSel_o <= 4'b0111;
-							memData_o <= {ZERO[7:0],operand2_i[31:8]};
-						end
-						2'b10:	begin
 							memSel_o <= 4'b0011;
 							memData_o <= {ZERO[15:0],operand2_i[31:16]};
 						end
+						2'b10:	begin
+							memSel_o <= 4'b0111;
+							memData_o <= {ZERO[7:0],operand2_i[31:8]};
+						end
 						2'b11:	begin
-							memSel_o <= 4'b0001;
-							memData_o <= {ZERO[23:0],operand2_i[31:24]};
+							memSel_o <= 4'b1111;
+							memData_o <= operand2_i;
 						end
 						default:	begin
 							memSel_o <= 4'b0000;
@@ -411,20 +411,20 @@ module MEM(
 					memEnable_o <= `Enable;
 					case (memAddr_i[1:0])
 						2'b00:	begin
-							memSel_o <= 4'b1000;
-							memData_o <= {operand2_i[7:0],ZERO[23:0]};
+							memSel_o <= 4'b1111;
+							memData_o <= operand2_i[31:0];
 						end
 						2'b01:	begin
-							memSel_o <= 4'b1100;
-							memData_o <= {operand2_i[15:0],ZERO[15:0]};
-						end
-						2'b10:	begin
 							memSel_o <= 4'b1110;
 							memData_o <= {operand2_i[23:0],ZERO[7:0]};
 						end
+						2'b10:	begin
+							memSel_o <= 4'b1100;
+							memData_o <= {operand2_i[15:0],ZERO[15:0]};
+						end
 						2'b11:	begin
-							memSel_o <= 4'b1111;
-							memData_o <= operand2_i[31:0];
+							memSel_o <= 4'b1000;
+							memData_o <= {operand2_i[7:0],ZERO[23:0]};
 						end
 						default:	begin
 							memSel_o <= 4'b0000;
