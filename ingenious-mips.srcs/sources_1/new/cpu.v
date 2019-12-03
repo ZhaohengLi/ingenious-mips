@@ -3,9 +3,12 @@
 module CPU(
     input wire clk,
     input wire rst,
+    
     input wire[5:0] cp0Inte_i,
+    
     input wire[`InstBus] romData_i,
     input wire[`RegBus] ramData_i,
+    
     input wire romStallReq_i,
     input wire ramStallReq_i,
 
@@ -511,59 +514,5 @@ module CPU(
         .newInstAddr_o(newInstAddr_ctrl_to_pc),
         .flush_o(flush_ctrl_to_all)
     );
-    /*WISHBONE_BUS_IF dwishbone_bus_if(
-        .clk(clk),
-        .rst(rst),
-        
-        .stall_i(stall_ctrl_to_all),
-        .flush_i(flush_ctrl_to_all),
-        
-        .cpuCE_i(ramEnable_o),
-        .cpuData_i(ramData_o),
-        .cpuAddr_i(ramAddr_o),
-        .cpuWE_i(ramWriteEnable_o),
-        .cpuSel_i(ramSel_o),
-        .cpu_data_o(ramData_i),
-        
-        
-		.wishboneData_i(dwishboneData_i),
-		.wishboneAck_i(dwishboneAck_i),
-		.wishboneAddr_o(dwishboneAddr_o),
-		.wishboneData_o(dwishboneData_o),
-		.wishboneWE_o(dwishboneWE_o),
-		.wishboneSel_o(dwishboneSel_o),
-		.wishboneStb_o(dwishboneStb_o),
-		.wishboneCyc_o(dwishboneCyc_o),
-
-		.stallReq(stallReqFromMEM_id_to_ctrl)
-        
-    );
-    
-    WISHBONE_BUS_IF iwishbone_bus_if(
-        .clk(clk),
-        .rst(rst),
-        
-        .stall_i(stall_ctrl_to_all),
-        .flush_i(flush_ctrl_to_all),
-        
-        .cpuCE_i(romEnable_o),
-        .cpuData_i(32'h00000000),
-        .cpuAddr_i(pc),
-        .cpuWE_i(1'b0),
-        .cpuSel_i(4'b1111),
-        .cpu_data_o(romData_i),
-        
-		.wishboneData_i(iwishboneData_i),
-		.wishboneAck_i(iwishboneAck_i),
-		.wishboneAddr_o(iwishboneAddr_o),
-		.wishboneData_o(iwishboneData_o),
-		.wishboneWE_o(iwishboneWE_o),
-		.wishboneSel_o(iwishboneSel_o),
-		.wishboneStb_o(iwishboneStb_o),
-		.wishboneCyc_o(iwishboneCyc_o),
-
-		.stallReq(stallReqFromIF_id_to_ctrl)
-        
-    );*/
 
 endmodule
