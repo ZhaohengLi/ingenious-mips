@@ -7,7 +7,7 @@ module IngeniousMIPS(
 
     input  wire[3:0]  touch_btn,  //BTN1~BTN4，按钮开关，按下时为1
     input  wire[31:0] dip_sw,     //32位拨码开关，拨到"ON"时为1
-    output wire[15:0] leds,       //16位LED，输出时1点亮
+    output reg[15:0] leds,       //16位LED，输出时1点亮
     output wire[7:0]  dpy0,       //数码管低位信号，包括小数点，输出1点亮
     output wire[7:0]  dpy1,       //数码管高位信号，包括小数点，输出1点亮
 
@@ -78,17 +78,17 @@ module IngeniousMIPS(
     output wire video_de           //行数据有效信号，用于区分消隐��?
 );
 
-    wire[31:0] romAddr_cpu_to_rom;
-    wire[31:0] romData_cpu_to_rom;
-    wire[3:0] romSel_cpu_to_rom;
-    wire romWriteEnable_cpu_to_rom;
+    reg[31:0] romAddr_cpu_to_rom;
+    reg[31:0] romData_cpu_to_rom;
+    reg[3:0] romSel_cpu_to_rom;
+    reg romWriteEnable_cpu_to_rom;
     wire[31:0] romData_rom_to_cpu;
-    wire romEnable_cpu_to_rom;
-    wire[31:0] ramAddr_cpu_to_ram;
-    wire[31:0] ramData_cpu_to_ram;
-    wire[3:0] ramSel_cpu_to_ram;
-    wire ramWriteEnable_cpu_to_ram;
-    wire ramEnable_cpu_to_ram;
+    reg romEnable_cpu_to_rom;
+    reg[31:0] ramAddr_cpu_to_ram;
+    reg[31:0] ramData_cpu_to_ram;
+    reg[3:0] ramSel_cpu_to_ram;
+    reg ramWriteEnable_cpu_to_ram;
+    reg ramEnable_cpu_to_ram;
     wire[31:0] ramData_ram_to_cpu;
     wire[5:0] cp0Inte_cpu_to_cpu;
     wire cp0TimerInte_cpu_to_cpu;
@@ -128,7 +128,7 @@ module IngeniousMIPS(
 
     assign cp0Inte_cpu_to_cpu = {5'b0, cp0TimerInte_cpu_to_cpu};
 
-    CPU cpu1(
+    /*CPU cpu1(
         .clk(clk_50M),
         .rst(reset_btn),
 
@@ -149,18 +149,99 @@ module IngeniousMIPS(
 
         .cp0Inte_i(cp0Inte_cpu_to_cpu),
         .cp0TimerInte_o(cp0TimerInte_cpu_to_cpu)
+    );*/
+
+
+    reg[7:0] displayData;
+
+    DECODER decoder0(
+        .inByte(displayData[3:0]),
+        .dpy(dpy0)
     );
+    DECODER decoder1(
+        .inByte(displayData[7:4]),
+        .dpy(dpy1)
+    );
+
+    reg[3:0] state;
+
+    always @ (*) begin
+        leds[15] <= stall_if_bus_to_cpu;
+    end
+
+    always @ (posedge clk_11M0592) begin//测试代码，如要更换clk信号请全文替换为50M/11M/btn(信号声明除外)
+        if(reset_btn == `Enable) begin//上板子测试请更换为clock_btn，LED灯从右到左四个灯对应四个状态
+            state <= 4'h0;
+            ramAddr_cpu_to_ram <= 32'b0;
+            ramEnable_cpu_to_ram <= 1'b0;
+            ramWriteEnable_cpu_to_ram <= 1'b0;
+            ramEnable_cpu_to_ram <= 1'b0;
+            ramAddr_cpu_to_ram <= 32'b0;
+            ramData_cpu_to_ram <= 32'bz;
+            ramSel_cpu_to_ram <= 4'b0;
+            leds[14:0] <= 15'h01;
+        end else begin
+            case(state)
+                4'h0: begin//写入baseram，虚拟地址为0x80400000，物理地址为0x00000000，数据为0x0000004a
+                    ramAddr_cpu_to_ram <= 32'h80400000;
+                    ramData_cpu_to_ram <= 32'h0000004a;
+                    ramSel_cpu_to_ram <= 4'b1111;
+                    ramEnable_cpu_to_ram <= `Enable;
+                    ramWriteEnable_cpu_to_ram <= `Enable;
+                    displayData <= 8'hff;
+                    state <= 4'h1;
+                    leds[0] <= 1'b0;
+                    leds[1] <= 1'b1;
+                end
+                4'h1: begin//等待写入，数码管显示写入内容
+                    if(stall_data_bus_to_cpu == `NoStop) begin
+                        displayData <= ramData_cpu_to_ram[7:0];
+                        ramEnable_cpu_to_ram <= `Disable;
+                        ramWriteEnable_cpu_to_ram <= `Disable;
+                        state <= 4'h2;
+                        leds[1] <= 1'b0;
+                        leds[2] <= 1'b1;
+                    end
+                end
+                4'h2: begin//读取baseram，与写入测试相同
+                    ramAddr_cpu_to_ram <= 32'h80400000;
+                    ramData_cpu_to_ram <= 32'b0;
+                    ramSel_cpu_to_ram <= 4'b1111;
+                    ramEnable_cpu_to_ram <= `Enable;
+                    ramWriteEnable_cpu_to_ram <= `Disable;
+                    displayData <= 8'hff;
+                    state <= 4'h3;
+                    leds[2] <= 1'b0;
+                    leds[3] <= 1'b1;
+                end
+                4'h3: begin//等待读取，数码管期望显示为4a
+                    if(stall_data_bus_to_cpu == `NoStop) begin
+                        displayData <= ramData_ram_to_cpu[7:0];
+                        ramEnable_cpu_to_ram <= `Disable;
+                        ramWriteEnable_cpu_to_ram <= `Disable;
+                        state <= 4'h0;
+                        leds[3] <= 1'b0;
+                        leds[0] <= 1'b1;
+                    end
+                end
+                default: begin
+                    state <= 4'h0;
+                    leds[0] <= 1'b1;
+                end
+            endcase
+        end
+    end
 
     IF_BUS ibus(
 
-        .clk_i(clk_50M),
+        .clk_i(clk_11M0592),
         .rst_i(reset_btn),
 
         .cpuEnable_i(romEnable_cpu_to_rom),
-        .cpuWriteEnable_i(`Disable),
-        .cpuSel_i(4'b1111),
+        .cpuWriteEnable_i(romWriteEnable_cpu_to_rom),
+        .cpuSel_i(romSel_cpu_to_rom),
         .cpuAddr_i(romAddr_cpu_to_rom),
-        .cpuData_i(32'b0),
+        .cpuData_i(romData_cpu_to_rom),
         .cpuData_o(romData_rom_to_cpu),
 
 		.stallReq(stall_if_bus_to_cpu),
@@ -185,7 +266,7 @@ module IngeniousMIPS(
 
     RAM ext_ram(
 
-	   .clk_i(clk_50M),
+	   .clk_i(clk_11M0592),
 	   .rst_i(reset_btn),
 
 	   .ramEnable_i(enable_if_bus_to_extRAM),
@@ -206,7 +287,7 @@ module IngeniousMIPS(
 
     ROM flash(
 
-	   .clk_i(clk_50M),
+	   .clk_i(clk_11M0592),
 	   .rst_i(reset_btn),
 
 	   .romEnable_i(enable_if_bus_to_flash),
@@ -231,7 +312,7 @@ module IngeniousMIPS(
 
     DATA_BUS dbus(
 
-        .clk_i(clk_50M),
+        .clk_i(clk_11M0592),
         .rst_i(reset_btn),
 
         .cpuEnable_i(ramEnable_cpu_to_ram),
@@ -258,7 +339,7 @@ module IngeniousMIPS(
 
     RAM_UART base_ram(
 
-	   .clk_i(clk_50M),
+	   .clk_i(clk_11M0592),
 	   .rst_i(reset_btn),
 
 	   .ramEnable_i(enable_data_bus_to_baseRAM),
