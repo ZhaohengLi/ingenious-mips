@@ -1,6 +1,7 @@
 
 kernel.bin:     file format binary
 
+/* k0 是26号寄存器 k1是27 */
 
 Disassembly of section .data:
 
@@ -29,47 +30,47 @@ Disassembly of section .data:
     11c0:	275a0000 	addiu	k0,k0,0
     11c4:	3c1b807f 	lui	k1,0x807f
     11c8:	277b008c 	addiu	k1,k1,140
-    11cc:	135b0005 	beq	k0,k1,0x11e4
+    11cc:	135b0005 	beq	k0,k1,0x11e4 //到20590ns发生跳转
     11d0:	00000000 	nop
     11d4:	af400000 	sw	zero,0(k0)
     11d8:	275a0004 	addiu	k0,k0,4
-    11dc:	1000fffb 	b	0x11cc
+    11dc:	1000fffb 	b	0x11cc //一段循环
     11e0:	00000000 	nop
-    11e4:	3c1d8080 	lui	sp,0x8080
+    11e4:	3c1d8080 	lui	sp,0x8080 //sp是29号寄存器
     11e8:	27bd0000 	addiu	sp,sp,0
-    11ec:	03a0f025 	move	s8,sp
-    11f0:	3c08807f 	lui	t0,0x807f
+    11ec:	03a0f025 	move	s8,sp //s8是30号寄存器
+    11f0:	3c08807f 	lui	t0,0x807f //t0是8号寄存器
     11f4:	25080000 	addiu	t0,t0,0
-    11f8:	3c09807f 	lui	t1,0x807f
+    11f8:	3c09807f 	lui	t1,0x807f //t1是9号寄存器
     11fc:	ad280070 	sw	t0,112(t1)
     1200:	3c09807f 	lui	t1,0x807f
     1204:	ad280074 	sw	t0,116(t1)
     1208:	3c08bfd0 	lui	t0,0xbfd0
     120c:	34090010 	li	t1,0x10
-    1210:	a10903fc 	sb	t1,1020(t0)
+    1210:	a10903fc 	sb	t1,1020(t0) //向串口发送数据 21730ns
     1214:	34080020 	li	t0,0x20
     1218:	2508ffff 	addiu	t0,t0,-1
-    121c:	27bdfffc 	addiu	sp,sp,-4
+    121c:	27bdfffc 	addiu	sp,sp,-4 //sp 29
     1220:	afa00000 	sw	zero,0(sp)
-    1224:	1500fffc 	bnez	t0,0x1218
+    1224:	1500fffc 	bnez	t0,0x1218 // t0 8 循环 20次
     1228:	00000000 	nop
     122c:	3c08807f 	lui	t0,0x807f
     1230:	25080080 	addiu	t0,t0,128
     1234:	ad1d0000 	sw	sp,0(t0)
-    1238:	03a07025 	move	t6,sp
+    1238:	03a07025 	move	t6,sp //t6 14
     123c:	34080020 	li	t0,0x20
     1240:	2508ffff 	addiu	t0,t0,-1
     1244:	27bdfffc 	addiu	sp,sp,-4
     1248:	afa00000 	sw	zero,0(sp)
-    124c:	1500fffc 	bnez	t0,0x1240
+    124c:	1500fffc 	bnez	t0,0x1240 //又是循环 和上一个类似
     1250:	00000000 	nop
-    1254:	3c08807f 	lui	t0,0x807f
+    1254:	3c08807f 	lui	t0,0x807f //63390ns t0 8
     1258:	25080080 	addiu	t0,t0,128
     125c:	ad1d0004 	sw	sp,4(t0)
-    1260:	addd007c 	sw	sp,124(t6)
-    1264:	3c0a807f 	lui	t2,0x807f
+    1260:	addd007c 	sw	sp,124(t6) //t6 14
+    1264:	3c0a807f 	lui	t2,0x807f //t2 10
     1268:	254a0084 	addiu	t2,t2,132
-    126c:	8d4a0000 	lw	t2,0(t2)
+    126c:	8d4a0000 	lw	t2,0(t2) // bug出现 无法读取sram的值 都是xx
     1270:	3c09807f 	lui	t1,0x807f
     1274:	ad2a0088 	sw	t2,136(t1)
     1278:	080004a0 	j	0x1280
