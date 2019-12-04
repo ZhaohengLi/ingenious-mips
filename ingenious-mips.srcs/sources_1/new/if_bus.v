@@ -31,7 +31,7 @@ module IF_BUS(
 	
 );
 
-	reg[1:0] busState;
+	reg[3:0] busState;
 
 	always @ (posedge clk_i) begin
 		if(rst_i == `Enable) begin

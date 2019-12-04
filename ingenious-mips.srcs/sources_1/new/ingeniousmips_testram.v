@@ -78,17 +78,17 @@ module IngeniousMIPS(
     output wire video_de           //行数据有效信号，用于区分消隐��?
 );
 
-    wire[31:0] romAddr_cpu_to_rom;
-    wire[31:0] romData_cpu_to_rom;
-    wire[3:0] romSel_cpu_to_rom;
-    wire romWriteEnable_cpu_to_rom;
+    reg[31:0] romAddr_cpu_to_rom;
+    reg[31:0] romData_cpu_to_rom;
+    reg[3:0] romSel_cpu_to_rom;
+    reg romWriteEnable_cpu_to_rom;
     wire[31:0] romData_rom_to_cpu;
-    wire romEnable_cpu_to_rom;
-    wire[31:0] ramAddr_cpu_to_ram;
-    wire[31:0] ramData_cpu_to_ram;
-    wire[3:0] ramSel_cpu_to_ram;
-    wire ramWriteEnable_cpu_to_ram;
-    wire ramEnable_cpu_to_ram;
+    reg romEnable_cpu_to_rom;
+    reg[31:0] ramAddr_cpu_to_ram;
+    reg[31:0] ramData_cpu_to_ram;
+    reg[3:0] ramSel_cpu_to_ram;
+    reg ramWriteEnable_cpu_to_ram;
+    reg ramEnable_cpu_to_ram;
     wire[31:0] ramData_ram_to_cpu;
     wire[5:0] cp0Inte_cpu_to_cpu;
     wire cp0TimerInte_cpu_to_cpu;
@@ -97,38 +97,38 @@ module IngeniousMIPS(
     wire stall_data_bus_to_cpu;
 
 
-    wire enable_bus_to_baseRAM;
-    wire writeEnable_bus_to_baseRAM;
-    wire[3:0] sel_bus_to_baseRAM;
-    wire[`RegBus] data_bus_to_baseRAM;
-    wire[`RegBus] addr_bus_to_baseRAM;
-    wire[`RegBus] data_baseRAM_to_bus;
-    wire rdy_baseRAM_to_bus;
+    wire enable_if_bus_to_extRAM;
+    wire writeEnable_if_bus_to_extRAM;
+    wire[3:0] sel_if_bus_to_extRAM;
+    wire[`RegBus] data_if_bus_to_extRAM;
+    wire[`RegBus] addr_if_bus_to_extRAM;
+    wire[`RegBus] data_extRAM_to_if_bus;
+    wire rdy_extRAM_to_if_bus;
 
-    wire enable_bus_to_flash;
-    wire writeEnable_bus_to_flash;
-    wire[3:0] sel_bus_to_flash;
-    wire[`RegBus] data_bus_to_flash;
-    wire[`RegBus] addr_bus_to_flash;
-    wire[`RegBus] data_flash_to_bus;
-    wire rdy_flash_to_bus;
+    wire enable_if_bus_to_flash;
+    wire writeEnable_if_bus_to_flash;
+    wire[3:0] sel_if_bus_to_flash;
+    wire[`RegBus] data_if_bus_to_flash;
+    wire[`RegBus] addr_if_bus_to_flash;
+    wire[`RegBus] data_flash_to_if_bus;
+    wire rdy_flash_to_if_bus;
 
-    wire enable_bus_to_extRAM;
-    wire writeEnable_bus_to_extRAM;
-    wire[3:0] sel_bus_to_extRAM;
-    wire[`RegBus] data_bus_to_extRAM;
-    wire[`RegBus] addr_bus_to_extRAM;
-    wire[`RegBus] data_extRAM_to_bus;
-    wire rdy_extRAM_to_bus;
+    wire enable_data_bus_to_baseRAM;
+    wire writeEnable_data_bus_to_baseRAM;
+    wire[3:0] sel_data_bus_to_baseRAM;
+    wire[`RegBus] data_data_bus_to_baseRAM;
+    wire[`RegBus] addr_data_bus_to_baseRAM;
+    wire[`RegBus] data_baseRAM_to_data_bus;
+    wire rdy_baseRAM_to_data_bus;
 
-    wire enable_bus_to_uart;
-    wire writeEnable_bus_to_uart;
-    wire[1:0] uartReg_uart_to_bus;
+    wire enable_data_bus_to_uart;
+    wire writeEnable_data_bus_to_uart;
+    wire rdy_uart_to_data_bus;
 
 
     assign cp0Inte_cpu_to_cpu = {5'b0, cp0TimerInte_cpu_to_cpu};
 
-    CPU cpu1(
+    /*CPU cpu1(
         .clk(clk_50M),
         .rst(reset_btn),
 
@@ -149,10 +149,10 @@ module IngeniousMIPS(
 
         .cp0Inte_i(cp0Inte_cpu_to_cpu),
         .cp0TimerInte_o(cp0TimerInte_cpu_to_cpu)
-    );
+    );*/
 
-
-    /*reg[7:0] displayData;
+    
+    reg[7:0] displayData;
 
     DECODER decoder0(
         .inByte(displayData[3:0]),
@@ -162,15 +162,15 @@ module IngeniousMIPS(
         .inByte(displayData[7:4]),
         .dpy(dpy1)
     );
-
+    
     reg[3:0] state;
-
+    
     always @ (*) begin
         leds[15] <= stall_if_bus_to_cpu;
     end
-
-    always @ (posedge clk_50M) begin//测试代码，如要更换clk信号请全文替换为50M/11M/btn(信号声明除外)
-        if(reset_btn == `Enable) begin//上板子测试请更换为clock_btn，LED灯从右到左四个灯对应四个状�??
+    
+    always @ (posedge clk_11M0592) begin//测试代码，如要更换clk信号请全文替换为50M/11M/btn(信号声明除外)
+        if(reset_btn == `Enable) begin//上板子测试请更换为clock_btn，LED灯从右到左四个灯对应四个状态
             state <= 4'h0;
             ramAddr_cpu_to_ram <= 32'b0;
             ramEnable_cpu_to_ram <= 1'b0;
@@ -182,7 +182,7 @@ module IngeniousMIPS(
             leds[14:0] <= 15'h01;
         end else begin
             case(state)
-                4'h0: begin//写入baseram，虚拟地�?�?0x80400000，物理地�?�?0x00000000，数据为0x0000004a
+                4'h0: begin//写入baseram，虚拟地址为0x80400000，物理地址为0x00000000，数据为0x0000004a
                     ramAddr_cpu_to_ram <= 32'h80400000;
                     ramData_cpu_to_ram <= 32'h0000004a;
                     ramSel_cpu_to_ram <= 4'b1111;
@@ -214,7 +214,7 @@ module IngeniousMIPS(
                     leds[2] <= 1'b0;
                     leds[3] <= 1'b1;
                 end
-                4'h3: begin//等待读取，数码管期望显示�?4a
+                4'h3: begin//等待读取，数码管期望显示为4a
                     if(stall_data_bus_to_cpu == `NoStop) begin
                         displayData <= ramData_ram_to_cpu[7:0];
                         ramEnable_cpu_to_ram <= `Disable;
@@ -231,10 +231,10 @@ module IngeniousMIPS(
             endcase
         end
     end
-
+    
     IF_BUS ibus(
 
-        .clk_i(clk_50M),
+        .clk_i(clk_11M0592),
         .rst_i(reset_btn),
 
         .cpuEnable_i(romEnable_cpu_to_rom),
@@ -262,71 +262,20 @@ module IngeniousMIPS(
 		.romData_i(data_flash_to_if_bus),
 		.romRdy_i(rdy_flash_to_if_bus)
 
-    );*/
-    
-    BUS bus(
-
-        .clk_i(clk_50M),
-        .rst_i(reset_btn),
-
-        .ifEnable_i(romEnable_cpu_to_rom),
-        .ifWriteEnable_i(`Disable),
-        .ifSel_i(4'b1111),
-        .ifAddr_i(romAddr_cpu_to_rom),
-        .ifData_i(`ZeroWord),
-        .ifData_o(romData_rom_to_cpu),
-
-        .dataEnable_i(ramEnable_cpu_to_ram),
-        .dataWriteEnable_i(ramWriteEnable_cpu_to_ram),
-        .dataSel_i(ramSel_cpu_to_ram),
-        .dataAddr_i(ramAddr_cpu_to_ram),
-        .dataData_i(ramData_cpu_to_ram),
-        .dataData_o(ramData_ram_to_cpu),
-        
-		.ifStallReq_o(stall_if_bus_to_cpu),
-		.dataStallReq_o(stall_data_bus_to_cpu),
-
-		.baseRAM_Enable_o(enable_bus_to_baseRAM),
-		.baseRAM_WriteEnable_o(writeEnable_bus_to_baseRAM),
-		.uartEnable_o(enable_bus_to_uart),
-		.uartWriteEnable_o(writeEnable_bus_to_uart),
-		.baseRAM_Data_o(data_bus_to_baseRAM),
-		.baseRAM_Addr_o(addr_bus_to_baseRAM),
-		.baseRAM_Sel_o(sel_bus_to_baseRAM),
-		.baseRAM_Data_i(data_baseRAM_to_bus),
-		.baseRAM_Rdy_i(rdy_baseRAM_to_bus),
-		.uartReg_i(uartReg_uart_to_bus),
-		
-		.extRAM_Enable_o(enable_bus_to_extRAM),
-		.extRAM_WriteEnable_o(writeEnable_bus_to_extRAM),
-		.extRAM_Data_o(data_bus_to_extRAM),
-		.extRAM_Addr_o(addr_bus_to_extRAM),
-		.extRAM_Sel_o(sel_bus_to_extRAM),
-		.extRAM_Data_i(data_extRAM_to_bus),
-		.extRAM_Rdy_i(rdy_extRAM_to_bus),
-
-		.romEnable_o(enable_bus_to_flash),
-		.romWriteEnable_o(writeEnable_bus_to_flash),
-		.romData_o(data_bus_to_flash),
-		.romAddr_o(addr_bus_to_flash),
-		.romSel_o(sel_bus_to_flash),
-		.romData_i(data_flash_to_bus),
-		.romRdy_i(rdy_flash_to_bus)
-		
     );
 
     RAM ext_ram(
 
-	   .clk_i(clk_50M),
+	   .clk_i(clk_11M0592),
 	   .rst_i(reset_btn),
 
-	   .ramEnable_i(enable_bus_to_extRAM),
-	   .ramWriteEnable_i(writeEnable_bus_to_extRAM),
-	   .ramData_i(data_bus_to_extRAM),
-	   .ramAddr_i(addr_bus_to_extRAM),
-	   .ramSel_i(sel_bus_to_extRAM),
-	   .ramData_o(data_extRAM_to_bus),
-	   .ramRdy_o(rdy_extRAM_to_bus),
+	   .ramEnable_i(enable_if_bus_to_extRAM),
+	   .ramWriteEnable_i(writeEnable_if_bus_to_extRAM),
+	   .ramData_i(data_if_bus_to_extRAM),
+	   .ramAddr_i(addr_if_bus_to_extRAM),
+	   .ramSel_i(sel_if_bus_to_extRAM),
+	   .ramData_o(data_extRAM_to_if_bus),
+	   .ramRdy_o(rdy_extRAM_to_if_bus),
 
 	   .SRAM_CE_o(ext_ram_ce_n),
 	   .SRAM_OE_o(ext_ram_oe_n),
@@ -338,16 +287,16 @@ module IngeniousMIPS(
 
     ROM flash(
 
-	   .clk_i(clk_50M),
+	   .clk_i(clk_11M0592),
 	   .rst_i(reset_btn),
 
-	   .romEnable_i(enable_bus_to_flash),
-	   .romWriteEnable_i(writeEnable_bus_to_flash),
-	   .romData_i(data_bus_to_flash),
-	   .romAddr_i(addr_bus_to_flash),
-	   .romSel_i(sel_bus_to_flash),
-	   .romData_o(data_flash_to_bus),
-	   .romRdy_o(rdy_flash_to_bus),
+	   .romEnable_i(enable_if_bus_to_flash),
+	   .romWriteEnable_i(writeEnable_if_bus_to_flash),
+	   .romData_i(data_if_bus_to_flash),
+	   .romAddr_i(addr_if_bus_to_flash),
+	   .romSel_i(sel_if_bus_to_flash),
+	   .romData_o(data_flash_to_if_bus),
+	   .romRdy_o(rdy_flash_to_if_bus),
 
 	   .flashAddr_o(flash_a),
 	   .flashData(flash_d),
@@ -361,9 +310,9 @@ module IngeniousMIPS(
     );
 
 
-    /*DATA_BUS dbus(
+    DATA_BUS dbus(
 
-        .clk_i(clk_50M),
+        .clk_i(clk_11M0592),
         .rst_i(reset_btn),
 
         .cpuEnable_i(ramEnable_cpu_to_ram),
@@ -386,22 +335,23 @@ module IngeniousMIPS(
 		.ramRdy_i(rdy_baseRAM_to_data_bus),
 		.uartRdy_i(rdy_uart_to_data_bus)
 
-    );*/
+    );
 
     RAM_UART base_ram(
 
-	   .clk_i(clk_50M),
+	   .clk_i(clk_11M0592),
 	   .rst_i(reset_btn),
 
-	   .ramEnable_i(enable_bus_to_baseRAM),
-	   .ramWriteEnable_i(writeEnable_bus_to_baseRAM),
-	   .uartEnable_i(enable_bus_to_uart),
-	   .uartWriteEnable_i(writeEnable_bus_to_uart),
-	   .ramData_i(data_bus_to_baseRAM),
-	   .ramAddr_i(addr_bus_to_baseRAM),
-	   .ramSel_i(sel_bus_to_baseRAM),
-	   .ramData_o(data_baseRAM_to_bus),
-	   .ramRdy_o(rdy_baseRAM_to_bus),
+	   .ramEnable_i(enable_data_bus_to_baseRAM),
+	   .ramWriteEnable_i(writeEnable_data_bus_to_baseRAM),
+	   .uartEnable_i(enable_data_bus_to_uart),
+	   .uartWriteEnable_i(writeEnable_data_bus_to_uart),
+	   .ramData_i(data_data_bus_to_baseRAM),
+	   .ramAddr_i(addr_data_bus_to_baseRAM),
+	   .ramSel_i(sel_data_bus_to_baseRAM),
+	   .ramData_o(data_baseRAM_to_data_bus),
+	   .ramRdy_o(rdy_baseRAM_to_data_bus),
+	   .uartRdy_o(rdy_uart_to_data_bus),
 
 	   .SRAM_CE_o(base_ram_ce_n),
 	   .SRAM_OE_o(base_ram_oe_n),
@@ -414,9 +364,7 @@ module IngeniousMIPS(
 	   .uartWR_o(uart_wrn),
 	   .uartDataReady_i(uart_dataready),
 	   .uartTBRE_i(uart_tbre),
-	   .uartTSRE_i(uart_tsre),
-	   
-	   .uartReg_o(uartReg_uart_to_bus)
+	   .uartTSRE_i(uart_tsre)
 
     );
 

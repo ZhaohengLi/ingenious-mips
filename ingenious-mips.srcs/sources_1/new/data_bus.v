@@ -21,12 +21,11 @@ module DATA_BUS(
 	output reg[31:0] ramAddr_o,
 	output reg[3:0]  ramSel_o,
 	input  wire[31:0]ramData_i,
-	input  wire      ramRdy_i,
-	input  wire      uartRdy_i
+	input  wire      ramRdy_i
 	
 );
 
-	reg[1:0] busState;
+	reg[3:0] busState;
 
 	always @ (posedge clk_i) begin
 		if(rst_i == `Enable) begin
@@ -80,11 +79,6 @@ module DATA_BUS(
 						ramSel_o <=  4'b0000;
 						ramWriteEnable_o <= `Disable;
 						ramEnable_o <= `Disable;
-						busState <= `BUS_WAIT;
-					end else if(uartRdy_i == 1'b1) begin
-						ramAddr_o <= `ZeroWord;
-						ramData_o <= `ZeroWord;
-						ramSel_o <=  4'b0000;
 						uartWriteEnable_o <= `Disable;
 						uartEnable_o <= `Disable;
 						busState <= `BUS_WAIT;
@@ -112,7 +106,7 @@ module DATA_BUS(
 					end
 				end
 				`BUS_BUSY: begin
-					if(ramRdy_i == 1'b1 || uartRdy_i == 1'b1) begin
+					if(ramRdy_i == 1'b1) begin
 						stallReq <= `NoStop;
 						if(cpuWriteEnable_i == `Disable) begin
 							cpuData_o <= ramData_i;

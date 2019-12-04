@@ -226,15 +226,19 @@
 `define CP0_REG_PrId    5'b01111
 `define CP0_REG_CONFIG    5'b10000
 
-`define BUS_IDLE 2'b00
-`define BUS_BUSY 2'b01
-`define BUS_WAIT 2'b10
+`define BUS_IDLE 4'h0
+`define BUS_BUSY 4'h1
+`define BUS_BUSY_BASE_RAM 4'h1
+`define BUS_BUSY_EXT_RAM 4'h2
+`define BUS_BUSY_ROM 4'h3
+`define BUS_WAIT 4'h4
+`define BUS_UART_REG 4'h5
 
-`define extRAM_Border_l   32'h80000000
-`define extRAM_Border_r   32'h80400000
-`define baseRAM_Border_l   32'h80400000
-`define baseRAM_Border_r   32'h80800000
-`define romBorder_l      32'h00000000
-`define romBorder_r      32'h80000000
-`define uartBorder_l      32'hBFD003F8
-`define uartBorder_r      32'hBFD003FE
+`define baseRAM_Border_l  32'h80000000
+`define baseRAM_Border_r  32'h80400000
+`define extRAM_Border_l   32'h80400000
+`define extRAM_Border_r   32'h80800000
+`define romBorder_l       32'h00000000
+`define romBorder_r       32'h80000000
+`define uartDataAddr      32'hBFD003F8
+`define uartRegAddr       32'hBFD003FC

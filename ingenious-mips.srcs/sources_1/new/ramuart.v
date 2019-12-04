@@ -13,7 +13,6 @@ module RAM_UART(
 	input wire[3:0] ramSel_i,
 	output reg[31:0] ramData_o,
 	output reg ramRdy_o,
-	output reg uartRdy_o,
 	
 	output wire SRAM_CE_o,
 	output reg SRAM_OE_o,
@@ -26,7 +25,9 @@ module RAM_UART(
     output reg uartWR_o,
     input wire uartDataReady_i, 
     input wire uartTBRE_i,
-    input wire uartTSRE_i
+    input wire uartTSRE_i,
+    
+    output reg[1:0] uartReg_o
 	
 );
 
@@ -37,6 +38,14 @@ assign SRAM_Addr_o = ramAddr_i[21:2];
 assign SRAM_CE_o = !(ramEnable_i && !uartEnable_i);
 assign SRAM_Data = (ramWriteEnable_i || uartWriteEnable_i)? ramData_i : 32'bz;
 
+always @ (*) begin
+    if(uartDataReady_i == 1'b1) begin
+        uartReg_o[1] <= 1'b1;
+    end else if(uartDataReady_i == 1'b0) begin
+        uartReg_o[1] <= 1'b0;
+    end
+end
+
 always @ (posedge clk_i) begin
 	if(rst_i == 1'b1) begin
 		SRAM_OE_o <= 1'b1;
@@ -45,7 +54,7 @@ always @ (posedge clk_i) begin
 		uartWR_o <= 1'b1;
 		ramState <= 4'h0;
 		ramRdy_o <= 1'b0;
-		uartRdy_o <= 1'b0;
+		uartReg_o[0] <= 1'b1;
 	end else if(ramEnable_i == `Enable) begin
 		if(ramState == 4'h0) begin
 			ramRdy_o <= 1'b0;
@@ -78,11 +87,12 @@ always @ (posedge clk_i) begin
 		end
 	end else if(uartEnable_i == `Enable) begin
 		if(ramState == 4'h0) begin
-			uartRdy_o <= 1'b0;
+			ramRdy_o <= 1'b0;
 			if(uartWriteEnable_i == `Enable) begin
 				uartWR_o <= 1'b0;
 				ramState <= 4'h1;
 			end else begin
+			    uartReg_o[0] <= 1'b0;
 				uartRD_o <= 1'b1;
 				ramState <= 4'h9;
 			end
@@ -99,28 +109,29 @@ always @ (posedge clk_i) begin
 				end
 				4'h3: begin
 					if(uartTSRE_i == 1'b1) begin
-						uartRdy_o <= 1'b1;
+						ramRdy_o <= 1'b1;
 						ramState <= ramState + 4'h1;
 					end
 				end
 				4'h4: begin
-					uartRdy_o <= 1'b0;
+					ramRdy_o <= 1'b0;
 					ramState <= 4'h0;
 				end
 				4'h9: begin
-					if(uartDataReady_i == 1) begin
+					if(uartDataReady_i == 1'b1) begin
 						uartRD_o <= 1'b0;
 						ramState <= ramState + 4'h1;
 					end
 				end
 				4'ha: begin
 				    ramData_o <= SRAM_Data;
+				    uartReg_o[0] <= 1'b1;
 					uartRD_o <= 1'b1;
-					uartRdy_o <= 1'b1;
+					ramRdy_o <= 1'b1;
 					ramState <= ramState + 4'h1;
 				end
 				4'hb: begin
-					uartRdy_o <= 1'b0;
+					ramRdy_o <= 1'b0;
 					ramState <= 4'h0;
 				end
 				default: begin
@@ -135,7 +146,7 @@ always @ (posedge clk_i) begin
 		uartWR_o <= 1'b1;
 		ramState <= 4'h0;
 		ramRdy_o <= 1'b0;
-		uartRdy_o <= 1'b0;
+		uartReg_o[0] <= 1'b1;
 	end
 end
 
