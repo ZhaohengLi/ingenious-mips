@@ -28,19 +28,19 @@ module CTRL(
             stall_o <= 6'b000000;
             case(exceptionType_i)
                 32'h00000001: begin   //interrupt
-					newInstAddr_o <= cp0EBase_ + 32'h180;
+					newInstAddr_o <= cp0EBase_i + 32'h180;
 				end
 				32'h00000008:		begin   //syscall
-					newInstAddr_o <= cp0EBase_ + 32'h180;
+					newInstAddr_o <= cp0EBase_i + 32'h180;
 				end
 				32'h0000000a:		begin   //inst_invalid
-					newInstAddr_o <= cp0EBase_ + 32'h180;
+					newInstAddr_o <= cp0EBase_i + 32'h180;
 				end
 				32'h0000000d:		begin   //trap
-					newInstAddr_o <= cp0EBase_ + 32'h180;
+					newInstAddr_o <= cp0EBase_i + 32'h180;
 				end
 				32'h0000000c:		begin   //ov
-					newInstAddr_o <= cp0EBase_ + 32'h180;
+					newInstAddr_o <= cp0EBase_i + 32'h180;
 				end
 				32'h0000000e:		begin   //eret
 					newInstAddr_o <= cp0EPC_i;

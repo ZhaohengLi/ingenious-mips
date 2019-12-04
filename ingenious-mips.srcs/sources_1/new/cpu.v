@@ -469,7 +469,7 @@ module CPU(
         .cp0Status_o(cp0Status_cp0_to_mem),
         .cp0Cause_o(cp0Cause_cp0_to_mem),
         .cp0EPC_o(cp0EPC_cp0_to_mem),
-        .cp0EBase_o(cp0EBase_cp0_to_ctrl),
+        .cp0EBase_o(cp0EBase_cp0_to_ctrl)
     );
 
     HILO hilo1 (

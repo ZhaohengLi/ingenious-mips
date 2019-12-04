@@ -22,7 +22,6 @@ module CP0(
 	output reg[`RegBus] cp0Cause_o,//cause_o
 	output reg[`RegBus] cp0EPC_o,//epc_o
 	output reg[`RegBus] cp0Config_o,//config_o
-	output reg[`RegBus] cp0PRId_o,//prid_o
 	output reg[`RegBus] cp0EBase_o,
 
 	output reg cp0TimerInte_o //timer_int_o
@@ -37,7 +36,6 @@ module CP0(
 			cp0EPC_o <= `ZeroWord;
 			cp0Config_o <= 32'b0;
 			cp0EBase_o <= 32'b0;
-			cp0PRId_o <= 32'b00000000010011000000000100000010;
 			cp0TimerInte_o <= `InterruptNotAssert;
 		end else begin
 			case (exceptionType_i)
@@ -163,9 +161,6 @@ module CP0(
 					end
 					`CP0_REG_EPC:	begin
 						cp0Data_o <= cp0EPC_o ;
-					end
-					`CP0_REG_PrId:	begin
-						cp0Data_o <= cp0PRId_o ;
 					end
 					`CP0_REG_CONFIG:	begin
 						cp0Data_o <= cp0Config_o ;
