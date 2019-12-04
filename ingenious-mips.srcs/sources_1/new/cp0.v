@@ -3,10 +3,13 @@
 module CP0(
 	input wire clk,
 	input wire rst,
+
 	input wire cp0WriteEnable_i, //we_i
 	input wire[4:0] cp0WriteAddr_i,//waddr_i
-	input wire[4:0] cp0ReadAddr_i,//raddr_i
 	input wire[`RegBus] cp0WriteData_i,//data_i
+
+	input wire[4:0] cp0ReadAddr_i,//raddr_i
+
 	input wire[5:0] cp0Inte_i,//int_i
 	input wire[`RegBus] exceptionType_i,
 	input wire[`RegBus] instAddr_i,
@@ -20,6 +23,8 @@ module CP0(
 	output reg[`RegBus] cp0EPC_o,//epc_o
 	output reg[`RegBus] cp0Config_o,//config_o
 	output reg[`RegBus] cp0PRId_o,//prid_o
+	output reg[`RegBus] cp0EBase_o,
+
 	output reg cp0TimerInte_o //timer_int_o
 );
 
@@ -30,7 +35,8 @@ module CP0(
 			cp0Status_o <= 32'b00010000000000000000000000000000;
 			cp0Cause_o <= `ZeroWord;
 			cp0EPC_o <= `ZeroWord;
-			cp0Config_o <= 32'b00000000000000001000000000000000;
+			cp0Config_o <= 32'b0;
+			cp0EBase_o <= 32'b0;
 			cp0PRId_o <= 32'b00000000010011000000000100000010;
 			cp0TimerInte_o <= `InterruptNotAssert;
 		end else begin
@@ -130,6 +136,9 @@ module CP0(
 						cp0Cause_o[23] <= cp0WriteData_i[23];
 						cp0Cause_o[22] <= cp0WriteData_i[22];
 					end
+					`CP0_REG_EBASE: begin
+						cp0EBase_o[29:12] <= cp0WriteData_i[29:12];
+					end
 				endcase
 			end
 		end
@@ -160,6 +169,9 @@ module CP0(
 					end
 					`CP0_REG_CONFIG:	begin
 						cp0Data_o <= cp0Config_o ;
+					end
+					`CP0_REG_EBASE: begin
+						cp0Data_o <= {2'b00,cp0EBase_o[29:12],2'b00,cp0EBase_o[9:0]};
 					end
 					default: 	begin
 					end

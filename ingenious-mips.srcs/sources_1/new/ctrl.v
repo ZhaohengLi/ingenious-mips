@@ -2,15 +2,16 @@
 
 module CTRL(
   input wire rst,
-  
+
   input wire stallReqFromIF_i,
   input wire stallReqFromID_i,
-  
+
   input wire stallReqFromEX_i,
   input wire stallReqFromMEM_i,
-  
+
   input wire[`RegBus] exceptionType_i,
   input wire[`RegBus] cp0EPC_i,
+  input wire[`RegBus] cp0EBase_i,
 
   output reg[`RegBus] newInstAddr_o,
   output reg[5:0] stall_o,
@@ -27,19 +28,19 @@ module CTRL(
             stall_o <= 6'b000000;
             case(exceptionType_i)
                 32'h00000001: begin   //interrupt
-					newInstAddr_o <= 32'h380;
+					newInstAddr_o <= cp0EBase_ + 32'h180;
 				end
 				32'h00000008:		begin   //syscall
-					newInstAddr_o <= 32'h380;
+					newInstAddr_o <= cp0EBase_ + 32'h180;
 				end
 				32'h0000000a:		begin   //inst_invalid
-					newInstAddr_o <= 32'h380;
+					newInstAddr_o <= cp0EBase_ + 32'h180;
 				end
 				32'h0000000d:		begin   //trap
-					newInstAddr_o <= 32'h380;
+					newInstAddr_o <= cp0EBase_ + 32'h180;
 				end
 				32'h0000000c:		begin   //ov
-					newInstAddr_o <= 32'h380;
+					newInstAddr_o <= cp0EBase_ + 32'h180;
 				end
 				32'h0000000e:		begin   //eret
 					newInstAddr_o <= cp0EPC_i;

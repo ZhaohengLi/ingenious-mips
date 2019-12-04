@@ -225,6 +225,7 @@
 `define CP0_REG_EPC    5'b01110
 `define CP0_REG_PrId    5'b01111
 `define CP0_REG_CONFIG    5'b10000
+`define CP0_REG_EBASE 5'b01111
 
 `define BUS_IDLE 4'h0
 `define BUS_BUSY 4'h1

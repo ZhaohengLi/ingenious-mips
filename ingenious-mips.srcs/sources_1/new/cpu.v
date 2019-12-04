@@ -151,6 +151,8 @@ module CPU(
     wire isInDelayslot_mem_to_cp0;
     wire[`RegBus] cp0EPC_mem_to_ctrl;
 
+    wire[`RegBus] cp0EBase_cp0_to_ctrl;
+
 
     assign romAddr_o = instAddr_pc_to_if_id;
 
@@ -466,7 +468,8 @@ module CPU(
         .isInDelayslot_i(isInDelayslot_mem_to_cp0),
         .cp0Status_o(cp0Status_cp0_to_mem),
         .cp0Cause_o(cp0Cause_cp0_to_mem),
-        .cp0EPC_o(cp0EPC_cp0_to_mem)
+        .cp0EPC_o(cp0EPC_cp0_to_mem),
+        .cp0EBase_o(cp0EBase_cp0_to_ctrl),
     );
 
     HILO hilo1 (
@@ -508,6 +511,7 @@ module CPU(
         .stallReqFromMEM_i(ramStallReq_i),
         .stall_o(stall_ctrl_to_all),
         .cp0EPC_i(cp0EPC_mem_to_ctrl),
+        .cp0EBase_i(cp0EBase_cp0_to_ctrl),
         .exceptionType_i(exceptionType_mem_to_cp0),
         .newInstAddr_o(newInstAddr_ctrl_to_pc),
         .flush_o(flush_ctrl_to_all)
