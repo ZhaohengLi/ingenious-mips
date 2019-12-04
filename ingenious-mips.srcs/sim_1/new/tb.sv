@@ -72,43 +72,10 @@ initial begin
 reset_btn = 1'b1;
 #100
 reset_btn = 1'b0;
-#100000
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
-cpld.pc_send_byte(8'h33);
+#2000000
+cpld.pc_send_byte(8'h52);
+#400
+cpld.pc_send_byte(8'h30);
 end
 
 // 待测试用户设�?

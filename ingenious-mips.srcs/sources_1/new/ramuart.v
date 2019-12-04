@@ -124,7 +124,7 @@ always @ (posedge clk_i) begin
 					end
 				end
 				4'ha: begin
-				    ramData_o <= SRAM_Data;
+				    ramData_o <= {24'b0,SRAM_Data[7:0]};
 				    uartReg_o[0] <= 1'b1;
 					uartRD_o <= 1'b1;
 					ramRdy_o <= 1'b1;
