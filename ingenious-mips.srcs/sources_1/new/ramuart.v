@@ -65,6 +65,8 @@ always @ (posedge clk_i) begin
 						ramData_o <= SRAM_Data;
 					end
 					ramRdy_o <= 1'b1;
+					SRAM_WE_o <= 1'b1;
+					SRAM_OE_o <= 1'b1;
 				end
 				4'h2: begin
 					ramRdy_o <= 1'b0;

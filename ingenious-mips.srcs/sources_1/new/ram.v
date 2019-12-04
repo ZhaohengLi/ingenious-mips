@@ -13,8 +13,8 @@ module RAM(
 	output reg ramRdy_o,
 	
 	output wire SRAM_CE_o,
-	output wire SRAM_OE_o,
-	output wire SRAM_WE_o,
+	output reg SRAM_OE_o,
+	output reg SRAM_WE_o,
 	output wire[3:0] SRAM_BE_o,
 	inout wire[31:0] SRAM_Data,
 	output wire[19:0] SRAM_Addr_o
@@ -26,18 +26,25 @@ reg[3:0] ramState;
 assign SRAM_BE_o = ~ramSel_i;
 assign SRAM_Addr_o = ramAddr_i[21:2]; 
 assign SRAM_CE_o = !ramEnable_i;
-assign SRAM_WE_o = !ramWriteEnable_i;
-assign SRAM_OE_o = ramWriteEnable_i;
 assign SRAM_Data = ramWriteEnable_i? ramData_i : 32'bz;
 
 always @ (posedge clk_i) begin
 	if(rst_i == 1'b1) begin
 		ramState <= 4'h0;
 		ramRdy_o <= 1'b0;
+		SRAM_WE_o <= 1'b1;
+		SRAM_OE_o <= 1'b1;
 	end else if(ramEnable_i == 1'b1) begin
 		if(ramState == 4'h0)begin
 			ramRdy_o <= 1'b0;
 			ramState <= 4'h1;
+			if(ramWriteEnable_i == `Enable) begin
+				SRAM_OE_o <= 1'b1;
+				SRAM_WE_o <= 1'b0;
+			end else begin
+				SRAM_OE_o <= 1'b0;
+				SRAM_WE_o <= 1'b1;
+			end
 		end else begin
 			ramState <= ramState + 4'h1;
 			case(ramState)
@@ -46,6 +53,8 @@ always @ (posedge clk_i) begin
 						ramData_o <= SRAM_Data;
 					end
 					ramRdy_o <= 1'b1;
+					SRAM_WE_o <= 1'b1;
+					SRAM_OE_o <= 1'b1;
 				end
 				4'h2: begin
 					ramRdy_o <= 1'b0;
@@ -58,6 +67,8 @@ always @ (posedge clk_i) begin
 	end else begin
 		ramState <= 4'h0;
 		ramRdy_o <= 1'b0;
+		SRAM_WE_o <= 1'b1;
+		SRAM_OE_o <= 1'b1;
 	end
 end
 

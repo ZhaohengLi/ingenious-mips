@@ -52,6 +52,8 @@ module DATA_BUS(
 							end
 							ramWriteEnable_o <= cpuWriteEnable_i;
 							ramEnable_o <= cpuEnable_i;
+                            uartWriteEnable_o <= `Disable;
+                            uartEnable_o <= `Disable;
 						end
 						else if(`uartBorder_l <= cpuAddr_i && cpuAddr_i < `uartBorder_r) begin
 							ramAddr_o <= cpuAddr_i - `uartBorder_l;
@@ -63,6 +65,8 @@ module DATA_BUS(
 							end
 							uartWriteEnable_o <= cpuWriteEnable_i;
 							uartEnable_o <= cpuEnable_i;
+                            ramWriteEnable_o <= `Disable;
+                            ramEnable_o <= `Disable;
 						end else begin
 						
 						end
