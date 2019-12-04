@@ -124,8 +124,17 @@ module IngeniousMIPS(
     wire writeEnable_bus_to_uart;
     wire[1:0] uartReg_uart_to_bus;
 
-
-    assign cp0Inte_cpu_to_cpu = {5'b0, cp0TimerInte_cpu_to_cpu};
+    reg already_read;
+    always @ ( * ) begin
+        if(uart_dataready == `Disable) begin
+            already_read <= 1'b0;
+        end else if(uart_dataready ==`Enable) begin
+            if(stall_data_bus_to_cpu == 1'b1) begin
+                already_read <= 1'b1;
+            end
+        end
+    end
+    assign cp0Inte_cpu_to_cpu = {cp0TimerInte_cpu_to_cpu, 2'b00, uart_dataready^already_read, 2'b00};
 
     CPU cpu1(
         .clk(clk_50M),
@@ -168,7 +177,7 @@ module IngeniousMIPS(
         .dataAddr_i(ramAddr_cpu_to_ram),
         .dataData_i(ramData_cpu_to_ram),
         .dataData_o(ramData_ram_to_cpu),
-        
+
 		.ifStallReq_o(stall_if_bus_to_cpu),
 		.dataStallReq_o(stall_data_bus_to_cpu),
 
@@ -182,7 +191,7 @@ module IngeniousMIPS(
 		.baseRAM_Data_i(data_baseRAM_to_bus),
 		.baseRAM_Rdy_i(rdy_baseRAM_to_bus),
 		.uartReg_i(uartReg_uart_to_bus),
-		
+
 		.extRAM_Enable_o(enable_bus_to_extRAM),
 		.extRAM_WriteEnable_o(writeEnable_bus_to_extRAM),
 		.extRAM_Data_o(data_bus_to_extRAM),
@@ -198,7 +207,7 @@ module IngeniousMIPS(
 		.romSel_o(sel_bus_to_flash),
 		.romData_i(data_flash_to_bus),
 		.romRdy_i(rdy_flash_to_bus)
-		
+
     );
 
     RAM ext_ram(
@@ -273,7 +282,7 @@ module IngeniousMIPS(
 	   .uartDataReady_i(uart_dataready),
 	   .uartTBRE_i(uart_tbre),
 	   .uartTSRE_i(uart_tsre),
-	   
+
 	   .uartReg_o(uartReg_uart_to_bus)
 
     );
