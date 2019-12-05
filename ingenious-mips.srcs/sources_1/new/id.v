@@ -896,7 +896,7 @@ module ID(
                 reg2Enable_o <= `Disable;
                 instruction_is_valid <= `InstValid;
                 exception_is_eret<= `True_v;
-            end else if(inst_i[31:21] == 11'b01000000000 && inst_i[10:0] == 11'b00000000000) begin
+            end else if(inst_i[31:21] == 11'b01000000000 && inst_i[10:3] == 8'b0) begin
                 aluOp_o <= `EXE_MFC0_OP;
                 aluSel_o <= `EXE_RES_MOVE;
                 regWriteAddr_o <= rt;
@@ -904,7 +904,7 @@ module ID(
                 instruction_is_valid <= `InstValid;
                 reg1Enable_o <= `Disable;
                 reg2Enable_o <= `Disable;
-            end else if(inst_i[31:21] == 11'b01000000100 && inst_i[10:0] == 11'b00000000000) begin
+            end else if(inst_i[31:21] == 11'b01000000100 && inst_i[10:3] == 8'b0) begin
                 aluOp_o <= `EXE_MTC0_OP;
                 aluSel_o <= `EXE_RES_NOP;
                 regWriteEnable_o <= `Disable;

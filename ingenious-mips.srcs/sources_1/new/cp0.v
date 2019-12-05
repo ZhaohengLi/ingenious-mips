@@ -35,7 +35,7 @@ module CP0(
 			cp0Cause_o <= `ZeroWord;
 			cp0EPC_o <= `ZeroWord;
 			cp0Config_o <= 32'b0;
-			cp0EBase_o <= 32'b0;
+			cp0EBase_o <= 32'h80000000;
 			cp0TimerInte_o <= `InterruptNotAssert;
 		end else begin
 			case (exceptionType_i)
