@@ -111,7 +111,6 @@
 `define EXE_SYSCALL 6'b001100
 `define EXE_ERET 32'b01000010000000000000000000011000
 
-
 `define EXE_OR_OP 8'b00100101
 `define EXE_AND_OP 8'b00100100
 `define EXE_XOR_OP 8'b00100110
@@ -210,6 +209,7 @@
 `define RegNum 32
 `define RegNumLog2 5
 `define NOPRegAddr 5'b00000
+
 `define DivFree 2'b00
 `define DivByZero 2'b01
 `define DivOn 2'b10
@@ -218,6 +218,7 @@
 `define DivResultReady 1'b1
 `define DivStart 1'b1
 `define DivStop 1'b0
+
 `define CP0_REG_COUNT    5'b01001
 `define CP0_REG_COMPARE    5'b0101
 `define CP0_REG_STATUS    5'b01100
