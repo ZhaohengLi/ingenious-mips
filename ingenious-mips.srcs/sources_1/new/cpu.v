@@ -22,8 +22,7 @@ module CPU(
 
 	output wire cp0TimerInte_o
 );
-    // PC & PC_ADDER & IF_ID
-    wire[`InstAddrBus] instAddr_pc_adder_to_pc;
+    // PC & IF_ID
     wire[`InstAddrBus] instAddr_pc_to_if_id;
     wire[`RegBus] branchTarget_id_to_pc;
     wire branchFlag_id_to_pc;
@@ -159,7 +158,6 @@ module CPU(
     PC pc1(
         .clk(clk),
         .rst(rst),
-        .instAddr_i(instAddr_pc_adder_to_pc),
         .instAddr_o(instAddr_pc_to_if_id),
         .branchTargetAddr_i(branchTarget_id_to_pc),
         .branchFlag_i(branchFlag_id_to_pc),
@@ -167,12 +165,6 @@ module CPU(
         .ce_o(romEnable_o),
         .flush_i(flush_ctrl_to_all),
         .newInstAddr_i(newInstAddr_ctrl_to_pc)
-    );
-
-    PC_ADDER pc_adder1(
-        .rst(rst),
-        .instAddr_i(instAddr_pc_to_if_id),
-        .instAddr_o(instAddr_pc_adder_to_pc)
     );
 
     IF_ID if_id1(

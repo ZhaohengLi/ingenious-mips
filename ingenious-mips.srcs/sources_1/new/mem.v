@@ -18,7 +18,7 @@ module MEM(
 	input wire cp0WriteEnable_i,
 	input wire[4:0] cp0WriteAddr_i,
 	input wire[`RegBus] cp0WriteData_i,
-	input wire[`RegBus] exceptionType_i,
+	input wire[`RegBus] exceptionType_i,//第[8]位为syscall [9]置为1表示指令无效 [10] trap [11] overflow [12]表示eret 其他位为0
 	input wire isInDelayslot_i,
 	input wire[`RegBus] instAddr_i,
 	input wire[`RegBus] cp0Status_i,
@@ -97,13 +97,27 @@ module MEM(
 		end
 	end
 
+	always @(*) begin
+			if(rst == `Enable) begin
+					LLbitData_latest <= 1'b0;
+			end else begin
+					if(mem_wb_LLbitWriteEnable_i == `Enable) begin
+							LLbitData_latest <= mem_wb_LLbitData_i;
+					end else begin
+							LLbitData_latest <= LLbitData_i;
+					end
+			end
+	end
+
+
+	////第[8]位为syscall [9]置为1表示指令无效 [10] trap [11] overflow [12]表示eret 其他位为0
 	always @ (*) begin
 		if(rst == `Enable) begin
 			exceptionType_o <= `ZeroWord;
 		end else begin
 			exceptionType_o <= `ZeroWord;
 			if(instAddr_i != `ZeroWord) begin
-				if(((cp0Cause_latest[15:8] & (cp0Status_latest[15:8])) != 8'h00) && (cp0Status_latest[1] == 1'b0) && (cp0Status_latest[0] == 1'b1)) begin
+				if(((cp0Cause_latest[15:8] & (cp0Status_latest[15:8])) != 8'h00) && (cp0Status_latest[1] == 1'b0) && (cp0Status_latest[0] == 1'b1)) begin //8个外部中断和掩码 异常级 和 中断使能
 					exceptionType_o <= 32'h00000001;        //interrupt
 				end else if(exceptionType_i[8] == 1'b1) begin
 				exceptionType_o <= 32'h00000008;        //syscall
@@ -111,27 +125,15 @@ module MEM(
 					exceptionType_o <= 32'h0000000a;        //inst_invalid
 				end else if(exceptionType_i[10] ==1'b1) begin
 					exceptionType_o <= 32'h0000000d;        //trap
-				end else if(exceptionType_i[11] == 1'b1) begin  //ov
-					exceptionType_o <= 32'h0000000c;
-				end else if(exceptionType_i[12] == 1'b1) begin  //����ָ��
-					exceptionType_o <= 32'h0000000e;
+				end else if(exceptionType_i[11] == 1'b1) begin
+					exceptionType_o <= 32'h0000000c; //ov
+				end else if(exceptionType_i[12] == 1'b1) begin
+					exceptionType_o <= 32'h0000000e; //eret
 				end
 			end
 
 		end
 	end
-
-    always @(*) begin
-        if(rst == `Enable) begin
-            LLbitData_latest <= 1'b0;
-        end else begin
-            if(mem_wb_LLbitWriteEnable_i == `Enable) begin
-                LLbitData_latest <= mem_wb_LLbitData_i;
-            end else begin
-                LLbitData_latest <= LLbitData_i;
-            end
-        end
-    end
 
     always @(*) begin
         if(rst == `Enable) begin

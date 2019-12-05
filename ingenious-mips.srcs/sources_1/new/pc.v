@@ -3,12 +3,14 @@
 module PC(
     input wire clk,
     input wire rst,
+    
     input wire flush_i,
     input wire[5:0] stall_i,
-    input wire branchFlag_i,
+    
+    input wire branchFlag_i,//branch
     input wire[`RegBus] branchTargetAddr_i,
-    input wire[`InstAddrBus] instAddr_i,
-    input wire[`RegBus] newInstAddr_i,
+    
+    input wire[`RegBus] newInstAddr_i,//error handler
 
     output reg[`InstAddrBus] instAddr_o,
     output reg ce_o
@@ -31,7 +33,7 @@ module PC(
                 if(branchFlag_i == `Branch) begin
                     instAddr_o <= branchTargetAddr_i;
                 end else begin
-                    instAddr_o <= instAddr_i;
+                    instAddr_o <= instAddr_o + 32'h4;
                 end
             end
         end

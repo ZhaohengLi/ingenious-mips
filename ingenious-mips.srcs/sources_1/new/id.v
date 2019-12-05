@@ -2,18 +2,23 @@
 
 module ID(
     input wire rst,
+
 	input wire[`InstAddrBus] instAddr_i, //pc
 	input wire[`InstBus] inst_i,
+
 	input wire[`RegBus] reg1Data_i,
 	input wire[`RegBus] reg2Data_i,
+
 	input wire[`RegBus] ex_regWriteData_i,
 	input wire[`RegAddrBus] ex_regWriteAddr_i,
 	input wire ex_regWriteEnable_i,
     input wire[`AluOpBus] ex_aluOp_i,
+
 	input wire[`RegBus] mem_regWriteData_i,
 	input wire[`RegAddrBus] mem_regWriteAddr_i,
 	input wire mem_regWriteEnable_i,
-	input wire isInDelayslot_i,
+
+	input wire isInDelayslot_i,//从idex过来的 表示当前指令是否为延迟槽指令
 
 	output reg reg1Enable_o, //enable read reg1
 	output reg reg2Enable_o, //enable read reg2
@@ -25,14 +30,18 @@ module ID(
 	output reg[`RegBus] operand2_o, //reg2_o
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o,
+
 	output reg branchFlag_o,
 	output reg[`RegBus] branchTargetAddr_o,
-	output reg isInDelayslot_o,
-	output reg[`RegBus] linkAddr_o,
-	output reg nextInstInDelayslot_o,
+
+	output reg isInDelayslot_o,//传给idex 表示当前指令是否为延迟槽指令
+
+	output reg[`RegBus] linkAddr_o,//跳转指令的链接指令 一般是zero或者当前地址+8
+
+	output reg nextInstInDelayslot_o,//当 当前指令为跳转指令时 将其置1 表示下一条指令为延迟槽指令
     output wire stallReq_o,
 	output wire[`RegBus] inst_o,
-    output wire[`RegBus] exceptionType_o,
+    output wire[`RegBus] exceptionType_o,//第[8]位为syscall [9]置为1表示指令无效 [12]表示eret 其他位为0
     output wire[`RegBus] instAddr_o
 );
 
@@ -42,15 +51,21 @@ module ID(
     wire [4:0] rd = inst_i[15:11];
     wire [4:0] shamt = inst_i[10:6]; //op2
     wire [5:0] func = inst_i[5:0]; //op3
+
     reg exception_is_syscall;
     reg exception_is_eret;
-    reg [`RegBus] immediate;
     reg instruction_is_valid;
+
+    reg [`RegBus] immediate;
+
     reg stallReq_for_reg1_load_relate;
     reg stallReq_for_reg2_load_relate;
+
     wire[`RegBus] instAddr_plus_8;
     wire[`RegBus] instAddr_plus_4;
+
     wire[`RegBus] immediate_sll2_signed_extended;
+
     wire pre_instruction_is_load;
 
     assign exceptionType_o = {19'b0, exception_is_eret, 2'b0, instruction_is_valid, exception_is_syscall, 8'b0};
@@ -71,7 +86,7 @@ module ID(
     assign immediate_sll2_signed_extended = {{14{inst_i[15]}}, inst_i[15:0], 2'b00};
 
     always @(*) begin
-        if(rst == `Disable) begin
+        if(rst == `Disable) begin //首先给出默认的值
             aluOp_o <= `EXE_NOP_OP;
             aluSel_o <= `EXE_RES_NOP;
             regWriteAddr_o <= rd;
@@ -935,7 +950,7 @@ module ID(
         end
     end
 
-    //OPERAND1
+    //OPERAND1 数据相关和load相关暂停
     always @ (*) begin
         stallReq_for_reg1_load_relate <= `NoStop;
         if(rst == `Enable) begin
@@ -955,7 +970,7 @@ module ID(
         end
     end
 
-    //OPERAND2
+    //OPERAND2 数据相关和load相关暂停
     always @ (*) begin
         stallReq_for_reg2_load_relate <= `NoStop;
         if(rst == `Enable) begin
@@ -977,7 +992,7 @@ module ID(
         end
     end
 
-    //isInDelayslot
+    //isInDelayslot 输出
     always @ (*) begin
         if(rst == `Enable) begin
             isInDelayslot_o <= `NotInDelaySlot;

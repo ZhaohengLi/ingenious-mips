@@ -33,7 +33,7 @@ module EX(
 	input wire[`RegBus] exceptionType_i,
 	input wire[`RegBus] instAddr_i,
 
-	output reg[`DoubleRegBus] regHILOTemp_o,
+	output reg[`DoubleRegBus] regHILOTemp_o, //madd msub使用
 	output reg[1:0] cnt_o,
     output wire[`AluOpBus] aluOp_o,
     output wire[`RegBus] memAddr_o, //mem_addr_o
@@ -53,8 +53,8 @@ module EX(
 	output reg cp0WriteEnable_o,
 	output reg[4:0] cp0WriteAddr_o,
 	output reg[`RegBus] cp0WriteData_o,
-	output wire[`RegBus] exceptionType_o,
-	output wire[`RegBus] instAddr_o,
+	output wire[`RegBus] exceptionType_o,//[10] trap [11] overflow
+  output wire[`RegBus] instAddr_o,
 	output wire isInDelayslot_o
 );
 	reg exception_is_trap;

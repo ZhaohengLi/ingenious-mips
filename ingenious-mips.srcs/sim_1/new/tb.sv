@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-module tb;
+module TB_KERNEL;
 
 wire clk_50M, clk_11M0592;
 
