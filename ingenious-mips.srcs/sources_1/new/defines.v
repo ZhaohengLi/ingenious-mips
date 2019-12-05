@@ -47,12 +47,12 @@
 `define EXE_SRLV 6'b000110
 `define EXE_SRA 6'b000011
 `define EXE_SRAV 6'b000111
-`define EXE_MOVN 6'b001011 //if rt != 0, rd <- rs
-`define EXE_MOVZ 6'b001010 //if rt == 0, rd <- rs
-`define EXE_MFHI 6'b010000 // rd <- hi
-`define EXE_MFLO 6'b010010 //rd <- lo
-`define EXE_MTHI 6'b010001 // hi <- rs
-`define EXE_MTLO 6'b010011 // lo <- rs
+`define EXE_MOVN 6'b001011
+`define EXE_MOVZ 6'b001010
+`define EXE_MFHI 6'b010000
+`define EXE_MFLO 6'b010010
+`define EXE_MTHI 6'b010001
+`define EXE_MTLO 6'b010011
 `define EXE_SLT  6'b101010
 `define EXE_SLTU  6'b101011
 `define EXE_SLTI  6'b001010
