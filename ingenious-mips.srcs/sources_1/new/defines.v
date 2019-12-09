@@ -22,6 +22,18 @@
 `define InDelaySlot 1'b1
 `define NotInDelaySlot 1'b0
 
+`define SIZE_C0 3
+`define SIZE_C1 3
+`define SIZE_ASID 8
+`define SIZE_VPN2 19
+`define SIZE_PFN0 24
+`define SIZE_PFN1 24
+
+`define ENABLE_CPU_MMU 1'b0
+`define TLB_ENTRIES_NUM 16
+`define TLB_ENTRIES_NUM_LOG2  4
+`define PC_RESET_VECTOR 32'hbfc00000
+
 `define EXE_ORI  6'b001101
 `define EXE_NOP 6'b000000
 `define EXE_AND 6'b100100
@@ -111,6 +123,12 @@
 `define EXE_SYSCALL 6'b001100
 `define EXE_ERET 32'b01000010000000000000000000011000
 
+`define EXE_TLBR 6'b000001
+`define EXE_TLBP 6'b001000
+`define EXE_TLBWI 6'b000010
+`define EXE_TLBWR 6'b000110
+`define EXE_COP0 6'b010000
+
 `define EXE_OR_OP 8'b00100101
 `define EXE_AND_OP 8'b00100100
 `define EXE_XOR_OP 8'b00100110
@@ -188,6 +206,11 @@
 `define EXE_SYSCALL_OP 8'b01001100
 `define EXE_ERET_OP 8'b01011000
 
+`define EXE_TLBR_OP 8'b11000001
+`define EXE_TLBP_OP 8'b11001000
+`define EXE_TLBWI_OP 8'b11000010
+`define EXE_TLBWR_OP 8'b11000110
+
 `define EXE_RES_NOP 3'b000
 `define EXE_RES_LOGIC 3'b001
 `define EXE_RES_SHIFT 3'b010
@@ -209,7 +232,6 @@
 `define RegNum 32
 `define RegNumLog2 5
 `define NOPRegAddr 5'b00000
-
 `define DivFree 2'b00
 `define DivByZero 2'b01
 `define DivOn 2'b10
@@ -219,14 +241,24 @@
 `define DivStart 1'b1
 `define DivStop 1'b0
 
-`define CP0_REG_COUNT    5'b01001
-`define CP0_REG_COMPARE    5'b0101
+//CP0
+`define CP0_REG_INDEX     5'b00000
+`define CP0_REG_RANDOM    5'b00001
+`define CP0_REG_ENTRYLO0  5'b00010
+`define CP0_REG_ENTRYLO1  5'b00011
+`define CP0_REG_CONTEXT   5'b00100
+`define CP0_REG_PAGEMASK  5'b00101
+`define CP0_REG_WIRED     5'b00110
+//7保留
+`define CP0_REG_BADVADDR  5'b01000
+`define CP0_REG_COUNT     5'b01001
+`define CPO_REG_ENTRYHI   5'b01010
+`define CP0_REG_COMPARE   5'b01011
 `define CP0_REG_STATUS    5'b01100
-`define CP0_REG_CAUSE    5'b01101
-`define CP0_REG_EPC    5'b01110
-`define CP0_REG_PrId    5'b01111
+`define CP0_REG_CAUSE     5'b01101
+`define CP0_REG_EPC       5'b01110
+`define CP0_REG_EBASE     5'b01111
 `define CP0_REG_CONFIG    5'b10000
-`define CP0_REG_EBASE 5'b01111
 
 `define BUS_IDLE 4'h0
 `define BUS_BUSY 4'h1

@@ -27,26 +27,19 @@ module CTRL(
             flush_o <= 1'b1;
             stall_o <= 6'b000000;
             case(exceptionType_i)
-                32'h00000001: begin   //interrupt
-					newInstAddr_o <= cp0EBase_i + 32'h180;
-				end
-				32'h00000008:		begin   //syscall
-					newInstAddr_o <= cp0EBase_i + 32'h180;
-				end
-				32'h0000000a:		begin   //inst_invalid
-					newInstAddr_o <= cp0EBase_i + 32'h180;
-				end
-				32'h0000000d:		begin   //trap
-					newInstAddr_o <= cp0EBase_i + 32'h180;
-				end
-				32'h0000000c:		begin   //ov
-					newInstAddr_o <= cp0EBase_i + 32'h180;
-				end
-				32'h0000000e:		begin   //eret
-					newInstAddr_o <= cp0EPC_i;
-				end
-				default	: begin
-				end
+                32'h00000001: newInstAddr_o <= cp0EBase_i + 32'h180; // int
+                32'h00000002: newInstAddr_o <= cp0EBase_i + 32'h000; // tlbl
+                32'h00000003: newInstAddr_o <= cp0EBase_i + 32'h000; // tlbs
+                32'h00000004: newInstAddr_o <= cp0EBase_i + 32'h180; // adel
+                32'h00000005: newInstAddr_o <= cp0EBase_i + 32'h180; // ades
+				        32'h00000008: newInstAddr_o <= cp0EBase_i + 32'h180; // sys
+				        32'h0000000a: newInstAddr_o <= cp0EBase_i + 32'h180; // ri
+				        32'h0000000c: newInstAddr_o <= cp0EBase_i + 32'h180; // ov
+                32'h0000000d: newInstAddr_o <= cp0EBase_i + 32'h180; // tr
+				        32'h0000000e: newInstAddr_o <= cp0EPC_i;             // eret
+                32'h0000000f: newInstAddr_o <= cp0EBase_i + 32'h180; // mod
+				        default	: begin
+				        end
             endcase
         end else if (stallReqFromMEM_i == `Stop) begin
             stall_o <= 6'b011111;

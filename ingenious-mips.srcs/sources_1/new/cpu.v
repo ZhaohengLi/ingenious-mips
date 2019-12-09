@@ -22,10 +22,40 @@ module CPU(
 
 	output wire cp0TimerInte_o
 );
-    // PC & IF_ID
-    wire[`InstAddrBus] instAddr_pc_to_if_id;
-    wire[`RegBus] branchTarget_id_to_pc;
-    wire branchFlag_id_to_pc;
+
+	//MMU TLB
+	wire[`InstAddrBus] physInstAddr_mmu_to_pc;
+	wire[`InstAddrBus] virtInstAddr_mmu_to_pc;
+
+	wire instInvalid_mmu_to_pc;
+	wire instMiss_mmu_to_pc;
+	wire instDirty_mmu_to_pc;
+	wire instIllegal_mmu_to_pc;
+
+	wire[`InstAddrBus] physDataAddr_mmu_to_ex_mem;
+	wire[`InstAddrBus] virtDataAddr_mmu_to_ex_mem;
+	wire DataInvalid_mmu_to_ex_mem;
+	wire DataMiss_mmu_to_ex_mem;
+	wire DataDirty_mmu_to_ex_mem;
+	wire DataIllegal_mmu_to_ex_mem;
+
+	wire[`InstAddrBus] physDataAddr_ex_mem_to_mem;
+	wire[`InstAddrBus] virtDataAddr_ex_mem_to_mem;
+	wire DataInvalid_ex_mem_to_mem;
+	wire DataMiss_ex_mem_to_mem;
+
+	wire DataDirty_ex_mem_to_mem;
+	wire DataIllegal_ex_mem_to_mem;
+
+    // PC & PC_ADDER & IF_ID
+	//wire[`InstAddrBus] pc;
+
+	wire[`InstAddrBus] instAddrForMMU_pc_to_mmu; //to mmu,
+	wire[`InstAddrBus] dataVirtAddr_ex_to_mmu; //to mmu,
+  wire[`RegBus] branchTarget_id_to_pc;
+  wire branchFlag_id_to_pc;
+	wire[`RegBus] exceptionType_pc_to_if_id;
+
     // IF_ID & REG & ID_EX
     wire[`InstBus] inst_if_id_to_id;
     wire[`InstAddrBus] instAddr_if_id_to_id;
@@ -45,6 +75,7 @@ module CPU(
     wire isInDelayslot_id_to_id_ex;
     wire [`RegBus] linkAddr_id_to_id_ex;
     wire nextInstInDelayslot_id_to_id_ex;
+	wire[`RegBus] exceptionType_if_id_to_id;
     // ID_EX & EX & EX_MEM
     wire isInDelayslot_id_ex_to_id;//P211 port "nextInstInDelayslot_o" of id_ex1 to port "isInDelayslot_i" of id1
     wire[`AluOpBus] aluOp_id_ex_to_ex;
@@ -63,7 +94,6 @@ module CPU(
     wire[`RegBus] regHI_ex_to_ex_mem;
     wire[`RegBus] regLO_ex_to_ex_mem;
     wire[`AluOpBus] aluOp_ex_to_ex_mem;
-    wire[`RegBus] memAddr_ex_to_ex_mem;
     wire[`RegBus] operand2_ex_to_ex_mem;
     wire[`DoubleRegBus] regHILOTemp_ex_to_ex_mem;
     wire[1:0] cnt_ex_to_ex_mem;
@@ -84,7 +114,6 @@ module CPU(
     wire[`RegBus] regHI_ex_mem_to_mem;
     wire[`RegBus] regLO_ex_mem_to_mem;
     wire[`AluOpBus] aluOp_ex_mem_to_mem;
-    wire[`RegBus] memAddr_ex_mem_to_mem;
     wire[`RegBus] operand2_ex_mem_to_mem;
     wire LLbitData_mem_to_mem_wb;
     wire LLbitWriteEnable_mem_to_mem_wb;
@@ -101,6 +130,10 @@ module CPU(
     wire regHILOEnable_mem_to_mem_wb;
     wire[`RegBus] regHI_mem_to_mem_wb;
     wire[`RegBus] regLO_mem_to_mem_wb;
+    wire isInstTLBR_mem_to_mem_wb;
+    wire isInstTLBWR_mem_to_mem_wb;
+    wire isInstTLBWI_mem_to_mem_wb;
+    wire isInstTLBP_mem_to_mem_wb;
     // MEM_WB & HILO
     wire regHILOEnable_mem_wb_to_hilo;
     wire[`RegBus] regHI_mem_wb_to_hilo;
@@ -128,6 +161,10 @@ module CPU(
     wire[`RegBus] cp0WriteData_mem_wb_to_cp0;
     wire[4:0] cp0WriteAddr_mem_wb_to_cp0;
     wire cp0WriteEnable_mem_wb_to_cp0;
+    wire isInstTLBR_mem_wb_to_cp0;
+    wire isInstTLBWR_mem_wb_to_cp0;
+    wire isInstTLBWI_mem_wb_to_cp0;
+    wire isInstTLBP_mem_wb_to_cp0;
     //EX & CP0
     wire[`RegBus] cp0Data_cp0_to_ex;
     wire flush_ctrl_to_all;
@@ -142,35 +179,91 @@ module CPU(
     wire[`RegBus] exceptionType_ex_mem_to_mem;
     wire[`RegBus] instAddr_ex_mem_to_mem;
     wire isInDelayslot_ex_mem_to_mem;
-    wire[`RegBus] cp0Status_cp0_to_mem;
-    wire[`RegBus] cp0Cause_cp0_to_mem;
-    wire[`RegBus] cp0EPC_cp0_to_mem;
-    wire[`RegBus] exceptionType_mem_to_cp0;
+
+    wire[`RegBus] cp0_count;
+    wire[`RegBus] cp0_wired;
+    wire[`RegBus] cp0_compare;
+    wire[`RegBus] cp0_status;
+    wire[`RegBus] cp0_cause;
+    wire[`RegBus] cp0_epc;
+    wire[`RegBus] cp0_config;
+    wire[`RegBus] cp0_ebase;
+    wire[`RegBus] cp0_index;
+    wire[`RegBus] cp0_entrylo0;
+    wire[`RegBus] cp0_entrylo1;
+    wire[`RegBus] cp0_badvaddr;
+    wire[`RegBus] cp0_entryhi;
+    wire[`RegBus] cp0_random;
+    wire[`RegBus] cp0_pagemask;
+    wire[`RegBus] bad_address;
+	wire[`RegBus] cp0_prID;
+	wire[`RegBus] cp0_context;
+
+	wire[`InstAddrBus] badAddr_mem_to_mem_wb;
+  wire[31:0] badAddr_mem_wb_to_cp0;
+    wire[`RegBus] exceptionType_mem_to_cp0_ctrl;
     wire[`RegBus] instAddr_mem_to_cp0;
     wire isInDelayslot_mem_to_cp0;
     wire[`RegBus] cp0EPC_mem_to_ctrl;
+    //cp0 to mmu
+    wire userMode_cp0_to_mmu;
+    wire[7:0] asid_cp0_to_mmu;
+    //mmu read entry to CP0
+    wire tlbrwEnable_mmu;
 
-    wire[`RegBus] cp0EBase_cp0_to_ctrl;
+	wire[`RegBus] mmu_cp0_tlpb_res;
+	wire[2:0] tlbrw_rc0_o;
+    wire[2:0] tlbrw_rc1_o;
+    wire[7:0] tlbrw_rasid_o;
+    wire[18:0] tlbrw_rvpn2_o;
+    wire[23:0] tlbrw_rpfn0_o;
+    wire[23:0] tlbrw_rpfn1_o;
+    wire tlbrw_rd1_o;
+    wire tlbrw_rv1_o;
+    wire tlbrw_rd0_o;
+    wire tlbrw_rv0_o;
+    wire tlbrw_rG_o;
 
-
-    assign romAddr_o = instAddr_pc_to_if_id;
+	wire[3:0] tlbrw_index;
+    wire tlbrw_Enable;
+    wire[2:0] tlbrw_wc0;
+    wire[2:0] tlbrw_wc1;
+    wire[7:0] tlbrw_wasid;
+    wire[18:0] tlbrw_wvpn2;
+    wire[23:0] tlbrw_wpfn0;
+    wire[23:0] tlbrw_wpfn1;
+    wire tlbrw_wd1;
+    wire tlbrw_wv1;
+    wire tlbrw_wd0;
+    wire tlbrw_wv0;
+    wire tlbrw_wG;
 
     PC pc1(
         .clk(clk),
         .rst(rst),
-        .instAddr_o(instAddr_pc_to_if_id),
-        .branchTargetAddr_i(branchTarget_id_to_pc),
+	    .flush_i(flush_ctrl_to_all),
+	    .stall_i(stall_ctrl_to_all),
+	    .branchTargetAddr_i(branchTarget_id_to_pc),
         .branchFlag_i(branchFlag_id_to_pc),
-        .stall_i(stall_ctrl_to_all),
-        .ce_o(romEnable_o),
-        .flush_i(flush_ctrl_to_all),
-        .newInstAddr_i(newInstAddr_ctrl_to_pc)
+	    .newInstAddr_i(newInstAddr_ctrl_to_pc),
+    	.physInstAddr_i(physInstAddr_mmu_to_pc),
+   		.virtInstAddr_i(virtInstAddr_mmu_to_pc),
+    	.instInvalid_i(instInvalid_mmu_to_pc),
+    	.instMiss_i(instMiss_mmu_to_pc),
+    	.instDirty_i(instDirty_mmu_to_pc),
+    	.instIllegal_i(instIllegal_mmu_to_pc),
+        .instAddrForMMU_o(instAddrForMMU_pc_to_mmu),
+    	.instAddrForBus_o(romAddr_o),
+    	.exceptionType_o(exceptionType_pc_to_if_id),
+        .ce_o(romEnable_o)
     );
 
     IF_ID if_id1(
         .clk(clk),
         .rst(rst),
-        .instAddr_i(instAddr_pc_to_if_id),
+        .exceptionType_i(exceptionType_pc_to_if_id),
+		.exceptionType_o(exceptionType_if_id_to_id),
+        .instAddr_i(instAddrForMMU_pc_to_mmu),
         .inst_i(romData_i),
         .instAddr_o(instAddr_if_id_to_id),
         .inst_o(inst_if_id_to_id),
@@ -214,22 +307,9 @@ module CPU(
         .branchFlag_o(branchFlag_id_to_pc),
         .inst_o(inst_id_to_id_ex),
         .ex_aluOp_i(aluOp_ex_to_ex_mem),
+		    .exceptionType_i(exceptionType_if_id_to_id),
         .exceptionType_o(exceptionType_id_to_id_ex),
         .instAddr_o(instAddr_id_to_id_ex)
-    );
-
-    REG reg1(
-        .clk(clk),
-        .rst(rst),
-        .reg1Addr_i(reg1Addr_id_to_reg),
-        .reg2Addr_i(reg2Addr_id_to_reg),
-        .reg1Enable_i(reg1Enable_id_to_reg),
-        .reg2Enable_i(reg2Enable_id_to_reg),
-        .reg1Data_o(reg1Data_reg_to_id),
-        .reg2Data_o(reg2Data_reg_to_id),
-        .regWriteAddr_i(regWriteAddr_mem_wb_to_reg),
-        .regWriteData_i(regWriteData_mem_wb_to_reg),
-        .regWriteEnable_i(regWriteEnable_mem_wb_to_reg)
     );
 
     ID_EX id_ex1(
@@ -300,7 +380,7 @@ module CPU(
         .stallReq_o(stallReqFromEX_ex_to_ctrl),
         .inst_i(inst_id_ex_to_ex),
         .aluOp_o(aluOp_ex_to_ex_mem),
-        .memAddr_o(memAddr_ex_to_ex_mem),
+        .memAddr_o(dataVirtAddr_ex_to_mmu),
         .operand2_o(operand2_ex_to_ex_mem),
         .cp0Data_i(cp0Data_cp0_to_ex),
         .cp0ReadAddr_o(cp0ReadAddr_ex_to_cp0),
@@ -344,8 +424,8 @@ module CPU(
         .stall_i(stall_ctrl_to_all),
         .aluOp_i(aluOp_ex_to_ex_mem),
         .aluOp_o(aluOp_ex_mem_to_mem),
-        .memAddr_i(memAddr_ex_to_ex_mem),
-        .memAddr_o(memAddr_ex_mem_to_mem),
+        //.memAddr_i(),
+        //.memAddr_o(),
         .operand2_i(operand2_ex_to_ex_mem),
         .operand2_o(operand2_ex_mem_to_mem),
         .cp0WriteEnable_i(cp0WriteEnable_ex_to_ex_mem),
@@ -360,6 +440,21 @@ module CPU(
         .isInDelayslot_i(isInDelayslot_ex_to_ex_mem),
         .exceptionType_o(exceptionType_ex_mem_to_mem),
         .instAddr_o(instAddr_ex_mem_to_mem),
+
+        .physDataAddr_i(physDataAddr_mmu_to_ex_mem),
+        .virtDataAddr_i(virtDataAddr_mmu_to_ex_mem),
+        .dataInvalid_i(DataInvalid_mmu_to_ex_mem),
+        .dataMiss_i(DataMiss_mmu_to_ex_mem),
+        .dataDirty_i(DataDirty_mmu_to_ex_mem),
+        .dataIllegal_i(DataIllegal_mmu_to_ex_mem),
+
+        .physDataAddr_o(physDataAddr_ex_mem_to_mem),
+        .virtDataAddr_o(virtDataAddr_ex_mem_to_mem),
+        .dataInvalid_o(DataInvalid_ex_mem_to_mem),
+        .dataMiss_o(DataMiss_ex_mem_to_mem),
+        .dataDirty_o(DataDirty_ex_mem_to_mem),
+        .dataIllegal_o(DataIllegal_ex_mem_to_mem),
+
         .isInDelayslot_o(isInDelayslot_ex_mem_to_mem)
     );
 
@@ -381,7 +476,7 @@ module CPU(
         .regLO_o(regLO_mem_to_mem_wb),
         .memData_i(ramData_i),
         .aluOp_i(aluOp_ex_mem_to_mem),
-        .memAddr_i(memAddr_ex_mem_to_mem),
+        //.memAddr_i(mmu_mem_virtual_addr),
         .operand2_i(operand2_ex_mem_to_mem),
         .memAddr_o(ramAddr_o),
         .memWriteEnable_o(ramWriteEnable_o),
@@ -402,15 +497,30 @@ module CPU(
         .exceptionType_i(exceptionType_ex_mem_to_mem),
         .instAddr_i(instAddr_ex_mem_to_mem),
         .isInDelayslot_i(isInDelayslot_ex_mem_to_mem),
-        .cp0Status_i(cp0Status_cp0_to_mem),
-        .cp0Cause_i(cp0Cause_cp0_to_mem),
-        .cp0EPC_i(cp0EPC_cp0_to_mem),
+        .cp0Status_i(cp0_status),
+        .cp0Cause_i(cp0_cause),
+        .cp0EPC_i(cp0_epc),
         .mem_wb_cp0WriteEnable_i(cp0WriteEnable_mem_wb_to_cp0),
         .mem_wb_cp0WriteAddr_i(cp0WriteAddr_mem_wb_to_cp0),
         .mem_wb_cp0WriteData_i(cp0WriteData_mem_wb_to_cp0),
-        .exceptionType_o(exceptionType_mem_to_cp0),
+        .exceptionType_o(exceptionType_mem_to_cp0_ctrl),
         .instAddr_o(instAddr_mem_to_cp0),
         .isInDelayslot_o(isInDelayslot_mem_to_cp0),
+
+        .badAddr_o(badAddr_mem_to_mem_wb),
+        //mmu data result
+        .physDataAddr_i(physDataAddr_ex_mem_to_mem),
+        .virtDataAddr_i(virtDataAddr_ex_mem_to_mem),
+        .dataInvalid_i(DataInvalid_ex_mem_to_mem),
+        .dataMiss_i(DataMiss_ex_mem_to_mem),
+        .dataDirty_i(DataDirty_ex_mem_to_mem),
+        .dataIllegal_i(DataIllegal_ex_mem_to_mem),
+
+        .isInstTLBR_o(isInstTLBR_mem_to_mem_wb),
+        .isInstTLBWR_o(isInstTLBWR_mem_to_mem_wb),
+        .isInstTLBWI_o(isInstTLBWI_mem_to_mem_wb),
+        .isInstTLBP_o(isInstTLBP_mem_to_mem_wb),
+
         .cp0EPC_o(cp0EPC_mem_to_ctrl)
     );
 
@@ -427,6 +537,11 @@ module CPU(
         .regHILOEnable_i(regHILOEnable_mem_to_mem_wb),
         .regHI_i(regHI_mem_to_mem_wb),
         .regLO_i(regLO_mem_to_mem_wb),
+        .isInstTLBR_i(isInstTLBR_mem_to_mem_wb),
+        .isInstTLBWR_i(isInstTLBWR_mem_to_mem_wb),
+        .isInstTLBWI_i(isInstTLBWI_mem_to_mem_wb),
+        .isInstTLBP_i(isInstTLBP_mem_to_mem_wb),
+        .badAddr_i(badAddr_mem_to_mem_wb),
         //mem_wb to hilo
         .regHILOEnable_o(regHILOEnable_mem_wb_to_hilo),
         .regHI_o(regHI_mem_wb_to_hilo),
@@ -442,6 +557,11 @@ module CPU(
         .cp0WriteEnable_o(cp0WriteEnable_mem_wb_to_cp0),
         .cp0WriteAddr_o(cp0WriteAddr_mem_wb_to_cp0),
         .cp0WriteData_o(cp0WriteData_mem_wb_to_cp0),
+        .isInstTLBR_o(isInstTLBR_mem_wb_to_cp0),
+        .isInstTLBWR_o(isInstTLBWR_mem_wb_to_cp0),
+        .isInstTLBWI_o(isInstTLBWI_mem_wb_to_cp0),
+        .isInstTLBP_o(isInstTLBP_mem_wb_to_cp0),
+        .badAddr_o(badAddr_mem_wb_to_cp0),
         .flush_i(flush_ctrl_to_all)
     );
 
@@ -452,17 +572,58 @@ module CPU(
         .cp0WriteEnable_i(cp0WriteEnable_mem_wb_to_cp0),
         .cp0WriteData_i(cp0WriteData_mem_wb_to_cp0),
         .cp0WriteAddr_i(cp0WriteAddr_mem_wb_to_cp0),
-        .cp0Data_o(cp0Data_cp0_to_ex),
-        .cp0Inte_i(cp0Inte_i),
-        .cp0TimerInte_o(cp0TimerInte_o),
-        .exceptionType_i(exceptionType_mem_to_cp0),
+        .cp0Data_o(cp0Data_cp0_to_ex), //cp0 rdata
+
+		.cp0Inte_i(cp0Inte_i),
+        .exceptionType_i(exceptionType_mem_to_cp0_ctrl),
+		.badAddr_i(badAddr_mem_wb_to_cp0),
         .instAddr_i(instAddr_mem_to_cp0),
         .isInDelayslot_i(isInDelayslot_mem_to_cp0),
-        .cp0Status_o(cp0Status_cp0_to_mem),
-        .cp0Cause_o(cp0Cause_cp0_to_mem),
-        .cp0EPC_o(cp0EPC_cp0_to_mem),
-        .cp0EBase_o(cp0EBase_cp0_to_ctrl)
+
+
+        .cp0Count_o(cp0_count),//count_o
+		.cp0Compare_o(cp0_compare),//compare_o
+		.cp0Status_o(cp0_status),//status_o
+		.cp0Cause_o(cp0_cause),//cause_o
+		.cp0EPC_o(cp0_epc),//epc_o
+		.cp0Config_o(cp0_config),//config_o
+		.cp0EBase_o(cp0_ebase),//ebase_o
+
+		.cp0Random_o(cp0_random),
+		.cp0Index_o(cp0_index),
+		.cp0EntryHI_o(cp0_entryhi),
+		.cp0EntryLO1_o(cp0_entrylo1),
+		.cp0EntryLO0_o(cp0_entrylo0), //lo0 not loo or l00
+		.cp0Badvaddr_o(bad_address),
+		.cp0Pagemask_o(cp0_pagemask),
+		.cp0Context_o(cp0_context),
+    .cp0Wired_o(cp0_wired),
+
+
+		.tlbpRes_i(mmu_cp0_tlpb_res),   //tlpb from mmu tlb
+
+        .isInstTLBP_i(isInstTLBP_mem_wb_to_cp0),
+		.isInstTLBR_i(isInstTLBR_mem_wb_to_cp0),
+		.isInstTLBWR_i(isInstTLBWR_mem_wb_to_cp0),
+		.isInstTLBWI_i(isInstTLBWI_mem_wb_to_cp0),
+		//tlbr_res from mmu A TLB Entry
+		.tlbc0_i(tlbrw_rc0_o),
+		.tlbc1_i(tlbrw_rc1_o),
+		.tlbasid_i(tlbrw_rasid_o),
+		.tlbvpn2(tlbrw_rvpn2_o),
+		.tlbpfn0(tlbrw_rpfn0_o),
+		.tlbpfn1(tlbrw_rpfn1_o),
+		.tlbd1(tlbrw_rd1_o),
+		.tlbv1(tlbrw_rv1_o),
+		.tlbd0(tlbrw_rd0_o),
+		.tlbv0(tlbrw_rv0_o),
+		.tlbG(tlbrw_rG_o),
+
+		.asid_o(asid_cp0_to_mmu),
+		.userMode_o(userMode_cp0_to_mmu),
+        .cp0TimerInte_o(cp0TimerInte_o)
     );
+
 
     HILO hilo1 (
         .clk(clk),
@@ -503,10 +664,93 @@ module CPU(
         .stallReqFromMEM_i(ramStallReq_i),
         .stall_o(stall_ctrl_to_all),
         .cp0EPC_i(cp0EPC_mem_to_ctrl),
-        .cp0EBase_i(cp0EBase_cp0_to_ctrl),
-        .exceptionType_i(exceptionType_mem_to_cp0),
+        .cp0EBase_i(cp0_ebase),
+        .exceptionType_i(exceptionType_mem_to_cp0_ctrl),
         .newInstAddr_o(newInstAddr_ctrl_to_pc),
         .flush_o(flush_ctrl_to_all)
     );
+
+    REG reg1(
+        .clk(clk),
+        .rst(rst),
+        .reg1Addr_i(reg1Addr_id_to_reg),
+        .reg2Addr_i(reg2Addr_id_to_reg),
+        .reg1Enable_i(reg1Enable_id_to_reg),
+        .reg2Enable_i(reg2Enable_id_to_reg),
+        .reg1Data_o(reg1Data_reg_to_id),
+        .reg2Data_o(reg2Data_reg_to_id),
+        .regWriteAddr_i(regWriteAddr_mem_wb_to_reg),
+        .regWriteData_i(regWriteData_mem_wb_to_reg),
+        .regWriteEnable_i(regWriteEnable_mem_wb_to_reg)
+    );
+
+    MMU mmu1(
+        .clk(clk),
+        .rst(rst),
+        .asid_i(asid_cp0_to_mmu),
+        .userMode_i(userMode_cp0_to_mmu),
+        .instVirtAddr_i(instAddrForMMU_pc_to_mmu),
+        .dataVirtAddr_i(dataVirtAddr_ex_to_mmu),
+        //mmu result inst_result
+        .physInstAddr_o(physInstAddr_mmu_to_pc),
+        .virtInstAddr_o(virtInstAddr_mmu_to_pc),
+        .instInvalid_o(instInvalid_mmu_to_pc),
+        .instMiss_o(instMiss_mmu_to_pc),
+        .instDirty_o(instDirty_mmu_to_pc),
+        .instIllegal_o(instIllegal_mmu_to_pc),
+        //mmu result data result
+        .physDataAddr_o(physDataAddr_mmu_to_ex_mem),
+        .virtDataAddr_o(virtDataAddr_mmu_to_ex_mem),
+        .dataInvalid_o(DataInvalid_mmu_to_ex_mem),
+        .dataMiss_o(DataMiss_mmu_to_ex_mem),
+        .dataDirty_o(DataDirty_mmu_to_ex_mem),
+        .dataIllegal_o(DataIllegal_mmu_to_ex_mem),
+
+        // tlbr/tlbwi/tlbwr
+        .tlbrw_index(tlbrw_index),   //input
+        .tlbrw_Enable(tlbrw_Enable),  //input
+		//tlbrw_wdata     //input
+        .tlbrw_wc0(tlbrw_wc0),
+        .tlbrw_wc1(tlbrw_wc1),
+        .tlbrw_wasid(tlbrw_wasid),
+        .tlbrw_wvpn2(tlbrw_wvpn2),
+        .tlbrw_wpfn0(tlbrw_wpfn0),
+        .tlbrw_wpfn1(tlbrw_wpfn1),
+        .tlbrw_wd1(tlbrw_wd1),
+        .tlbrw_wv1(tlbrw_wv1),
+        .tlbrw_wd0(tlbrw_wd0),
+        .tlbrw_wv0(tlbrw_wv0),
+        .tlbrw_wG(tlbrw_wG),
+		//tlbw_rdata      //output to cp0
+        .tlbrw_rc0_o(tlbrw_rc0_o),
+        .tlbrw_rc1_o(tlbrw_rc1_o),
+        .tlbrw_rasid_o(tlbrw_rasid_o),
+        .tlbrw_rvpn2_o(tlbrw_rvpn2_o),
+        .tlbrw_rpfn0_o(tlbrw_rpfn0_o),
+        .tlbrw_rpfn1_o(tlbrw_rpfn1_o),
+        .tlbrw_rd1_o(tlbrw_rd1_o),
+        .tlbrw_rv1_o(tlbrw_rv1_o),
+        .tlbrw_rd0_o(tlbrw_rd0_o),
+        .tlbrw_rv0_o(tlbrw_rv0_o),
+        .tlbrw_rG_o(tlbrw_rG_o),
+
+        //tlbp
+        .tlbp_entry_hi(cp0_entryhi),  //input
+        .tlbp_index_o(mmu_cp0_tlpb_res)    //output
+    );
+
+    assign tlbrw_Enable = (isInstTLBWI_mem_to_mem_wb | isInstTLBWR_mem_to_mem_wb);
+	assign tlbrw_index = (isInstTLBWI_mem_wb_to_cp0 == 1'b1) ? cp0_index : cp0_random;
+	assign tlbrw_wvpn2 = cp0_entryhi[31:13];
+	assign tlbrw_wasid = cp0_entryhi[7:0];
+	assign tlbrw_wpfn0 = cp0_entrylo0[29:6];
+	assign tlbrw_wpfn1 = cp0_entrylo1[29:6];
+	assign tlbrw_wc0 = cp0_entrylo0[5:3];
+	assign tlbrw_wc1 = cp0_entrylo1[5:3];
+	assign tlbrw_wd0 = cp0_entrylo0[2];
+	assign tlbrw_wd1 = cp0_entrylo1[2];
+	assign tlbrw_wv0 = cp0_entrylo0[1];
+	assign tlbrw_wv1 = cp0_entrylo1[1];
+	assign tlbrw_wG = cp0_entrylo0[0];
 
 endmodule

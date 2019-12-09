@@ -41,6 +41,7 @@ module ID(
 	output reg nextInstInDelayslot_o,//当 当前指令为跳转指令时 将其置1 表示下一条指令为延迟槽指令
     output wire stallReq_o,
 	output wire[`RegBus] inst_o,
+  input wire[`RegBus] exceptionType_i,
     output wire[`RegBus] exceptionType_o,//第[8]位为syscall [9]置为1表示指令无效 [12]表示eret 其他位为0
     output wire[`RegBus] instAddr_o
 );
@@ -68,7 +69,7 @@ module ID(
 
     wire pre_instruction_is_load;
 
-    assign exceptionType_o = {19'b0, exception_is_eret, 2'b0, instruction_is_valid, exception_is_syscall, 8'b0};
+    assign exceptionType_o = {exceptionType_i[31:13], exception_is_eret, exceptionType_i[11:10], instruction_is_valid, exceptionType_i[7:0]};
     assign pre_instruction_is_load = ((ex_aluOp_i == `EXE_LB_OP) ||
                                (ex_aluOp_i == `EXE_LBU_OP)||
   							   (ex_aluOp_i == `EXE_LH_OP) ||
@@ -105,6 +106,44 @@ module ID(
             exception_is_eret <= `False_v;
 
             case(op)
+                `EXE_COP0: begin
+                    case(func)
+                        `EXE_TLBR: begin
+                            regWriteEnable_o <= `Disable;
+                            aluOp_o <= `EXE_TLBR_OP;
+                            aluSel_o <= `EXE_RES_NOP;
+                            reg1Enable_o <= `Disable;
+                            reg2Enable_o <= `Disable;
+                            instruction_is_valid <= `InstValid;
+                        end
+                        `EXE_TLBP:begin
+                            regWriteEnable_o <= `Disable;
+                            aluOp_o <= `EXE_TLBP_OP;
+                            aluSel_o <= `EXE_RES_NOP;
+                            reg1Enable_o <= `Disable;
+                            reg2Enable_o <= `Disable;
+                            instruction_is_valid <= `InstValid;
+                        end
+                        `EXE_TLBWI: begin
+                            regWriteEnable_o <= `Disable;
+                            aluOp_o <= `EXE_TLBWI_OP;
+                            aluSel_o <= `EXE_RES_NOP;
+                            reg1Enable_o <= `Disable;
+                            reg2Enable_o <= `Disable;
+                            instruction_is_valid <= `InstValid;
+                        end
+                        `EXE_TLBWR: begin
+                            regWriteEnable_o <= `Disable;
+                            aluOp_o <= `EXE_TLBWR_OP;
+                            aluSel_o <= `EXE_RES_NOP;
+                            reg1Enable_o <= `Disable;
+                            reg2Enable_o <= `Disable;
+                            instruction_is_valid <= `InstValid;
+                        end
+                        default: begin
+                        end
+                    endcase
+                end
                 `EXE_LL: begin
                     regWriteEnable_o <= `Enable;
                     aluOp_o <= `EXE_LL_OP;

@@ -45,7 +45,7 @@ module TB_INST();
         if(out != ans && ans != "skip") begin
             $display("[%0d] %s", cycle, out);
             $display("[Error] Expected: %0s, Got: %0s", ans, out);
-            $stop;
+            
         end else begin
             $display("[%0d] %s [%s]", cycle, out, ans == "skip" ? "Skip" : "Correct");
         end
@@ -58,6 +58,7 @@ module TB_INST();
 	integer i, fans, cycle, is_event;
 	reg[8*25:1] ans, out, info;
 	begin
+	   $display("======= Unit Test : %0s Started =======\n", name, name);
 	   cycle = 0; is_event = 0;
 	   for(i = 0; i < 1025; i = i + 1) begin
 	       sopc1.fake_rom1.instructions[i] = 32'h0;
