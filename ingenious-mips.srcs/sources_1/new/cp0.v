@@ -84,7 +84,7 @@ module CP0(
 			cp0EBase_o <= 32'h80000000;
 			cp0Config_o <= `ZeroWord;
 		end else begin
-		
+
 			cp0Count_o <= cp0Count_o + 1 ;
 			cp0Cause_o[15:10] <= cp0Inte_i;
 			cp0Random_o <= cp0Random_o + ( (isInstTLBWR_i && isInstTLBWI_i)==1'b1 ? 1:0);
@@ -93,8 +93,12 @@ module CP0(
 			if(isInstTLBR_i ==1'b1) begin
 				cp0EntryHI_o[31:13] = tlbvpn2;
 				cp0EntryHI_o[7:0] = tlbasid_i;
-				cp0EntryLO1_o = {2'b0,tlbpfn0,tlbc0_i,tlbd0,tlbv0,tlbG};
+				cp0EntryLO0_o = {2'b0,tlbpfn0,tlbc0_i,tlbd0,tlbv0,tlbG};
 				cp0EntryLO1_o = {2'b0,tlbpfn1,tlbc1_i,tlbd1,tlbv1,tlbG};
+			end
+
+			if(isInstTLBP_i) begin
+				cp0Index_o <= tlbpRes_i;
 			end
 
 			//异常判断

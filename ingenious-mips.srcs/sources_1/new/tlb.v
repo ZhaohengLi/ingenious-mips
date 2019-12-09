@@ -4,7 +4,7 @@ module tlb(
     input wire[7:0] asid,
     input wire[31:0] instAddr_i,
     input wire[31:0] dataAddr_i,
-	
+
 	//Inst result
     output wire[31:0] physInstAddr_o,
     output wire[3:0] instWhich_o,
@@ -12,7 +12,7 @@ module tlb(
     output wire instDirty_o,
     output wire instValid_o,
     output wire[2:0] instCache_flag_o,
-	
+
 	//Data result
     output wire[31:0] physDataAddr_o,
     output wire[3:0] dataWhich_o,
@@ -20,11 +20,11 @@ module tlb(
     output wire dataDirty_o,
     output wire dataValid_o,
     output wire[2:0] dataCache_flag_o,
-    
+
     //tlbr/tlbwi/tlbwr
     input wire[3:0] tlbrw_index,
     input wire tlbrw_Enable,
-    
+
     input wire[2:0] tlbrw_wc0,
     input wire[2:0] tlbrw_wc1,
     input wire[7:0] tlbrw_wasid,
@@ -36,7 +36,7 @@ module tlb(
     input wire tlbrw_wd0,
     input wire tlbrw_wv0,
     input wire tlbrw_wG,
-    
+
     output wire[2:0] tlbrw_rc0,
     output wire[2:0] tlbrw_rc1,
     output wire[7:0] tlbrw_rasid,
@@ -48,7 +48,7 @@ module tlb(
     output wire tlbrw_rd0,
     output wire tlbrw_rv0,
     output wire tlbrw_rG,
-    
+
     input wire[31:0] tlbp_entry_hi,
     output wire[31:0] tlbp_index
 
@@ -65,7 +65,7 @@ module tlb(
      reg[15:0] flat_entries_d0;
      reg[15:0] flat_entries_v0;
      reg[15:0] flat_entries_G;
-     
+
      wire[2:0] entries_c0[15:0];
      wire[2:0] entries_c1[15:0];
      wire[7:0] entries_asid[15:0];
@@ -77,7 +77,7 @@ module tlb(
      wire entries_d0[15:0];
      wire entries_v0[15:0];
      wire entries_G[15:0];
-     
+
      assign tlbrw_rc0 = entries_c0[tlbrw_index];
      assign tlbrw_rc1 = entries_c1[tlbrw_index];
      assign tlbrw_rasid = entries_asid[tlbrw_index];
@@ -103,14 +103,14 @@ module tlb(
             assign entries_d0[i] = flat_entries_d0[i +: 1];
             assign entries_v0[i] = flat_entries_v0[i +: 1];
             assign entries_G[i] = flat_entries_G[i +: 1];
-            
+
             always @(posedge clk) begin
                 if(rst == `Enable) begin
                     flat_entries_c0[i * `SIZE_C0 +: `SIZE_C0] <= {3'b0};
                     flat_entries_c1[i * `SIZE_C1 +: `SIZE_C1] <= {3'b0};
                     flat_entries_asid[i*`SIZE_ASID+:`SIZE_ASID] <= {8'b0};
                     flat_entries_vpn2[i*`SIZE_VPN2 +: `SIZE_VPN2] <= {19'b0};
-                    flat_entries_pfn0[i*`SIZE_PFN0 +: `SIZE_PFN0] <= {19'b0};
+                    flat_entries_pfn0[i*`SIZE_PFN0 +: `SIZE_PFN0] <= {24'b0};
                     flat_entries_pfn1[i*`SIZE_PFN1 +: `SIZE_PFN1] <= {24'b0};
                     flat_entries_d1[i] <= {1'b0};
                     flat_entries_v1[i] <= {1'b0};
@@ -130,11 +130,11 @@ module tlb(
                         flat_entries_v1[i] <= tlbrw_wv1;
                         flat_entries_d0[i] <= tlbrw_wd0;
                         flat_entries_v0[i] <= tlbrw_wv0;
-                        flat_entries_G[i] <= tlbrw_wG;    
+                        flat_entries_G[i] <= tlbrw_wG;
                     end
                 end
             end //always
-            
+
         end
      endgenerate
      tlb_lookup inst_lookup(
@@ -153,8 +153,8 @@ module tlb(
         .asid_i(asid),
         .physAddr_o(physInstAddr_o),
         .which_o(instWhich_o),
-        .miss_o(instMiss_o), 
-        .dirty_o(instDirty_o), 
+        .miss_o(instMiss_o),
+        .dirty_o(instDirty_o),
         .valid_o(instValid_o),
         .cache_flag_o(instCache_flag_o)
      );
@@ -174,8 +174,8 @@ module tlb(
         .asid_i(asid),
         .physAddr_o(physDataAddr_o),
         .which_o(dataWhich_o),
-        .miss_o(dataMiss_o), 
-        .dirty_o(dataDirty_o), 
+        .miss_o(dataMiss_o),
+        .dirty_o(dataDirty_o),
         .valid_o(dataValid_o),
         .cache_flag_o(dataCache_flag_o)
      );
@@ -202,13 +202,13 @@ module tlb(
         .asid_i(tlbp_entry_hi[7:0]),
         .physAddr_o(tlbpres_physAddr),
         .which_o(tlbpres_which),
-        .miss_o(tlbpres_miss), 
-        .dirty_o(tlbpres_dirty), 
+        .miss_o(tlbpres_miss),
+        .dirty_o(tlbpres_dirty),
         .valid_o(tlbpres_valid),
         .cache_flag_o(tlbpres_cache_flag)
      );
      assign tlbp_index = {tlbpres_miss, {(27){1'b0}}, tlbpres_which};
-     
-     
-     
+
+
+
 endmodule

@@ -8,7 +8,7 @@ module MMU(
     input wire[`InstAddrBus] instVirtAddr_i,
     input wire[`InstAddrBus] dataVirtAddr_i,
 
-    //mmu result inst_result
+    //mmu result inst result
     output wire[31:0] physInstAddr_o,
     output wire[31:0] virtInstAddr_o,
     output wire instInvalid_o,
@@ -38,6 +38,7 @@ module MMU(
     input wire tlbrw_wd0,
     input wire tlbrw_wv0,
     input wire tlbrw_wG,
+
     output wire[2:0] tlbrw_rc0_o,
     output wire[2:0] tlbrw_rc1_o,
     output wire[7:0] tlbrw_rasid_o,
@@ -49,6 +50,7 @@ module MMU(
     output wire tlbrw_rd0_o,
     output wire tlbrw_rv0_o,
     output wire tlbrw_rG_o,
+
     //tlbp
     input wire[31:0] tlbp_entry_hi,
     output wire[31:0] tlbp_index_o
@@ -125,6 +127,8 @@ module MMU(
                 .tlbrw_wd0(tlbrw_wd0),
                 .tlbrw_wv0(tlbrw_wv0),
                 .tlbrw_wG(tlbrw_wG),
+
+
                 .tlbrw_rc0(tlbrw_rc0_o),
                 .tlbrw_rc1(tlbrw_rc1_o),
                 .tlbrw_rasid(tlbrw_rasid_o),
@@ -139,6 +143,7 @@ module MMU(
                 .tlbp_entry_hi(tlbp_entry_hi),
                 .tlbp_index(tlbp_index_o)
              );
+
     end else begin
        assign physInstAddr_o = instVirtAddr_i;
        assign virtInstAddr_o = 32'h00000000;

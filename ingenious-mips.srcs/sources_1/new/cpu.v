@@ -709,7 +709,7 @@ module CPU(
         // tlbr/tlbwi/tlbwr
         .tlbrw_index(tlbrw_index),   //input
         .tlbrw_Enable(tlbrw_Enable),  //input
-		//tlbrw_wdata     //input
+		//tlbrw_wdata     //input //tlbwi tlbwr
         .tlbrw_wc0(tlbrw_wc0),
         .tlbrw_wc1(tlbrw_wc1),
         .tlbrw_wasid(tlbrw_wasid),
@@ -721,7 +721,7 @@ module CPU(
         .tlbrw_wd0(tlbrw_wd0),
         .tlbrw_wv0(tlbrw_wv0),
         .tlbrw_wG(tlbrw_wG),
-		//tlbw_rdata      //output to cp0
+		//tlbw_rdata      //output to cp0 //tlbr
         .tlbrw_rc0_o(tlbrw_rc0_o),
         .tlbrw_rc1_o(tlbrw_rc1_o),
         .tlbrw_rasid_o(tlbrw_rasid_o),
