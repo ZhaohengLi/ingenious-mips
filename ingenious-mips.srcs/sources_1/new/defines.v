@@ -29,7 +29,7 @@
 `define SIZE_PFN0 24
 `define SIZE_PFN1 24
 
-`define ENABLE_CPU_MMU 1'b0
+`define ENABLE_CPU_MMU 1'b1
 `define TLB_ENTRIES_NUM 16
 `define TLB_ENTRIES_NUM_LOG2  4
 `define PC_RESET_VECTOR 32'hbfc00000

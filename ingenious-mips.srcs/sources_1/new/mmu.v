@@ -78,7 +78,6 @@ module MMU(
             wire user_peripheral;
             assign user_peripheral = (dataVirtAddr_i[31:24] >= 8'ha2 && dataVirtAddr_i[31:24] <= 8'ha7);
 
-
             assign instDirty_o = 1'b0;
             assign instMiss_o =(inst_mapped & tlb_Instmiss);
             assign instIllegal_o = (userMode_i & instVirtAddr_i[31]);
