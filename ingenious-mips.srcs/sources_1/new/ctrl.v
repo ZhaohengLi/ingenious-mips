@@ -32,14 +32,14 @@ module CTRL(
                 32'h00000003: newInstAddr_o <= cp0EBase_i + 32'h000; // tlbs
                 32'h00000004: newInstAddr_o <= cp0EBase_i + 32'h180; // adel
                 32'h00000005: newInstAddr_o <= cp0EBase_i + 32'h180; // ades
-				        32'h00000008: newInstAddr_o <= cp0EBase_i + 32'h180; // sys
-				        32'h0000000a: newInstAddr_o <= cp0EBase_i + 32'h180; // ri
-				        32'h0000000c: newInstAddr_o <= cp0EBase_i + 32'h180; // ov
+				32'h00000008: newInstAddr_o <= cp0EBase_i + 32'h180; // sys
+				32'h0000000a: newInstAddr_o <= cp0EBase_i + 32'h180; // ri
+				32'h0000000c: newInstAddr_o <= cp0EBase_i + 32'h180; // ov
                 32'h0000000d: newInstAddr_o <= cp0EBase_i + 32'h180; // tr
-				        32'h0000000e: newInstAddr_o <= cp0EPC_i;             // eret
+				32'h0000000e: newInstAddr_o <= cp0EPC_i;             // eret
                 32'h0000000f: newInstAddr_o <= cp0EBase_i + 32'h180; // mod
-				        default	: begin
-				        end
+				default	: begin
+	            end
             endcase
         end else if (stallReqFromMEM_i == `Stop) begin
             stall_o <= 6'b011111;

@@ -69,7 +69,7 @@ module ID(
 
     wire pre_instruction_is_load;
 
-    assign exceptionType_o = {exceptionType_i[31:13], exception_is_eret, exceptionType_i[11:10], instruction_is_valid, exceptionType_i[7:0]};
+    assign exceptionType_o = {exceptionType_i[31:13], exception_is_eret, exceptionType_i[11:10], instruction_is_valid, exception_is_syscall, exceptionType_i[7:0]};
     assign pre_instruction_is_load = ((ex_aluOp_i == `EXE_LB_OP) ||
                                (ex_aluOp_i == `EXE_LBU_OP)||
   							   (ex_aluOp_i == `EXE_LH_OP) ||

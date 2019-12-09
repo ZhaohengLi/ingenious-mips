@@ -45,7 +45,7 @@ module TB_INST();
         if(out != ans && ans != "skip") begin
             $display("[%0d] %s", cycle, out);
             $display("[Error] Expected: %0s, Got: %0s", ans, out);
-            
+            $stop;
         end else begin
             $display("[%0d] %s [%s]", cycle, out, ans == "skip" ? "Skip" : "Correct");
         end
@@ -102,9 +102,7 @@ module TB_INST();
 	   wait (rst == 1'b0);
 	   $display("Unit Test Started.\n");
 	   unitTest("except_delayslot");
-	   //unitTest("except");
 	   unitTest("inst_arith");
-	   //unitTest("inst_ext");
 	   unitTest("inst_jump");
 	   unitTest("inst_llsc");
 	   unitTest("inst_logical");
@@ -115,8 +113,6 @@ module TB_INST();
 	   unitTest("inst_ori");
 	   unitTest("inst_shift");
 	   unitTest("inst_trap");
-	   //unitTest("interrupt");
-	   //unitTest("timer");
 	   $display("[Done]", 0);
 	   $display("Unit Test Finished.\n");
 	   $finish;
