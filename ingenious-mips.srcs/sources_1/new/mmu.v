@@ -26,7 +26,8 @@ module MMU(
 
     // tlbr/tlbwi/tlbwr
     input wire[3:0] tlbrw_index,
-    input wire tlbrw_Enable,
+    input wire tlbrw_enable,
+
     input wire[2:0] tlbrw_wc0,
     input wire[2:0] tlbrw_wc1,
     input wire[7:0] tlbrw_wasid,
@@ -61,11 +62,11 @@ module MMU(
             wire inst_mapped;
             wire data_mapped;
             wire[31:0] tlb_physInstAddr; //inst_tlb_result.phys_addr
-            wire[3:0] tlb_Instwhich; //inst_tlb_result.which
+            wire[3:0] tlb_Instwhich; //inst_tlb_result.which 没有用到
             wire tlb_Instmiss; //inst_tlb_result.miss
             wire tlb_Instdirty; //inst_tlb_result.dirty
             wire tlb_Instvalid; //inst_tlb_result.valid
-            wire[2:0] tlb_Instcache_flag; //inst_tlb_result.cache_flag
+            wire[2:0] tlb_Instcache_flag; //inst_tlb_result.cache_flag //没有用到
 
             wire[31:0] tlb_physDataAddr; //data_tlb_result.phys_addr
             wire[3:0] tlb_Datawhich; //data_tlb_result.which
@@ -74,48 +75,53 @@ module MMU(
             wire tlb_Datavalid; //data_tlb_result.valid
             wire[2:0] tlb_Datacache_flag; //data_tlb_result.cache_flag
 
-            assign inst_mapped = (~instVirtAddr_i[31] || instVirtAddr_i[31:30] == 2'b11);
-            assign data_mapped = (~dataVirtAddr_i[31] || dataVirtAddr_i[31:30] == 2'b11);
+            assign inst_mapped = (~instVirtAddr_i[31] || instVirtAddr_i[31:30] == 2'b11);//需要通过tlb访问
+            assign data_mapped = (~dataVirtAddr_i[31] || dataVirtAddr_i[31:30] == 2'b11);//需要通过tlb访问
 
-            wire user_peripheral;
+            wire user_peripheral;//外围设备
             assign user_peripheral = (dataVirtAddr_i[31:24] >= 8'ha2 && dataVirtAddr_i[31:24] <= 8'ha7);
 
             assign instDirty_o = 1'b0;
             assign instMiss_o =(inst_mapped & tlb_Instmiss);
-            assign instIllegal_o = (userMode_i & instVirtAddr_i[31]);
+            assign instIllegal_o = (userMode_i & instVirtAddr_i[31]);//用户程序不能访问80000000以上的地址来取指
             assign instInvalid_o = (inst_mapped & ~tlb_Instvalid);
-            assign physInstAddr_o = (inst_mapped ? tlb_physInstAddr :{instVirtAddr_i[31:0]});
+            assign physInstAddr_o = (inst_mapped ? tlb_physInstAddr :{3'b0,instVirtAddr_i[28:0]});
             assign virtInstAddr_o = instVirtAddr_i;
 
             assign dataDirty_o = (~data_mapped | tlb_Datadirty);
             assign dataMiss_o = (data_mapped & tlb_Datamiss);
             assign dataIllegal_o = (userMode_i & dataVirtAddr_i[31]) & ~user_peripheral;
             assign dataInvalid_o = (data_mapped & ~tlb_Datavalid);
-            assign physDataAddr_o = data_mapped ? tlb_physDataAddr: {dataVirtAddr_i[31:0]};
+            assign physDataAddr_o = data_mapped ? tlb_physDataAddr: {3'b0, dataVirtAddr_i[28:0]};
             assign virtDataAddr_o = dataVirtAddr_i;
 
              tlb tlb_instance(
                 .clk(clk),
                 .rst(rst),
-                .asid(asid_i),
+
+                .asid_i(asid_i),
+
                 .instAddr_i(instVirtAddr_i),
                 .dataAddr_i(dataVirtAddr_i),
+
                 .physInstAddr_o(tlb_physInstAddr),
-                .instWhich_o(tlb_Instwhich),
+                .instWhich_o(tlb_Instwhich),//没有用到
                 .instMiss_o(tlb_Instmiss),
                 .instDirty_o(tlb_Instdirty),
                 .instValid_o(tlb_Instvalid),
-                .instCache_flag_o(tlb_Instcache_flag),
+                .instCache_flag_o(tlb_Instcache_flag),//没有用到
+
                 .physDataAddr_o(tlb_physDataAddr),
-                .dataWhich_o(tlb_Datawhich),
+                .dataWhich_o(tlb_Datawhich),//没有用到
                 .dataMiss_o(tlb_Datamiss),
                 .dataDirty_o(tlb_Datadirty),
                 .dataValid_o(tlb_Datavalid),
-                .dataCache_flag_o(tlb_Datacache_flag),
+                .dataCache_flag_o(tlb_Datacache_flag),//没有用到
 
                 //tlbr/tlbwi/tlbwr
                 .tlbrw_index(tlbrw_index),
-                .tlbrw_Enable(tlbrw_Enable),
+                .tlbrw_enable(tlbrw_enable),
+
                 .tlbrw_wc0(tlbrw_wc0),
                 .tlbrw_wc1(tlbrw_wc1),
                 .tlbrw_wasid(tlbrw_wasid),
@@ -140,6 +146,7 @@ module MMU(
                 .tlbrw_rd0(tlbrw_rd0_o),
                 .tlbrw_rv0(tlbrw_rv0_o),
                 .tlbrw_rG(tlbrw_rG_o),
+                
                 .tlbp_entry_hi(tlbp_entry_hi),
                 .tlbp_index(tlbp_index_o)
              );

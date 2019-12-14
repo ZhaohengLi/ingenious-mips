@@ -1,7 +1,7 @@
 module tlb(
     input wire clk,
     input wire rst,
-    input wire[7:0] asid,
+    input wire[7:0] asid_i,
     input wire[31:0] instAddr_i,
     input wire[31:0] dataAddr_i,
 
@@ -22,9 +22,9 @@ module tlb(
     output wire[2:0] dataCache_flag_o,
 
     //tlbr/tlbwi/tlbwr
-    input wire[3:0] tlbrw_index,
-    input wire tlbrw_Enable,
-
+    input wire[3:0] tlbrw_index,//tlbr读取的地址 给地址组合逻辑直接在下面的口输出 写入的地址 写入需要一个上升沿
+    input wire tlbrw_enable,//是否要写入
+    //下面是要写入的tlb表项内容 用于tlbwi 和 tlbwi指令
     input wire[2:0] tlbrw_wc0,
     input wire[2:0] tlbrw_wc1,
     input wire[7:0] tlbrw_wasid,
@@ -36,7 +36,7 @@ module tlb(
     input wire tlbrw_wd0,
     input wire tlbrw_wv0,
     input wire tlbrw_wG,
-
+    //下面是读出的tlb表项内容 用于tlbr指令 组合逻辑
     output wire[2:0] tlbrw_rc0,
     output wire[2:0] tlbrw_rc1,
     output wire[7:0] tlbrw_rasid,
@@ -49,11 +49,12 @@ module tlb(
     output wire tlbrw_rv0,
     output wire tlbrw_rG,
 
+    //下面是用于tlbp指令的输入和输出
     input wire[31:0] tlbp_entry_hi,
     output wire[31:0] tlbp_index
 
     );
-     //flat entries
+     //flat entries 所有entries的组合
      reg[47:0] flat_entries_c0;
      reg[47:0] flat_entries_c1;
      reg[127:0] flat_entries_asid;
@@ -66,6 +67,7 @@ module tlb(
      reg[15:0] flat_entries_v0;
      reg[15:0] flat_entries_G;
 
+     //tlbEntries 一共16个
      wire[2:0] entries_c0[15:0];
      wire[2:0] entries_c1[15:0];
      wire[7:0] entries_asid[15:0];
@@ -78,6 +80,7 @@ module tlb(
      wire entries_v0[15:0];
      wire entries_G[15:0];
 
+     //读取tlb表项 对应tlbr指令 组合逻辑 只要有tlbrw_index基本就读了出来
      assign tlbrw_rc0 = entries_c0[tlbrw_index];
      assign tlbrw_rc1 = entries_c1[tlbrw_index];
      assign tlbrw_rasid = entries_asid[tlbrw_index];
@@ -89,12 +92,13 @@ module tlb(
      assign tlbrw_rd0 = entries_d0[tlbrw_index];
      assign tlbrw_rv0 = entries_v0[tlbrw_index];
      assign tlbrw_rG = entries_G[tlbrw_index];
+
      genvar i;
      generate
         for(i = 0; i < `TLB_ENTRIES_NUM; i = i + 1) begin
-            assign entries_c0[i] = flat_entries_c0[i * `SIZE_C0 +: `SIZE_C0];
-            assign entries_c1[i] = flat_entries_c1[i * `SIZE_C1 +: `SIZE_C1];
-            assign entries_asid[i] = flat_entries_asid[i*`SIZE_ASID+:`SIZE_ASID];
+            assign entries_c0[i] = flat_entries_c0[i*`SIZE_C0 +: `SIZE_C0];
+            assign entries_c1[i] = flat_entries_c1[i*`SIZE_C1 +: `SIZE_C1];
+            assign entries_asid[i] = flat_entries_asid[i*`SIZE_ASID +:`SIZE_ASID];
             assign entries_vpn2[i] = flat_entries_vpn2[i*`SIZE_VPN2 +: `SIZE_VPN2];
             assign entries_pfn0[i] = flat_entries_pfn0[i*`SIZE_PFN0 +: `SIZE_PFN0];
             assign entries_pfn1[i] = flat_entries_pfn1[i*`SIZE_PFN1 +: `SIZE_PFN1];
@@ -105,7 +109,7 @@ module tlb(
             assign entries_G[i] = flat_entries_G[i +: 1];
 
             always @(posedge clk) begin
-                if(rst == `Enable) begin
+                if(rst == `Enable) begin //复位
                     flat_entries_c0[i * `SIZE_C0 +: `SIZE_C0] <= {3'b0};
                     flat_entries_c1[i * `SIZE_C1 +: `SIZE_C1] <= {3'b0};
                     flat_entries_asid[i*`SIZE_ASID+:`SIZE_ASID] <= {8'b0};
@@ -117,9 +121,8 @@ module tlb(
                     flat_entries_d0[i] <= {1'b0};
                     flat_entries_v0[i] <= {1'b0};
                     flat_entries_G[i] <= {1'b0};
-
                 end else begin
-                    if((tlbrw_Enable == `Enable) && (i == tlbrw_index)) begin
+                    if((tlbrw_enable == `Enable) && (i == tlbrw_index)) begin //时钟上升沿写入
                         flat_entries_c0[i * `SIZE_C0 +: `SIZE_C0] <= tlbrw_wc0;
                         flat_entries_c1[i * `SIZE_C1 +: `SIZE_C1] <= tlbrw_wc1;
                         flat_entries_asid[i*`SIZE_ASID+:`SIZE_ASID] <= tlbrw_wasid;
@@ -133,10 +136,11 @@ module tlb(
                         flat_entries_G[i] <= tlbrw_wG;
                     end
                 end
-            end //always
-
-        end
+            end //always @(posedge clk) begin
+        end//for
      endgenerate
+
+     //组合逻辑
      tlb_lookup inst_lookup(
         .flat_entries_c0(flat_entries_c0),
         .flat_entries_c1(flat_entries_c1),
@@ -149,8 +153,10 @@ module tlb(
         .flat_entries_d0(flat_entries_d0),
         .flat_entries_v0(flat_entries_v0),
         .flat_entries_G(flat_entries_G),
+
         .virtAddr_i(instAddr_i),
-        .asid_i(asid),
+        .asid_i(asid_i),
+
         .physAddr_o(physInstAddr_o),
         .which_o(instWhich_o),
         .miss_o(instMiss_o),
@@ -158,6 +164,7 @@ module tlb(
         .valid_o(instValid_o),
         .cache_flag_o(instCache_flag_o)
      );
+     //组合逻辑
      tlb_lookup data_lookup(
         .flat_entries_c0(flat_entries_c0),
         .flat_entries_c1(flat_entries_c1),
@@ -170,8 +177,10 @@ module tlb(
         .flat_entries_d0(flat_entries_d0),
         .flat_entries_v0(flat_entries_v0),
         .flat_entries_G(flat_entries_G),
+
         .virtAddr_i(dataAddr_i),
-        .asid_i(asid),
+        .asid_i(asid_i),
+
         .physAddr_o(physDataAddr_o),
         .which_o(dataWhich_o),
         .miss_o(dataMiss_o),
@@ -179,13 +188,15 @@ module tlb(
         .valid_o(dataValid_o),
         .cache_flag_o(dataCache_flag_o)
      );
-     //tlbp_result
-     wire[31:0] tlbpres_physAddr;
+
+     //tlbp_result 组合逻辑
+     wire[31:0] tlbpres_physAddr;//无用
      wire[3:0] tlbpres_which;
      wire tlbpres_miss;
-     wire tlbpres_dirty;
-     wire tlbpres_valid;
-     wire[2:0] tlbpres_cache_flag;
+     wire tlbpres_dirty;//无用
+     wire tlbpres_valid;//无用
+     wire[2:0] tlbpres_cache_flag;//无用
+
      tlb_lookup tlbp_lookup(
         .flat_entries_c0(flat_entries_c0),
         .flat_entries_c1(flat_entries_c1),
@@ -198,16 +209,18 @@ module tlb(
         .flat_entries_d0(flat_entries_d0),
         .flat_entries_v0(flat_entries_v0),
         .flat_entries_G(flat_entries_G),
+
         .virtAddr_i(tlbp_entry_hi),
         .asid_i(tlbp_entry_hi[7:0]),
-        .physAddr_o(tlbpres_physAddr),
+
+        .physAddr_o(tlbpres_physAddr),//无用
         .which_o(tlbpres_which),
         .miss_o(tlbpres_miss),
-        .dirty_o(tlbpres_dirty),
-        .valid_o(tlbpres_valid),
-        .cache_flag_o(tlbpres_cache_flag)
+        .dirty_o(tlbpres_dirty),//无用
+        .valid_o(tlbpres_valid),//无用
+        .cache_flag_o(tlbpres_cache_flag)//无用
      );
-     assign tlbp_index = {tlbpres_miss, {(27){1'b0}}, tlbpres_which};
+     assign tlbp_index = {tlbpres_miss, 27'b0, tlbpres_which};
 
 
 

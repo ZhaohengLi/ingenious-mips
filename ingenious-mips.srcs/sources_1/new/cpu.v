@@ -225,7 +225,7 @@ module CPU(
     wire tlbrw_rG_o;
 
 	wire[3:0] tlbrw_index;
-    wire tlbrw_Enable;
+    wire tlbrw_enable;
     wire[2:0] tlbrw_wc0;
     wire[2:0] tlbrw_wc1;
     wire[7:0] tlbrw_wasid;
@@ -708,7 +708,7 @@ module CPU(
 
         // tlbr/tlbwi/tlbwr
         .tlbrw_index(tlbrw_index),   //input
-        .tlbrw_Enable(tlbrw_Enable),  //input
+        .tlbrw_enable(tlbrw_enable),  //input
 		//tlbrw_wdata     //input //tlbwi tlbwr
         .tlbrw_wc0(tlbrw_wc0),
         .tlbrw_wc1(tlbrw_wc1),
@@ -739,7 +739,7 @@ module CPU(
         .tlbp_index_o(mmu_cp0_tlpb_res)    //output
     );
 
-    assign tlbrw_Enable = (isInstTLBWI_mem_to_mem_wb | isInstTLBWR_mem_to_mem_wb);
+    assign tlbrw_enable = (isInstTLBWI_mem_to_mem_wb | isInstTLBWR_mem_to_mem_wb);
 	assign tlbrw_index = (isInstTLBWI_mem_wb_to_cp0 == 1'b1) ? cp0_index : cp0_random;
 	assign tlbrw_wvpn2 = cp0_entryhi[31:13];
 	assign tlbrw_wasid = cp0_entryhi[7:0];
