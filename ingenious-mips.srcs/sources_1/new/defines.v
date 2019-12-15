@@ -272,12 +272,12 @@
 `define PC_INIT_ADDR      32'hBFC00000
 
 `define baseRAM_Border_l  32'h00000000
-`define baseRAM_Border_r  32'h00800000
-`define extRAM_Border_l   32'h00800000
-`define extRAM_Border_r   32'h01000000
+`define baseRAM_Border_r  32'h00400000
+`define extRAM_Border_l   32'h00400000
+`define extRAM_Border_r   32'h00800000
 
 `define romBorder_l       32'h01000000
-`define romBorder_r       32'h02000000
+`define romBorder_r       32'h01800000
 
-`define uartDataAddr      32'h03000000
-`define uartRegAddr       32'h03000004
+`define uartDataAddr      32'h03000004
+`define uartRegAddr       32'h03000000
