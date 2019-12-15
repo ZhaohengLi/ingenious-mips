@@ -195,9 +195,9 @@ module CPU(
     wire[`RegBus] cp0_entryhi;
     wire[`RegBus] cp0_random;
     wire[`RegBus] cp0_pagemask;
-    wire[`RegBus] bad_address;
-	wire[`RegBus] cp0_prID;
-	wire[`RegBus] cp0_context;
+	  wire[`RegBus] cp0_context;
+    wire[`RegBus] cp0_errorepc;
+
 
 	wire[`InstAddrBus] badAddr_mem_to_mem_wb;
   wire[31:0] badAddr_mem_wb_to_cp0;
@@ -208,10 +208,9 @@ module CPU(
     //cp0 to mmu
     wire userMode_cp0_to_mmu;
     wire[7:0] asid_cp0_to_mmu;
-    //mmu read entry to CP0
-    wire tlbrwEnable_mmu;
 
-	wire[`RegBus] mmu_cp0_tlpb_res;
+	wire[`RegBus] tlbpRes_mmu_to_cp0;
+
 	wire[2:0] tlbrw_rc0_o;
     wire[2:0] tlbrw_rc1_o;
     wire[7:0] tlbrw_rasid_o;
@@ -580,33 +579,30 @@ module CPU(
         .instAddr_i(instAddr_mem_to_cp0),
         .isInDelayslot_i(isInDelayslot_mem_to_cp0),
 
-
-        .cp0Count_o(cp0_count),//count_o
-		.cp0Compare_o(cp0_compare),//compare_o
-		.cp0Status_o(cp0_status),//status_o
-		.cp0Cause_o(cp0_cause),//cause_o
-		.cp0EPC_o(cp0_epc),//epc_o
-		.cp0Config_o(cp0_config),//config_o
-		.cp0EBase_o(cp0_ebase),//ebase_o
-
+        .cp0Count_o(cp0_count),
+		.cp0Compare_o(cp0_compare),
+		.cp0Status_o(cp0_status),
+		.cp0Cause_o(cp0_cause),
+		.cp0EPC_o(cp0_epc),
+		.cp0Config_o(cp0_config),
+		.cp0EBase_o(cp0_ebase),
 		.cp0Random_o(cp0_random),
 		.cp0Index_o(cp0_index),
 		.cp0EntryHI_o(cp0_entryhi),
 		.cp0EntryLO1_o(cp0_entrylo1),
-		.cp0EntryLO0_o(cp0_entrylo0), //lo0 not loo or l00
-		.cp0Badvaddr_o(bad_address),
+		.cp0EntryLO0_o(cp0_entrylo0),
+		.cp0Badvaddr_o(cp0_badvaddr),
 		.cp0Pagemask_o(cp0_pagemask),
 		.cp0Context_o(cp0_context),
-    .cp0Wired_o(cp0_wired),
-
-
-		.tlbpRes_i(mmu_cp0_tlpb_res),   //tlpb from mmu tlb
+        .cp0Wired_o(cp0_wired),
+        .cp0ErrorEPC_o(cp0_errorepc),
 
         .isInstTLBP_i(isInstTLBP_mem_wb_to_cp0),
 		.isInstTLBR_i(isInstTLBR_mem_wb_to_cp0),
 		.isInstTLBWR_i(isInstTLBWR_mem_wb_to_cp0),
 		.isInstTLBWI_i(isInstTLBWI_mem_wb_to_cp0),
-		//tlbr_res from mmu A TLB Entry
+
+		//tlbr from mmu
 		.tlbc0_i(tlbrw_rc0_o),
 		.tlbc1_i(tlbrw_rc1_o),
 		.tlbasid_i(tlbrw_rasid_o),
@@ -619,8 +615,12 @@ module CPU(
 		.tlbv0(tlbrw_rv0_o),
 		.tlbG(tlbrw_rG_o),
 
+		//tlpb from mmu
+		.tlbpRes_i(tlbpRes_mmu_to_cp0),
+
 		.asid_o(asid_cp0_to_mmu),
 		.userMode_o(userMode_cp0_to_mmu),
+
         .cp0TimerInte_o(cp0TimerInte_o)
     );
 
@@ -687,10 +687,13 @@ module CPU(
     MMU mmu1(
         .clk(clk),
         .rst(rst),
+
         .asid_i(asid_cp0_to_mmu),
         .userMode_i(userMode_cp0_to_mmu),
+
         .instVirtAddr_i(instAddrForMMU_pc_to_mmu),
         .dataVirtAddr_i(dataVirtAddr_ex_to_mmu),
+
         //mmu result inst_result
         .physInstAddr_o(physInstAddr_mmu_to_pc),
         .virtInstAddr_o(virtInstAddr_mmu_to_pc),
@@ -698,7 +701,8 @@ module CPU(
         .instMiss_o(instMiss_mmu_to_pc),
         .instDirty_o(instDirty_mmu_to_pc),
         .instIllegal_o(instIllegal_mmu_to_pc),
-        //mmu result data result
+
+        //mmu result data_result
         .physDataAddr_o(physDataAddr_mmu_to_ex_mem),
         .virtDataAddr_o(virtDataAddr_mmu_to_ex_mem),
         .dataInvalid_o(DataInvalid_mmu_to_ex_mem),
@@ -706,10 +710,11 @@ module CPU(
         .dataDirty_o(DataDirty_mmu_to_ex_mem),
         .dataIllegal_o(DataIllegal_mmu_to_ex_mem),
 
-        // tlbr/tlbwi/tlbwr
-        .tlbrw_index(tlbrw_index),   //input
-        .tlbrw_enable(tlbrw_enable),  //input
-		//tlbrw_wdata     //input //tlbwi tlbwr
+        //tlbr/tlbwi/tlbwr
+        .tlbrw_index(tlbrw_index),
+        .tlbrw_enable(tlbrw_enable),
+
+		//tlbwi tlbwr input from cp0
         .tlbrw_wc0(tlbrw_wc0),
         .tlbrw_wc1(tlbrw_wc1),
         .tlbrw_wasid(tlbrw_wasid),
@@ -721,7 +726,8 @@ module CPU(
         .tlbrw_wd0(tlbrw_wd0),
         .tlbrw_wv0(tlbrw_wv0),
         .tlbrw_wG(tlbrw_wG),
-		//tlbw_rdata      //output to cp0 //tlbr
+
+		//tlbr output to cp0
         .tlbrw_rc0_o(tlbrw_rc0_o),
         .tlbrw_rc1_o(tlbrw_rc1_o),
         .tlbrw_rasid_o(tlbrw_rasid_o),
@@ -735,12 +741,13 @@ module CPU(
         .tlbrw_rG_o(tlbrw_rG_o),
 
         //tlbp
-        .tlbp_entry_hi(cp0_entryhi),  //input
-        .tlbp_index_o(mmu_cp0_tlpb_res)    //output
+        .tlbp_entry_hi(cp0_entryhi),
+        .tlbp_index_o(tlbpRes_mmu_to_cp0)
     );
 
-    assign tlbrw_enable = (isInstTLBWI_mem_to_mem_wb | isInstTLBWR_mem_to_mem_wb);
-	assign tlbrw_index = (isInstTLBWI_mem_wb_to_cp0 == 1'b1) ? cp0_index : cp0_random;
+    assign tlbrw_enable = (isInstTLBWI_mem_to_mem_wb || isInstTLBWR_mem_to_mem_wb);
+	assign tlbrw_index = (isInstTLBWI_mem_to_mem_wb || isInstTLBR_mem_to_mem_wb) ? cp0_index[3:0] : cp0_random[3:0];
+
 	assign tlbrw_wvpn2 = cp0_entryhi[31:13];
 	assign tlbrw_wasid = cp0_entryhi[7:0];
 	assign tlbrw_wpfn0 = cp0_entrylo0[29:6];

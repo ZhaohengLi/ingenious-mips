@@ -40,11 +40,11 @@ module SOPC(
     );
 
     FAKE_ROM fake_rom1(
-        .romAddr_i(romAddr_cpu_to_rom-32'h80000000),
+        .romAddr_i(romAddr_cpu_to_rom),
         .romEnable_i(romEnable_cpu_to_rom),
         .romData_o(romData_rom_to_cpu)
     );
-
+    
     FAKE_RAM fake_ram1(
         .clk(clk),
         .ramAddr_i(ramAddr_cpu_to_ram),

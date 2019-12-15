@@ -41,7 +41,7 @@ module PC(
 
     always @(posedge clk) begin
         if (ce_o == `Disable || rst== `Enable) begin
-            instAddrForMMU_o <= `baseRAM_Border_l;//reset后 pc置为首地址
+            instAddrForMMU_o <= `PC_INIT_ADDR;//reset后 pc置为首地址
         end else begin
             if (flush_i == 1'b1) begin
                 instAddrForMMU_o <= newInstAddr_i;

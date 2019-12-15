@@ -259,6 +259,7 @@
 `define CP0_REG_EPC       5'b01110
 `define CP0_REG_EBASE     5'b01111
 `define CP0_REG_CONFIG    5'b10000
+`define CP0_REG_ERROREPC  5'b11110
 
 `define BUS_IDLE 4'h0
 `define BUS_BUSY 4'h1
@@ -268,6 +269,7 @@
 `define BUS_WAIT 4'h4
 `define BUS_UART_REG 4'h5
 
+`define PC_INIT_ADDR      32'h80000000
 `define baseRAM_Border_l  32'h80000000
 `define baseRAM_Border_r  32'h80400000
 `define extRAM_Border_l   32'h80400000
