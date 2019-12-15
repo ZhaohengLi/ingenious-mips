@@ -75,7 +75,7 @@ module BUS(
 								ifBusState <= `BUS_BUSY_BASE_RAM;
 							end
 						end  else if(`extRAM_Border_l <= ifAddr_i && ifAddr_i < `extRAM_Border_r) begin
-							if(extRAM_State[1] == 1'b0) begin
+							if(extRAM_State[1] == 1'b0 && (dataEnable_i == `Disable || !(`extRAM_Border_l <= dataAddr_i && dataAddr_i < `extRAM_Border_r) ) begin
 								extRAM_State[0] <= 1'b1;
 								ifBusState <= `BUS_BUSY_EXT_RAM;
 							end
