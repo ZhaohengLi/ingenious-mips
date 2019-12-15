@@ -623,67 +623,22 @@ module CPU(
 
         .cp0TimerInte_o(cp0TimerInte_o)
     );
+    
+    assign tlbrw_enable = (isInstTLBWI_mem_to_mem_wb || isInstTLBWR_mem_to_mem_wb);
+	assign tlbrw_index = (isInstTLBWI_mem_to_mem_wb || isInstTLBR_mem_to_mem_wb) ? cp0_index[3:0] : cp0_random[3:0];
 
-
-    HILO hilo1 (
-        .clk(clk),
-        .rst(rst),
-        .regHILOEnable_i(regHILOEnable_mem_wb_to_hilo),
-        .regHI_i(regHI_mem_wb_to_hilo),
-        .regLO_i(regLO_mem_wb_to_hilo),
-        .regHI_o(regHI_hilo_to_ex),
-        .regLO_o(regLO_hilo_to_ex)
-    );
-
-    DIV div1(
-        .rst(rst),
-        .clk(clk),
-        .signed_div_i(divSigned_ex_to_div),
-        .operand1_i(divOperand1_ex_to_div),
-        .operand2_i(divOperand2_ex_to_div),
-        .start_i(divStart_ex_to_div),
-        .annul_i(1'b0),
-        .quotient_o(divResult_div_to_ex),
-        .finished_o(divFinished_div_to_ex)
-    );
-
-    LLBIT llbit1(
-        .rst(rst),
-        .clk(clk),
-        .flush_i(flush_ctrl_to_all),
-        .LLbitData_i(LLbitData_mem_wb_to_llbit),
-        .LLbitWriteEnable_i(LLbitWriteEnable_mem_wb_to_llbit),
-        .LLbitData_o(LLbitData_llbit_to_mem)
-    );
-
-    CTRL ctrl1(
-        .rst(rst),
-        .stallReqFromIF_i(romStallReq_i),
-        .stallReqFromID_i(stallReqFromID_id_to_ctrl),
-        .stallReqFromEX_i(stallReqFromEX_ex_to_ctrl),
-        .stallReqFromMEM_i(ramStallReq_i),
-        .stall_o(stall_ctrl_to_all),
-        .cp0EPC_i(cp0EPC_mem_to_ctrl),
-        .cp0EBase_i(cp0_ebase),
-        .exceptionType_i(exceptionType_mem_to_cp0_ctrl),
-        .newInstAddr_o(newInstAddr_ctrl_to_pc),
-        .flush_o(flush_ctrl_to_all)
-    );
-
-    REG reg1(
-        .clk(clk),
-        .rst(rst),
-        .reg1Addr_i(reg1Addr_id_to_reg),
-        .reg2Addr_i(reg2Addr_id_to_reg),
-        .reg1Enable_i(reg1Enable_id_to_reg),
-        .reg2Enable_i(reg2Enable_id_to_reg),
-        .reg1Data_o(reg1Data_reg_to_id),
-        .reg2Data_o(reg2Data_reg_to_id),
-        .regWriteAddr_i(regWriteAddr_mem_wb_to_reg),
-        .regWriteData_i(regWriteData_mem_wb_to_reg),
-        .regWriteEnable_i(regWriteEnable_mem_wb_to_reg)
-    );
-
+	assign tlbrw_wvpn2 = cp0_entryhi[31:13];
+	assign tlbrw_wasid = cp0_entryhi[7:0];
+	assign tlbrw_wpfn0 = cp0_entrylo0[29:6];
+	assign tlbrw_wpfn1 = cp0_entrylo1[29:6];
+	assign tlbrw_wc0 = cp0_entrylo0[5:3];
+	assign tlbrw_wc1 = cp0_entrylo1[5:3];
+	assign tlbrw_wd0 = cp0_entrylo0[2];
+	assign tlbrw_wd1 = cp0_entrylo1[2];
+	assign tlbrw_wv0 = cp0_entrylo0[1];
+	assign tlbrw_wv1 = cp0_entrylo1[1];
+	assign tlbrw_wG = cp0_entrylo0[0];
+    
     MMU mmu1(
         .clk(clk),
         .rst(rst),
@@ -745,19 +700,66 @@ module CPU(
         .tlbp_index_o(tlbpRes_mmu_to_cp0)
     );
 
-    assign tlbrw_enable = (isInstTLBWI_mem_to_mem_wb || isInstTLBWR_mem_to_mem_wb);
-	assign tlbrw_index = (isInstTLBWI_mem_to_mem_wb || isInstTLBR_mem_to_mem_wb) ? cp0_index[3:0] : cp0_random[3:0];
 
-	assign tlbrw_wvpn2 = cp0_entryhi[31:13];
-	assign tlbrw_wasid = cp0_entryhi[7:0];
-	assign tlbrw_wpfn0 = cp0_entrylo0[29:6];
-	assign tlbrw_wpfn1 = cp0_entrylo1[29:6];
-	assign tlbrw_wc0 = cp0_entrylo0[5:3];
-	assign tlbrw_wc1 = cp0_entrylo1[5:3];
-	assign tlbrw_wd0 = cp0_entrylo0[2];
-	assign tlbrw_wd1 = cp0_entrylo1[2];
-	assign tlbrw_wv0 = cp0_entrylo0[1];
-	assign tlbrw_wv1 = cp0_entrylo1[1];
-	assign tlbrw_wG = cp0_entrylo0[0];
+    HILO hilo1 (
+        .clk(clk),
+        .rst(rst),
+        .regHILOEnable_i(regHILOEnable_mem_wb_to_hilo),
+        .regHI_i(regHI_mem_wb_to_hilo),
+        .regLO_i(regLO_mem_wb_to_hilo),
+        .regHI_o(regHI_hilo_to_ex),
+        .regLO_o(regLO_hilo_to_ex)
+    );
+
+    DIV div1(
+        .rst(rst),
+        .clk(clk),
+        .signed_div_i(divSigned_ex_to_div),
+        .operand1_i(divOperand1_ex_to_div),
+        .operand2_i(divOperand2_ex_to_div),
+        .start_i(divStart_ex_to_div),
+        .annul_i(1'b0),
+        .quotient_o(divResult_div_to_ex),
+        .finished_o(divFinished_div_to_ex)
+    );
+
+    LLBIT llbit1(
+        .rst(rst),
+        .clk(clk),
+        .flush_i(flush_ctrl_to_all),
+        .LLbitData_i(LLbitData_mem_wb_to_llbit),
+        .LLbitWriteEnable_i(LLbitWriteEnable_mem_wb_to_llbit),
+        .LLbitData_o(LLbitData_llbit_to_mem)
+    );
+
+    CTRL ctrl1(
+        .rst(rst),
+        .stallReqFromIF_i(romStallReq_i),
+        .stallReqFromID_i(stallReqFromID_id_to_ctrl),
+        .stallReqFromEX_i(stallReqFromEX_ex_to_ctrl),
+        .stallReqFromMEM_i(ramStallReq_i),
+        .stall_o(stall_ctrl_to_all),
+        .cp0EPC_i(cp0EPC_mem_to_ctrl),
+        .cp0EBase_i(cp0_ebase),
+        .cp0Status_i(cp0_status),
+        .cp0Cause_i(cp0_cause),
+        .exceptionType_i(exceptionType_mem_to_cp0_ctrl),
+        .newInstAddr_o(newInstAddr_ctrl_to_pc),
+        .flush_o(flush_ctrl_to_all)
+    );
+
+    REG reg1(
+        .clk(clk),
+        .rst(rst),
+        .reg1Addr_i(reg1Addr_id_to_reg),
+        .reg2Addr_i(reg2Addr_id_to_reg),
+        .reg1Enable_i(reg1Enable_id_to_reg),
+        .reg2Enable_i(reg2Enable_id_to_reg),
+        .reg1Data_o(reg1Data_reg_to_id),
+        .reg2Data_o(reg2Data_reg_to_id),
+        .regWriteAddr_i(regWriteAddr_mem_wb_to_reg),
+        .regWriteData_i(regWriteData_mem_wb_to_reg),
+        .regWriteEnable_i(regWriteEnable_mem_wb_to_reg)
+    );
 
 endmodule

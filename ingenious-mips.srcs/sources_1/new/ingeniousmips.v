@@ -134,7 +134,7 @@ module IngeniousMIPS(
             end
         end
     end
-    assign cp0Inte_cpu_to_cpu = {cp0TimerInte_cpu_to_cpu, 2'b00, uart_dataready^already_read, 2'b00};
+    assign cp0Inte_cpu_to_cpu = {cp0TimerInte_cpu_to_cpu, 4'b00, uart_dataready^already_read};
 
     CPU cpu1(
         .clk(clk_50M),
