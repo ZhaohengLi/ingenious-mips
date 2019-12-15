@@ -119,8 +119,8 @@ module tlb_lookup(
         else if(matched[9] == 1'b1) which_matched <= 9;
         else if(matched[10] == 1'b1) which_matched <= 10;
         else if(matched[11] == 1'b1) which_matched <= 11;
-        else if(matched[12] == 1'b1 which_matched <= 12;
-        else if(matched[13] == 1'b1 which_matched <= 13;
+        else if(matched[12] == 1'b1) which_matched <= 12;
+        else if(matched[13] == 1'b1) which_matched <= 13;
         else if(matched[14] == 1'b1) which_matched <= 14;
         else if(matched[15] == 1'b1) which_matched <= 15;
         else which_matched <= 0;
