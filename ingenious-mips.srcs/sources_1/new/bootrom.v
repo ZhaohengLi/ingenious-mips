@@ -1,7 +1,6 @@
 module BOOT_ROM(
     input wire rst_i,
     input wire[31:0] romAddr_i,
-
     output reg[31:0] romData_o
     
 );

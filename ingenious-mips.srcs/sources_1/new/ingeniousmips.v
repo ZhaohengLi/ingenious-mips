@@ -5,52 +5,52 @@ module IngeniousMIPS(
     input wire clock_btn,         //BTN5鎵嬪姩鏃堕挓鎸夐挳锟斤拷?鍏筹紝甯︽秷鎶栫數璺紝鎸変笅鏃朵负1
     input wire reset_btn,         //BTN6鎵嬪姩澶嶄綅鎸夐挳锟斤拷?鍏筹紝甯︽秷鎶栫數璺紝鎸変笅鏃朵负1
 
-    input  wire[3:0]  touch_btn,  //BTN1~BTN4锛屾寜閽紑鍏筹紝鎸変笅鏃朵�?1
-    input  wire[31:0] dip_sw,     //32浣嶆嫧鐮佸紑鍏筹紝鎷ㄥ埌"ON"鏃朵�?1
-    output reg[15:0] leds,       //16浣峀ED锛岃緭鍑烘椂1鐐�?�寒
-    output wire[7:0]  dpy0,       //鏁扮爜绠′綆浣嶄俊鍙凤紝鍖呮嫭灏忔暟鐐癸紝杈撳嚭1鐐�?�寒
-    output wire[7:0]  dpy1,       //鏁扮爜绠￠珮浣嶄俊鍙凤紝鍖呮嫭灏忔暟鐐癸紝杈撳嚭1鐐�?�寒
+    input  wire[3:0]  touch_btn,  //BTN1~BTN4锛屾寜閽紑鍏筹紝鎸変笅鏃朵�?1
+    input  wire[31:0] dip_sw,     //32浣嶆嫧鐮佸紑鍏筹紝鎷ㄥ埌"ON"鏃朵�?1
+    output reg[15:0] leds,       //16浣峀ED锛岃緭鍑烘椂1鐐�?�寒
+    output wire[7:0]  dpy0,       //鏁扮爜绠′綆浣嶄俊鍙凤紝鍖呮嫭灏忔暟鐐癸紝杈撳嚭1鐐�?�寒
+    output wire[7:0]  dpy1,       //鏁扮爜绠￠珮浣嶄俊鍙凤紝鍖呮嫭灏忔暟鐐癸紝杈撳嚭1鐐�?�寒
 
-    //CPLD涓插彛鎺у埗鍣ㄤ俊锟斤�??
-    output wire uart_rdn,         //璇讳覆鍙ｄ俊鍙凤紝浣庢湁锟斤�??
-    output wire uart_wrn,         //鍐欎覆鍙ｄ俊鍙凤紝浣庢湁锟斤�??
+    //CPLD涓插彛鎺у埗鍣ㄤ俊锟斤�??
+    output wire uart_rdn,         //璇讳覆鍙ｄ俊鍙凤紝浣庢湁锟斤�??
+    output wire uart_wrn,         //鍐欎覆鍙ｄ俊鍙凤紝浣庢湁锟斤�??
     input wire uart_dataready,    //涓插彛鏁版嵁鍑嗗锟斤拷?
-    input wire uart_tbre,         //鍙戯�??锟芥暟鎹爣锟斤�??
-    input wire uart_tsre,         //鏁版嵁鍙戯拷?锟藉畬姣曟爣锟斤�??
+    input wire uart_tbre,         //鍙戯�??锟芥暟鎹爣锟斤�??
+    input wire uart_tsre,         //鏁版嵁鍙戯拷?锟藉畬姣曟爣锟斤�??
 
-    //BaseRAM淇�?�彿
-    inout wire[31:0] base_ram_data,  //BaseRAM鏁版嵁锛屼綆8浣嶄笌CPLD涓插彛鎺у埗鍣ㄥ叡锟斤�??
-    output wire[19:0] base_ram_addr, //BaseRAM鍦板�?
-    output wire[3:0] base_ram_be_n,  //BaseRAM瀛楄妭浣胯兘锛屼綆鏈夋晥銆傚鏋�?笉浣跨敤瀛楄妭浣胯兘锛岃淇濇寔锟斤�??0
-    output wire base_ram_ce_n,       //BaseRAM鐗囷�??锟斤紝浣庢湁锟斤�??
+    //BaseRAM淇�?�彿
+    inout wire[31:0] base_ram_data,  //BaseRAM鏁版嵁锛屼綆8浣嶄笌CPLD涓插彛鎺у埗鍣ㄥ叡锟斤�??
+    output wire[19:0] base_ram_addr, //BaseRAM鍦板�?
+    output wire[3:0] base_ram_be_n,  //BaseRAM瀛楄妭浣胯兘锛屼綆鏈夋晥銆傚鏋�?笉浣跨敤瀛楄妭浣胯兘锛岃淇濇寔锟斤�??0
+    output wire base_ram_ce_n,       //BaseRAM鐗囷�??锟斤紝浣庢湁锟斤�??
     output wire base_ram_oe_n,       //BaseRAM璇讳娇鑳斤紝浣庢湁锟斤拷?
     output wire base_ram_we_n,       //BaseRAM鍐欎娇鑳斤紝浣庢湁锟斤拷?
 
-    //ExtRAM淇�?�彿
-    inout wire[31:0] ext_ram_data,  //ExtRAM鏁版�?
-    output wire[19:0] ext_ram_addr, //ExtRAM鍦板�?
-    output wire[3:0] ext_ram_be_n,  //ExtRAM瀛楄妭浣胯兘锛屼綆鏈夋晥銆傚鏋�?笉浣跨敤瀛楄妭浣胯兘锛岃淇濇寔锟斤�??0
-    output wire ext_ram_ce_n,       //ExtRAM鐗囷�??锟斤紝浣庢湁锟斤�??
+    //ExtRAM淇�?�彿
+    inout wire[31:0] ext_ram_data,  //ExtRAM鏁版�?
+    output wire[19:0] ext_ram_addr, //ExtRAM鍦板�?
+    output wire[3:0] ext_ram_be_n,  //ExtRAM瀛楄妭浣胯兘锛屼綆鏈夋晥銆傚鏋�?笉浣跨敤瀛楄妭浣胯兘锛岃淇濇寔锟斤�??0
+    output wire ext_ram_ce_n,       //ExtRAM鐗囷�??锟斤紝浣庢湁锟斤�??
     output wire ext_ram_oe_n,       //ExtRAM璇讳娇鑳斤紝浣庢湁锟斤拷?
     output wire ext_ram_we_n,       //ExtRAM鍐欎娇鑳斤紝浣庢湁锟斤拷?
 
-    //鐩磋繛涓插彛淇�?�彿
-    output wire txd,  //鐩磋繛涓插彛鍙戯�??锟界�?
+    //鐩磋繛涓插彛淇�?�彿
+    output wire txd,  //鐩磋繛涓插彛鍙戯�??锟界�?
     input  wire rxd,  //鐩磋繛涓插彛鎺ユ敹锟斤拷?
 
     //Flash瀛樺偍鍣ㄤ俊鍙凤紝鍙傦拷?? JS28F640 鑺墖鎵嬪唽
-    output wire [22:0]flash_a,      //Flash鍦板潃锛�?0浠呭�?8bit妯�?�紡鏈夋晥锟斤拷?16bit妯�?�紡鏃犳剰锟斤拷?
-    inout  wire [15:0]flash_d,      //Flash鏁版�?
+    output wire [22:0]flash_a,      //Flash鍦板潃锛�?0浠呭�?8bit妯�?�紡鏈夋晥锟斤拷?16bit妯�?�紡鏃犳剰锟斤拷?
+    inout  wire [15:0]flash_d,      //Flash鏁版�?
     output wire flash_rp_n,         //Flash澶嶄綅淇″彿锛屼綆鏈夋晥
-    output wire flash_vpen,         //Flash鍐欎繚鎶や俊鍙凤紝浣庣數骞虫椂涓嶈兘鎿﹂櫎銆佺儳锟斤�??
-    output wire flash_ce_n,         //Flash鐗囷�??锟戒俊鍙凤紝浣庢湁锟斤拷?
-    output wire flash_oe_n,         //Flash璇讳娇鑳戒俊鍙凤紝浣庢湁锟斤�??
-    output wire flash_we_n,         //Flash鍐欎娇鑳戒俊鍙凤紝浣庢湁锟斤�??
-    output wire flash_byte_n,       //Flash 8bit妯�?�紡閫夋嫨锛屼綆鏈夋晥銆傚湪浣跨敤flash锟斤�??16浣嶆ā寮忔椂璇疯锟斤�??1
+    output wire flash_vpen,         //Flash鍐欎繚鎶や俊鍙凤紝浣庣數骞虫椂涓嶈兘鎿﹂櫎銆佺儳锟斤�??
+    output wire flash_ce_n,         //Flash鐗囷�??锟戒俊鍙凤紝浣庢湁锟斤拷?
+    output wire flash_oe_n,         //Flash璇讳娇鑳戒俊鍙凤紝浣庢湁锟斤�??
+    output wire flash_we_n,         //Flash鍐欎娇鑳戒俊鍙凤紝浣庢湁锟斤�??
+    output wire flash_byte_n,       //Flash 8bit妯�?�紡閫夋嫨锛屼綆鏈夋晥銆傚湪浣跨敤flash锟斤�??16浣嶆ā寮忔椂璇疯锟斤�??1
 
-    //USB 鎺у埗鍣ㄤ俊鍙凤紝鍙傦�??? SL811 鑺墖鎵嬪唽
+    //USB 鎺у埗鍣ㄤ俊鍙凤紝鍙傦�??? SL811 鑺墖鎵嬪唽
     output wire sl811_a0,
-    //inout  wire[7:0] sl811_d,     //USB鏁版嵁绾夸笌缃戠粶鎺у埗鍣ㄧ殑dm9k_sd[7:0]鍏变�?
+    //inout  wire[7:0] sl811_d,     //USB鏁版嵁绾夸笌缃戠粶鎺у埗鍣ㄧ殑dm9k_sd[7:0]鍏变�?
     output wire sl811_wr_n,
     output wire sl811_rd_n,
     output wire sl811_cs_n,
@@ -68,13 +68,13 @@ module IngeniousMIPS(
     output wire dm9k_pwrst_n,
     input  wire dm9k_int,
 
-    //鍥惧儚杈撳嚭淇�?�彿
-    output wire[2:0] video_red,    //绾㈣壊鍍忕礌锟斤�??3锟斤�??
-    output wire[2:0] video_green,  //缁胯壊鍍忕礌锟斤�??3锟斤�??
-    output wire[1:0] video_blue,   //钃濊壊鍍忕礌锟斤�??2锟斤�??
+    //鍥惧儚杈撳嚭淇�?�彿
+    output wire[2:0] video_red,    //绾㈣壊鍍忕礌锟斤�??3锟斤�??
+    output wire[2:0] video_green,  //缁胯壊鍍忕礌锟斤�??3锟斤�??
+    output wire[1:0] video_blue,   //钃濊壊鍍忕礌锟斤�??2锟斤�??
     output wire video_hsync,       //琛屽悓姝ワ紙姘村钩鍚屾锛変俊锟斤拷?
     output wire video_vsync,       //鍦哄悓姝ワ紙鍨傜洿鍚屾锛変俊锟斤拷?
-    output wire video_clk,         //鍍忕礌鏃堕挓杈撳�?
+    output wire video_clk,         //鍍忕礌鏃堕挓杈撳�?
     output wire video_de           //琛屾暟鎹湁鏁堜俊鍙凤紝鐢ㄤ簬鍖哄垎娑堥殣锟斤拷?
 );
 
@@ -92,21 +92,6 @@ module IngeniousMIPS(
     wire[31:0] ramData_ram_to_cpu;
     wire[5:0] cp0Inte_cpu_to_cpu;
     wire cp0TimerInte_cpu_to_cpu;
-    
-    /*reg[31:0] romAddr_cpu_to_rom;
-    reg[31:0] romData_cpu_to_rom;
-    reg[3:0] romSel_cpu_to_rom;
-    reg romWriteEnable_cpu_to_rom;
-    wire[31:0] romData_rom_to_cpu;
-    reg romEnable_cpu_to_rom;
-    reg[31:0] ramAddr_cpu_to_ram;
-    reg[31:0] ramData_cpu_to_ram;
-    reg[3:0] ramSel_cpu_to_ram;
-    reg ramWriteEnable_cpu_to_ram;
-    reg ramEnable_cpu_to_ram;
-    wire[31:0] ramData_ram_to_cpu;
-    wire[5:0] cp0Inte_cpu_to_cpu;
-    wire cp0TimerInte_cpu_to_cpu;*/
 
     wire stall_if_bus_to_cpu;
     wire stall_data_bus_to_cpu;
@@ -178,43 +163,6 @@ module IngeniousMIPS(
         .cp0Inte_i(cp0Inte_cpu_to_cpu),
         .cp0TimerInte_o(cp0TimerInte_cpu_to_cpu)
     );
-    
-    /*always @(posedge clk_50M) begin
-        if(reset_btn == `Enable) begin
-            bugState <= 4'h7;
-            ramEnable_cpu_to_ram <= 1'b0;
-        end else begin
-            case(bugState)
-                4'h0: begin
-                    romData_cpu_to_rom <= 32'h0f0f0f0f;
-                    romAddr_cpu_to_rom <= 32'h1FC00004;
-                    romWriteEnable_cpu_to_rom <= 1'b1;
-                    romEnable_cpu_to_rom <= 1'b1;
-                    bugState <= 4'h1;
-                end
-                4'h6: begin
-                    romData_cpu_to_rom <= 32'hf0f0f0f0;
-                    romAddr_cpu_to_rom <= 32'h1FC00008;
-                    romWriteEnable_cpu_to_rom <= 1'b1;
-                    romEnable_cpu_to_rom <= 1'b1;
-                    bugState <= 4'h7;
-                end
-                4'ha: begin
-                    romData_cpu_to_rom <= 32'h00000000;
-                    romAddr_cpu_to_rom <= 32'h1FC00004;
-                    romWriteEnable_cpu_to_rom <= 1'b0;
-                    romEnable_cpu_to_rom <= 1'b1;
-                    bugState <= 4'hb;
-                end
-                4'hf: begin
-                    bugState <= 'h0;
-                end
-                default: begin
-                    bugState <= bugState + 4'h1;
-                end
-            endcase
-        end
-    end*/
 
     BUS bus(
 
@@ -316,7 +264,6 @@ module IngeniousMIPS(
     );
 
     RAM_UART base_ram(
-
 	   .clk_i(clk_50M),
 	   .rst_i(reset_btn),
 
@@ -344,13 +291,11 @@ module IngeniousMIPS(
 	   .uartTSRE_i(uart_tsre),
 
 	   .uartReg_o(uartReg_uart_to_bus)
-
     );
     
     BOOT_ROM boot_rom(
-      .rst_i(reset_btn),              // input wire clka
-      
-      .romAddr_i(addr_bus_to_bootrom),          // input wire [31 : 0] addra
-      .romData_o(data_bootrom_to_bus)          // output wire [31 : 0] douta
+      .rst_i(reset_btn),
+      .romAddr_i(addr_bus_to_bootrom),
+      .romData_o(data_bootrom_to_bus)
     );
 endmodule
