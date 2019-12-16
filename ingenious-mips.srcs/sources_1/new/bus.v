@@ -46,8 +46,11 @@ module BUS(
 	output reg[31:0] romData_o,
 	output reg[31:0] romAddr_o,
 	output reg[3:0]  romSel_o,
-	input  wire[31:0] romData_i,
-	input  wire       romRdy_i
+	input  wire[31:0]romData_i,
+	input  wire      romRdy_i,
+	
+	output reg[31:0] bootromAddr_o,
+	input wire[31:0] bootromData_i
 	
 );
 
@@ -57,6 +60,7 @@ module BUS(
 	reg[1:0] baseRAM_State;
 	reg[1:0] extRAM_State;
 	reg[1:0] romState;
+	reg[1:0] bootromState;
 
 	always @ (posedge clk_i) begin
 		if(rst_i == `Enable) begin
@@ -65,6 +69,7 @@ module BUS(
 			baseRAM_State <= 2'b00;
 			extRAM_State <= 2'b00;
 			romState <= 2'b00;
+			bootromState <= 2'b00;
 		end else begin
 			case(ifBusState)
 				`BUS_IDLE: begin
@@ -80,10 +85,15 @@ module BUS(
 								ifBusState <= `BUS_BUSY_EXT_RAM;
 							end
 						end else if(`romBorder_l <= ifAddr_i && ifAddr_i < `romBorder_r) begin
-							if(romState[1] == 1'b0) begin
+							if(romState[1] == 1'b0 && (dataEnable_i == `Disable || !(`romBorder_l <= dataAddr_i && dataAddr_i < `romBorder_r))) begin
 								romState[0] <= 1'b1;
 								ifBusState <= `BUS_BUSY_ROM;
 							end
+						end else if(`bootrom_l <= ifAddr_i && ifAddr_i < `bootrom_r) begin
+						    if(bootromState[1] == 1'b0 && (dataEnable_i == `Disable || !(`bootrom_l <= dataAddr_i && dataAddr_i < `bootrom_r))) begin
+						        bootromState[0] <= 1'b1;
+						        ifBusState <= `BUS_BUSY_BOOTROM;
+						    end
 						end else begin
 						end
 					end
@@ -105,6 +115,10 @@ module BUS(
 						romState[0] <= 1'b0;
 						ifBusState <= `BUS_IDLE;
 					end
+				end
+				`BUS_BUSY_BOOTROM: begin
+				    bootromState[0] <= 1'b0;
+				    ifBusState <= `BUS_IDLE;
 				end
 				default: begin
 				end
@@ -135,6 +149,11 @@ module BUS(
 								romState[1] <= 1'b1;
 								dataBusState <= `BUS_BUSY_ROM;
 							end
+						end else if(`bootrom_l <= dataAddr_i && dataAddr_i < `bootrom_r) begin
+						    if(bootromState[0] == 1'b0) begin
+						        bootromState[1] <= 1'b1;
+						        dataBusState <= `BUS_BUSY_BOOTROM;
+						    end
 						end else begin
 						end
 					end
@@ -162,6 +181,10 @@ module BUS(
 				end
 				`BUS_UART_REG: begin
 				    dataBusState <= `BUS_WAIT;
+				end
+				`BUS_BUSY_BOOTROM: begin
+				    bootromState[1] <= 1'b0;
+					dataBusState <= `BUS_WAIT;
 				end
 				default: begin
 				end
@@ -299,6 +322,22 @@ module BUS(
 			end
 		endcase
 	end
+	
+	always @ (*) begin
+		case(bootromState)
+			2'b00: begin
+				bootromAddr_o <= `ZeroWord;
+			end
+			2'b01: begin
+				bootromAddr_o <= ifAddr_i - `bootrom_l;
+			end
+			2'b10: begin
+				bootromAddr_o <= dataAddr_i - `bootrom_l;
+			end
+			default: begin
+			end
+		endcase
+	end
 
 	always @ (*) begin
 		if(rst_i == `Enable) begin
@@ -337,6 +376,10 @@ module BUS(
 						dataStallReq_o <= `Stop;
 						dataData_o <= `ZeroWord;				
 					end
+				end
+				`BUS_BUSY_BOOTROM: begin
+					dataStallReq_o <= `NoStop;
+					dataData_o <= bootromData_i;
 				end
 				`BUS_BUSY_ROM: begin
 					if(romRdy_i == `Enable) begin
@@ -412,6 +455,10 @@ module BUS(
 						ifStallReq_o <= `Stop;
 						ifData_o <= `ZeroWord;				
 					end
+				end
+				`BUS_BUSY_BOOTROM: begin
+					ifStallReq_o <= `NoStop;
+					ifData_o <= bootromData_i;
 				end
 				`BUS_UART_REG: begin
 				    ifData_o <= {30'b0, uartReg_i};

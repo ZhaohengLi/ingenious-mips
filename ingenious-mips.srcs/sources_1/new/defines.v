@@ -268,6 +268,7 @@
 `define BUS_BUSY_ROM 4'h3
 `define BUS_WAIT 4'h4
 `define BUS_UART_REG 4'h5
+`define BUS_BUSY_BOOTROM 4'h6
 
 `define PC_INIT_ADDR      32'hBFC00000
 
@@ -276,8 +277,11 @@
 `define extRAM_Border_l   32'h00400000
 `define extRAM_Border_r   32'h00800000
 
-`define romBorder_l       32'h01000000
-`define romBorder_r       32'h01800000
+`define romBorder_l       32'h1E000000
+`define romBorder_r       32'h1E800000
 
 `define uartDataAddr      32'h03000004
 `define uartRegAddr       32'h03000000
+
+`define bootrom_l         32'h1FC00000
+`define bootrom_r         32'h1FC04000
