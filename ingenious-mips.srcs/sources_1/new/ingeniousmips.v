@@ -222,10 +222,10 @@ module IngeniousMIPS(
         .rst_i(reset_btn),
 
         .ifEnable_i(romEnable_cpu_to_rom),
-        .ifWriteEnable_i(romWriteEnable_cpu_to_rom),
+        .ifWriteEnable_i(1'b0),
         .ifSel_i(4'b1111),
         .ifAddr_i(romAddr_cpu_to_rom),
-        .ifData_i(romData_cpu_to_rom),
+        .ifData_i(`ZeroWord),
         .ifData_o(romData_rom_to_cpu),
 
         .dataEnable_i(ramEnable_cpu_to_ram),

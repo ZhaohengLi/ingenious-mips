@@ -269,6 +269,7 @@
 `define BUS_WAIT 4'h4
 `define BUS_UART_REG 4'h5
 `define BUS_BUSY_BOOTROM 4'h6
+`define BUS_ERROR 4'h7
 
 `define PC_INIT_ADDR      32'hBFC00000
 

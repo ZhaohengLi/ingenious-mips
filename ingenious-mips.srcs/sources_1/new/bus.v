@@ -95,6 +95,7 @@ module BUS(
 						        ifBusState <= `BUS_BUSY_BOOTROM;
 						    end
 						end else begin
+						    ifBusState <= `BUS_ERROR;
 						end
 					end
 				end
@@ -155,6 +156,7 @@ module BUS(
 						        dataBusState <= `BUS_BUSY_BOOTROM;
 						    end
 						end else begin
+						    dataBusState <= `BUS_ERROR;
 						end
 					end
 				end
@@ -175,6 +177,9 @@ module BUS(
 						romState[1] <= 1'b0;
 						dataBusState <= `BUS_WAIT;
 					end
+				end
+				`BUS_ERROR: begin
+				    dataBusState <= `BUS_WAIT;
 				end
 				`BUS_WAIT: begin
 				    dataBusState <= `BUS_IDLE;
@@ -398,6 +403,9 @@ module BUS(
 				    dataData_o <= {30'b0, uartReg_i};
 				    dataStallReq_o <= `NoStop;
 				end
+				`BUS_ERROR: begin
+				    dataStallReq_o <= `NoStop;
+				end
 				default: begin
 		          	dataStallReq_o <= `NoStop;
 				end
@@ -462,6 +470,9 @@ module BUS(
 				end
 				`BUS_UART_REG: begin
 				    ifData_o <= {30'b0, uartReg_i};
+				    ifStallReq_o <= `NoStop;
+				end
+				`BUS_ERROR: begin
 				    ifStallReq_o <= `NoStop;
 				end
 				default: begin
