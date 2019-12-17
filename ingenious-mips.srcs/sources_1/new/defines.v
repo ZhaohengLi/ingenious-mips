@@ -281,8 +281,8 @@
 `define romBorder_l       32'h1E000000
 `define romBorder_r       32'h1E800000
 
-`define uartDataAddr      32'h03000004
-`define uartRegAddr       32'h03000000
+`define uartDataAddr      32'h1FD003F8
+`define uartRegAddr       32'h1FD003FC
 
 `define bootrom_l         32'h1FC00000
 `define bootrom_r         32'h1FC04000
