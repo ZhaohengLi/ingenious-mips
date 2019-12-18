@@ -200,8 +200,7 @@ module CPU(
     wire[`RegBus] cp0_errorepc;
 
 
-	wire[`InstAddrBus] badAddr_mem_to_mem_wb;
-  wire[31:0] badAddr_mem_wb_to_cp0;
+  wire[31:0] badAddr_mem_to_cp0;
     wire[`RegBus] exceptionType_mem_to_cp0_ctrl;
     wire[`RegBus] instAddr_mem_to_cp0;
     wire isInDelayslot_mem_to_cp0;
@@ -237,7 +236,7 @@ module CPU(
     wire tlbrw_wd0;
     wire tlbrw_wv0;
     wire tlbrw_wG;
-    
+
     assign flush_o = flush_ctrl_to_all;
 
     PC pc1(
@@ -509,7 +508,7 @@ module CPU(
         .instAddr_o(instAddr_mem_to_cp0),
         .isInDelayslot_o(isInDelayslot_mem_to_cp0),
 
-        .badAddr_o(badAddr_mem_to_mem_wb),
+        .badAddr_o(badAddr_mem_to_cp0),
         //mmu data result
         .physDataAddr_i(physDataAddr_ex_mem_to_mem),
         .virtDataAddr_i(virtDataAddr_ex_mem_to_mem),
@@ -543,7 +542,6 @@ module CPU(
         .isInstTLBWR_i(isInstTLBWR_mem_to_mem_wb),
         .isInstTLBWI_i(isInstTLBWI_mem_to_mem_wb),
         .isInstTLBP_i(isInstTLBP_mem_to_mem_wb),
-        .badAddr_i(badAddr_mem_to_mem_wb),
         //mem_wb to hilo
         .regHILOEnable_o(regHILOEnable_mem_wb_to_hilo),
         .regHI_o(regHI_mem_wb_to_hilo),
@@ -563,7 +561,6 @@ module CPU(
         .isInstTLBWR_o(isInstTLBWR_mem_wb_to_cp0),
         .isInstTLBWI_o(isInstTLBWI_mem_wb_to_cp0),
         .isInstTLBP_o(isInstTLBP_mem_wb_to_cp0),
-        .badAddr_o(badAddr_mem_wb_to_cp0),
         .flush_i(flush_ctrl_to_all)
     );
 
@@ -578,7 +575,7 @@ module CPU(
 
 		.cp0Inte_i(cp0Inte_i),
         .exceptionType_i(exceptionType_mem_to_cp0_ctrl),
-		.badAddr_i(badAddr_mem_wb_to_cp0),
+		.badAddr_i(badAddr_mem_to_cp0),
         .instAddr_i(instAddr_mem_to_cp0),
         .isInDelayslot_i(isInDelayslot_mem_to_cp0),
 
@@ -626,7 +623,7 @@ module CPU(
 
         .cp0TimerInte_o(cp0TimerInte_o)
     );
-    
+
     assign tlbrw_enable = (isInstTLBWI_mem_to_mem_wb || isInstTLBWR_mem_to_mem_wb);
 	assign tlbrw_index = (isInstTLBWI_mem_to_mem_wb || isInstTLBR_mem_to_mem_wb) ? cp0_index[3:0] : cp0_random[3:0];
 
@@ -641,7 +638,7 @@ module CPU(
 	assign tlbrw_wv0 = cp0_entrylo0[1];
 	assign tlbrw_wv1 = cp0_entrylo1[1];
 	assign tlbrw_wG = cp0_entrylo0[0];
-    
+
     MMU mmu1(
         .clk(clk),
         .rst(rst),

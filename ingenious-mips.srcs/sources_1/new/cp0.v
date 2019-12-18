@@ -12,10 +12,12 @@ module CP0(
 	output reg[`RegBus] cp0Data_o,
 	//外部中断传入
 	input wire[5:0] cp0Inte_i,
-	//随流水线传入
+	//随从mem直接传入
 	input wire[`RegBus] exceptionType_i,
 	input wire[`RegBus] instAddr_i,
 	input wire isInDelayslot_i,
+	input wire[31:0] badAddr_i,
+
 	//内部寄存器
 	output reg[`RegBus] cp0Index_o,//0
 	output reg[`RegBus] cp0Random_o,//1
@@ -36,8 +38,6 @@ module CP0(
 	output reg[`RegBus] cp0ErrorEPC_o,//30
 	//时钟中断传出
 	output reg cp0TimerInte_o,
-	//for tlb
-	input wire[31:0] badAddr_i,
 
 	input wire[`RegBus] tlbpRes_i,
 

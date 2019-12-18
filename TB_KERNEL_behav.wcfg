@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="84467261833333fs"></ZoomStartTime>
-      <ZoomEndTime time="84467347033334fs"></ZoomEndTime>
-      <Cursor1Time time="84467404833000fs"></Cursor1Time>
+      <ZoomStartTime time="145005415000000fs"></ZoomStartTime>
+      <ZoomEndTime time="145005502600001fs"></ZoomEndTime>
+      <Cursor1Time time="145005488000000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="213"></NameColumnWidth>
-      <ValueColumnWidth column_width="110"></ValueColumnWidth>
+      <ValueColumnWidth column_width="102"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="29" />
+   <WVObjectSize size="44" />
    <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/clk">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -48,22 +48,6 @@
       <obj_property name="ElementShortName">newInstAddr_o[31:0]</obj_property>
       <obj_property name="ObjectShortName">newInstAddr_o[31:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/ctrl1/stallReqFromIF_i">
-      <obj_property name="ElementShortName">stallReqFromIF_i</obj_property>
-      <obj_property name="ObjectShortName">stallReqFromIF_i</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/ctrl1/stallReqFromID_i">
-      <obj_property name="ElementShortName">stallReqFromID_i</obj_property>
-      <obj_property name="ObjectShortName">stallReqFromID_i</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/ctrl1/stallReqFromEX_i">
-      <obj_property name="ElementShortName">stallReqFromEX_i</obj_property>
-      <obj_property name="ObjectShortName">stallReqFromEX_i</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/ctrl1/stallReqFromMEM_i">
-      <obj_property name="ElementShortName">stallReqFromMEM_i</obj_property>
-      <obj_property name="ObjectShortName">stallReqFromMEM_i</obj_property>
-   </wvobject>
    <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/ctrl1/stall_o">
       <obj_property name="ElementShortName">stall_o[5:0]</obj_property>
       <obj_property name="ObjectShortName">stall_o[5:0]</obj_property>
@@ -76,64 +60,140 @@
       <obj_property name="ElementShortName">instAddr_o[31:0]</obj_property>
       <obj_property name="ObjectShortName">instAddr_o[31:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/ifEnable_i">
-      <obj_property name="ElementShortName">ifEnable_i</obj_property>
-      <obj_property name="ObjectShortName">ifEnable_i</obj_property>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/mem1/physDataAddr_i">
+      <obj_property name="ElementShortName">physDataAddr_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">physDataAddr_i[31:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/ifWriteEnable_i">
-      <obj_property name="ElementShortName">ifWriteEnable_i</obj_property>
-      <obj_property name="ObjectShortName">ifWriteEnable_i</obj_property>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/mem1/virtDataAddr_i">
+      <obj_property name="ElementShortName">virtDataAddr_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">virtDataAddr_i[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/ifSel_i">
-      <obj_property name="ElementShortName">ifSel_i[3:0]</obj_property>
-      <obj_property name="ObjectShortName">ifSel_i[3:0]</obj_property>
+   <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/mem1/dataInvalid_i">
+      <obj_property name="ElementShortName">dataInvalid_i</obj_property>
+      <obj_property name="ObjectShortName">dataInvalid_i</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/ifAddr_i">
-      <obj_property name="ElementShortName">ifAddr_i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">ifAddr_i[31:0]</obj_property>
+   <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/mem1/dataMiss_i">
+      <obj_property name="ElementShortName">dataMiss_i</obj_property>
+      <obj_property name="ObjectShortName">dataMiss_i</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/ifData_i">
-      <obj_property name="ElementShortName">ifData_i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">ifData_i[31:0]</obj_property>
+   <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/mem1/dataDirty_i">
+      <obj_property name="ElementShortName">dataDirty_i</obj_property>
+      <obj_property name="ObjectShortName">dataDirty_i</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/ifData_o">
-      <obj_property name="ElementShortName">ifData_o[31:0]</obj_property>
-      <obj_property name="ObjectShortName">ifData_o[31:0]</obj_property>
+   <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/mem1/dataIllegal_i">
+      <obj_property name="ElementShortName">dataIllegal_i</obj_property>
+      <obj_property name="ObjectShortName">dataIllegal_i</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/ifStallReq_o">
-      <obj_property name="ElementShortName">ifStallReq_o</obj_property>
-      <obj_property name="ObjectShortName">ifStallReq_o</obj_property>
+   <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/mem1/memEnable_o">
+      <obj_property name="ElementShortName">memEnable_o</obj_property>
+      <obj_property name="ObjectShortName">memEnable_o</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/ifBusState">
-      <obj_property name="ElementShortName">ifBusState[3:0]</obj_property>
-      <obj_property name="ObjectShortName">ifBusState[3:0]</obj_property>
+   <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/mem1/memWriteEnable_o">
+      <obj_property name="ElementShortName">memWriteEnable_o</obj_property>
+      <obj_property name="ObjectShortName">memWriteEnable_o</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/baseRAM_Enable_o">
-      <obj_property name="ElementShortName">baseRAM_Enable_o</obj_property>
-      <obj_property name="ObjectShortName">baseRAM_Enable_o</obj_property>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/mem1/memAddr_o">
+      <obj_property name="ElementShortName">memAddr_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">memAddr_o[31:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/baseRAM_WriteEnable_o">
-      <obj_property name="ElementShortName">baseRAM_WriteEnable_o</obj_property>
-      <obj_property name="ObjectShortName">baseRAM_WriteEnable_o</obj_property>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/mem1/badAddr_o">
+      <obj_property name="ElementShortName">badAddr_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">badAddr_o[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/baseRAM_Data_o">
-      <obj_property name="ElementShortName">baseRAM_Data_o[31:0]</obj_property>
-      <obj_property name="ObjectShortName">baseRAM_Data_o[31:0]</obj_property>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/mem1/exceptionType_o">
+      <obj_property name="ElementShortName">exceptionType_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">exceptionType_o[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/baseRAM_Addr_o">
-      <obj_property name="ElementShortName">baseRAM_Addr_o[31:0]</obj_property>
-      <obj_property name="ObjectShortName">baseRAM_Addr_o[31:0]</obj_property>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/mem_wb1/badAddr_i">
+      <obj_property name="ElementShortName">badAddr_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">badAddr_i[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/baseRAM_Sel_o">
-      <obj_property name="ElementShortName">baseRAM_Sel_o[3:0]</obj_property>
-      <obj_property name="ObjectShortName">baseRAM_Sel_o[3:0]</obj_property>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/mem_wb1/badAddr_o">
+      <obj_property name="ElementShortName">badAddr_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">badAddr_o[31:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/baseRAM_Data_i">
-      <obj_property name="ElementShortName">baseRAM_Data_i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">baseRAM_Data_i[31:0]</obj_property>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/badAddr_i">
+      <obj_property name="ElementShortName">badAddr_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">badAddr_i[31:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/baseRAM_Rdy_i">
-      <obj_property name="ElementShortName">baseRAM_Rdy_i</obj_property>
-      <obj_property name="ObjectShortName">baseRAM_Rdy_i</obj_property>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0Badvaddr_o">
+      <obj_property name="ElementShortName">cp0Badvaddr_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0Badvaddr_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0Index_o">
+      <obj_property name="ElementShortName">cp0Index_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0Index_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0Random_o">
+      <obj_property name="ElementShortName">cp0Random_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0Random_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0EntryLO0_o">
+      <obj_property name="ElementShortName">cp0EntryLO0_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0EntryLO0_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0EntryLO1_o">
+      <obj_property name="ElementShortName">cp0EntryLO1_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0EntryLO1_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0Context_o">
+      <obj_property name="ElementShortName">cp0Context_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0Context_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0Pagemask_o">
+      <obj_property name="ElementShortName">cp0Pagemask_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0Pagemask_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0Wired_o">
+      <obj_property name="ElementShortName">cp0Wired_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0Wired_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0Badvaddr_o">
+      <obj_property name="ElementShortName">cp0Badvaddr_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0Badvaddr_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0Count_o">
+      <obj_property name="ElementShortName">cp0Count_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0Count_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0EntryHI_o">
+      <obj_property name="ElementShortName">cp0EntryHI_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0EntryHI_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0Compare_o">
+      <obj_property name="ElementShortName">cp0Compare_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0Compare_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0Status_o">
+      <obj_property name="ElementShortName">cp0Status_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0Status_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0Cause_o">
+      <obj_property name="ElementShortName">cp0Cause_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0Cause_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0EPC_o">
+      <obj_property name="ElementShortName">cp0EPC_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0EPC_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0EBase_o">
+      <obj_property name="ElementShortName">cp0EBase_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0EBase_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0Config_o">
+      <obj_property name="ElementShortName">cp0Config_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0Config_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/cp0ErrorEPC_o">
+      <obj_property name="ElementShortName">cp0ErrorEPC_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cp0ErrorEPC_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/cp01/userMode_o">
+      <obj_property name="ElementShortName">userMode_o</obj_property>
+      <obj_property name="ObjectShortName">userMode_o</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/cpu1/cp01/asid_o">
+      <obj_property name="ElementShortName">asid_o[7:0]</obj_property>
+      <obj_property name="ObjectShortName">asid_o[7:0]</obj_property>
    </wvobject>
 </wave_config>

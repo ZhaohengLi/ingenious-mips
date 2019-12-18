@@ -271,7 +271,7 @@
 `define BUS_BUSY_BOOTROM 4'h6
 `define BUS_ERROR 4'h7
 
-`define PC_INIT_ADDR      32'h80000000
+`define PC_INIT_ADDR      32'hBFC00000
 
 `define baseRAM_Border_l  32'h00000000
 `define baseRAM_Border_r  32'h00400000

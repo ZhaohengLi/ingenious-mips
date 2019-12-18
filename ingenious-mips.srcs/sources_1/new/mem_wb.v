@@ -20,7 +20,6 @@ module MEM_WB(
 	input wire isInstTLBWR_i,
 	input wire isInstTLBWI_i,
 	input wire isInstTLBP_i,
-	input wire[31:0] badAddr_i,
 
 	output reg[`RegAddrBus] regWriteAddr_o,
 	output reg regWriteEnable_o,
@@ -37,7 +36,6 @@ module MEM_WB(
 	output reg isInstTLBWR_o,
 	output reg isInstTLBWI_o,
 	output reg isInstTLBP_o,
-	output reg[31:0] badAddr_o,
 
 	output reg[`RegBus] cp0WriteData_o
 );
@@ -58,7 +56,6 @@ module MEM_WB(
             isInstTLBWR_o <= 1'b0;
             isInstTLBWI_o <= 1'b0;
             isInstTLBP_o <= 1'b0;
-						badAddr_o <= `ZeroWord;
         end else if (stall_i[4] == `Stop && stall_i[5] == `NoStop) begin
             regWriteAddr_o <= `NOPRegAddr;
             regWriteEnable_o <= `Disable;
@@ -75,7 +72,6 @@ module MEM_WB(
             isInstTLBWR_o <= 1'b0;
             isInstTLBWI_o <= 1'b0;
             isInstTLBP_o <= 1'b0;
-						badAddr_o <= `ZeroWord;
         end else if (stall_i[4] == `NoStop) begin
             regWriteAddr_o <= regWriteAddr_i;
             regWriteEnable_o <= regWriteEnable_i;
@@ -92,7 +88,6 @@ module MEM_WB(
             isInstTLBWR_o <= isInstTLBWR_i;
             isInstTLBWI_o <= isInstTLBWI_i;
             isInstTLBP_o <= isInstTLBP_i;
-						badAddr_o <= badAddr_i;
         end
     end //always
 endmodule
