@@ -198,7 +198,7 @@ module BUS(
 		end
 	end
 	
-	always @ (*) begin
+	always @ (baseRAM_State) begin
 		case(baseRAM_State)
 			2'b00: begin
 				baseRAM_Addr_o <= `ZeroWord;
@@ -256,7 +256,7 @@ module BUS(
 		endcase
 	end
 			
-	always @ (*) begin
+	always @ (extRAM_State) begin
 		case(extRAM_State)
 			2'b00: begin
 				extRAM_Addr_o <= `ZeroWord;
@@ -292,7 +292,7 @@ module BUS(
 		endcase
 	end
 	
-	always @ (*) begin
+	always @ (romState) begin
 		case(romState)
 			2'b00: begin
 				romAddr_o <= `ZeroWord;
@@ -328,7 +328,7 @@ module BUS(
 		endcase
 	end
 	
-	always @ (*) begin
+	always @ (bootromState) begin
 		case(bootromState)
 			2'b00: begin
 				bootromAddr_o <= `ZeroWord;
