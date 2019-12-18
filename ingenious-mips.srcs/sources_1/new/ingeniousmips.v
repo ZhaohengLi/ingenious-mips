@@ -124,10 +124,10 @@ module IngeniousMIPS(
     wire enable_bus_to_uart;
     wire writeEnable_bus_to_uart;
     wire[1:0] uartReg_uart_to_bus;
-    
+
     wire[31:0] addr_bus_to_bootrom;
     wire[31:0] data_bootrom_to_bus;
-    
+
     reg[3:0] bugState;
 
     reg already_read;
@@ -140,7 +140,7 @@ module IngeniousMIPS(
             end
         end
     end
-    assign cp0Inte_cpu_to_cpu = {cp0TimerInte_cpu_to_cpu, 4'b00, uart_dataready^already_read};
+    assign cp0Inte_cpu_to_cpu = {cp0TimerInte_cpu_to_cpu, 2'b00, uart_dataready^already_read, 2'b00};
 
     CPU cpu1(
         .clk(clk_50M),
@@ -215,7 +215,7 @@ module IngeniousMIPS(
 		.romSel_o(sel_bus_to_flash),
 		.romData_i(data_flash_to_bus),
 		.romRdy_i(rdy_flash_to_bus),
-		
+
 		.bootromAddr_o(addr_bus_to_bootrom),
 		.bootromData_i(data_bootrom_to_bus)
 
@@ -295,7 +295,7 @@ module IngeniousMIPS(
 
 	   .uartReg_o(uartReg_uart_to_bus)
     );
-    
+
     BOOT_ROM boot_rom(
       .rst_i(reset_btn),
       .romAddr_i(addr_bus_to_bootrom),

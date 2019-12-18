@@ -165,6 +165,15 @@ module MEM(
 				end else if(store_alignment_error == `True_v) begin //AdES mem访存阶段
 					exceptionType_o <= 32'h00000005;
 					badAddr_o <= virtDataAddr_i;
+				end else if(dataIllegal_i == 1'b1) begin
+					if(memWriteEnable ==`Enable && memEnable_o == `Enable) begin
+						exceptionType_o <= 32'h00000005; //ades
+						badAddr_o <= virtDataAddr_i;
+					end
+					else if(memWriteEnable ==`Disable && memEnable_o == `Enable) begin
+						exceptionType_o <= 32'h00000004;  //adel
+						badAddr_o <= virtDataAddr_i;
+					end
 				end else if(dataMiss_i == 1'b1) begin
 					if(memWriteEnable ==`Enable && memEnable_o == `Enable) begin
 						exceptionType_o <= 32'h00000003;  //TLBS
