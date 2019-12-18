@@ -92,6 +92,7 @@ module IngeniousMIPS(
     wire[31:0] ramData_ram_to_cpu;
     wire[5:0] cp0Inte_cpu_to_cpu;
     wire cp0TimerInte_cpu_to_cpu;
+    wire flush_cpu_to_bus;
 
     wire stall_if_bus_to_cpu;
     wire stall_data_bus_to_cpu;
@@ -159,6 +160,7 @@ module IngeniousMIPS(
         .ramSel_o(ramSel_cpu_to_ram),
         .ramWriteEnable_o(ramWriteEnable_cpu_to_ram),
         .ramEnable_o(ramEnable_cpu_to_ram),
+        .flush_o(flush_cpu_to_bus),
 
         .cp0Inte_i(cp0Inte_cpu_to_cpu),
         .cp0TimerInte_o(cp0TimerInte_cpu_to_cpu)
@@ -168,6 +170,7 @@ module IngeniousMIPS(
 
         .clk_i(clk_50M),
         .rst_i(reset_btn),
+        .flush_i(flush_cpu_to_bus),
 
         .ifEnable_i(romEnable_cpu_to_rom),
         .ifWriteEnable_i(1'b0),

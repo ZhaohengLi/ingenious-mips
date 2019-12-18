@@ -19,6 +19,7 @@ module CPU(
     output wire[`RegBus] ramData_o,
     output wire ramWriteEnable_o,
     output wire[3:0] ramSel_o,
+    output wire flush_o,
 
 	output wire cp0TimerInte_o
 );
@@ -236,6 +237,8 @@ module CPU(
     wire tlbrw_wd0;
     wire tlbrw_wv0;
     wire tlbrw_wG;
+    
+    assign flush_o = flush_ctrl_to_all;
 
     PC pc1(
         .clk(clk),

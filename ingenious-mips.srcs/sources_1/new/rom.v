@@ -35,6 +35,7 @@ module ROM(
     always @(posedge clk_i) begin
         if(rst_i == 1'b1 ) begin
             waitState <= 4'h0;
+            romData_o <= `ZeroWord;
 			romRdy_o <= 1'b0;
 			flashOE_o <= 1'b1;
 			flashCE_o <= 1'b1;
@@ -42,6 +43,8 @@ module ROM(
             waitState <= 4'h0;
             romData_o <= `ZeroWord;
 			romRdy_o <= 1'b0;
+			flashOE_o <= 1'b1;
+			flashCE_o <= 1'b1;
         end else if(waitState == 4'h0) begin
 			waitState <= waitState + 4'h1;
 			flashAddr_o <= {romAddr_i[22:2],2'b00};

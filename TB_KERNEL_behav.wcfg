@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="84415930965500fs"></ZoomStartTime>
-      <ZoomEndTime time="84546230965501fs"></ZoomEndTime>
-      <Cursor1Time time="84467370000000fs"></Cursor1Time>
+      <ZoomStartTime time="84467261833333fs"></ZoomStartTime>
+      <ZoomEndTime time="84467347033334fs"></ZoomEndTime>
+      <Cursor1Time time="84467404833000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="213"></NameColumnWidth>
-      <ValueColumnWidth column_width="118"></ValueColumnWidth>
+      <ValueColumnWidth column_width="110"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="26" />
+   <WVObjectSize size="29" />
    <wvobject type="logic" fp_name="/TB_KERNEL/dut/cpu1/clk">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -76,30 +76,6 @@
       <obj_property name="ElementShortName">instAddr_o[31:0]</obj_property>
       <obj_property name="ObjectShortName">instAddr_o[31:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/dataEnable_i">
-      <obj_property name="ElementShortName">dataEnable_i</obj_property>
-      <obj_property name="ObjectShortName">dataEnable_i</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/dataWriteEnable_i">
-      <obj_property name="ElementShortName">dataWriteEnable_i</obj_property>
-      <obj_property name="ObjectShortName">dataWriteEnable_i</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/dataSel_i">
-      <obj_property name="ElementShortName">dataSel_i[3:0]</obj_property>
-      <obj_property name="ObjectShortName">dataSel_i[3:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/dataAddr_i">
-      <obj_property name="ElementShortName">dataAddr_i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">dataAddr_i[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/dataData_i">
-      <obj_property name="ElementShortName">dataData_i[31:0]</obj_property>
-      <obj_property name="ObjectShortName">dataData_i[31:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/dataData_o">
-      <obj_property name="ElementShortName">dataData_o[31:0]</obj_property>
-      <obj_property name="ObjectShortName">dataData_o[31:0]</obj_property>
-   </wvobject>
    <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/ifEnable_i">
       <obj_property name="ElementShortName">ifEnable_i</obj_property>
       <obj_property name="ObjectShortName">ifEnable_i</obj_property>
@@ -123,5 +99,41 @@
    <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/ifData_o">
       <obj_property name="ElementShortName">ifData_o[31:0]</obj_property>
       <obj_property name="ObjectShortName">ifData_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/ifStallReq_o">
+      <obj_property name="ElementShortName">ifStallReq_o</obj_property>
+      <obj_property name="ObjectShortName">ifStallReq_o</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/ifBusState">
+      <obj_property name="ElementShortName">ifBusState[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ifBusState[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/baseRAM_Enable_o">
+      <obj_property name="ElementShortName">baseRAM_Enable_o</obj_property>
+      <obj_property name="ObjectShortName">baseRAM_Enable_o</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/baseRAM_WriteEnable_o">
+      <obj_property name="ElementShortName">baseRAM_WriteEnable_o</obj_property>
+      <obj_property name="ObjectShortName">baseRAM_WriteEnable_o</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/baseRAM_Data_o">
+      <obj_property name="ElementShortName">baseRAM_Data_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">baseRAM_Data_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/baseRAM_Addr_o">
+      <obj_property name="ElementShortName">baseRAM_Addr_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">baseRAM_Addr_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/baseRAM_Sel_o">
+      <obj_property name="ElementShortName">baseRAM_Sel_o[3:0]</obj_property>
+      <obj_property name="ObjectShortName">baseRAM_Sel_o[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_KERNEL/dut/bus/baseRAM_Data_i">
+      <obj_property name="ElementShortName">baseRAM_Data_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">baseRAM_Data_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_KERNEL/dut/bus/baseRAM_Rdy_i">
+      <obj_property name="ElementShortName">baseRAM_Rdy_i</obj_property>
+      <obj_property name="ObjectShortName">baseRAM_Rdy_i</obj_property>
    </wvobject>
 </wave_config>

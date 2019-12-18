@@ -3,6 +3,7 @@
 module BUS(
 	input wire clk_i,
 	input wire rst_i,
+	input wire flush_i,
 	
 	input wire       ifEnable_i,
 	input wire       ifWriteEnable_i,
@@ -63,7 +64,7 @@ module BUS(
 	reg[1:0] bootromState;
 
 	always @ (posedge clk_i) begin
-		if(rst_i == `Enable) begin
+		if(rst_i == `Enable || flush_i == `Enable) begin
 			ifBusState <= `BUS_IDLE;
 			dataBusState <= `BUS_IDLE;
 			baseRAM_State <= 2'b00;
@@ -345,7 +346,7 @@ module BUS(
 	end
 
 	always @ (*) begin
-		if(rst_i == `Enable) begin
+		if(rst_i == `Enable||| flush_i == `Enable) begin
 			dataStallReq_o <= `NoStop;
 			dataData_o <= `ZeroWord;
 		end else begin
@@ -353,6 +354,9 @@ module BUS(
 				`BUS_IDLE: begin
 					if(dataEnable_i == `Enable) begin
 						dataStallReq_o <= `Stop;
+						dataData_o <= `ZeroWord;
+					end else if(dataEnable_i == `Disable) begin
+					    dataStallReq_o <= `NoStop;
 						dataData_o <= `ZeroWord;
 					end
 				end
@@ -414,7 +418,7 @@ module BUS(
 	end
 	
 	always @ (*) begin
-		if(rst_i == `Enable) begin
+		if(rst_i == `Enable || flush_i == `Enable) begin
 			ifStallReq_o <= `NoStop;
 			ifData_o <= `ZeroWord;
 		end else begin
@@ -422,6 +426,9 @@ module BUS(
 				`BUS_IDLE: begin
 					if(ifEnable_i == `Enable) begin
 						ifStallReq_o <= `Stop;
+						ifData_o <= `ZeroWord;
+					end else if(ifEnable_i == `Disable) begin
+						ifStallReq_o <= `NoStop;
 						ifData_o <= `ZeroWord;
 					end
 				end
