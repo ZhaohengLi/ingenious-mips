@@ -79,7 +79,7 @@ module MMU(
             assign data_mapped = (~dataVirtAddr_i[31] || dataVirtAddr_i[31:30] == 2'b11);//需要通过tlb访问
 
             wire user_peripheral;//外围设备
-            assign user_peripheral = (dataVirtAddr_i[31:24] >= 8'ha2 && dataVirtAddr_i[31:24] <= 8'ha7);
+            assign user_peripheral = (dataVirtAddr_i[31:24] >= 8'hbc && dataVirtAddr_i[31:24] <= 8'hbf);
 
             assign instDirty_o = 1'b0;
             assign instMiss_o =(inst_mapped & tlb_Instmiss);

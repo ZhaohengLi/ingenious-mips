@@ -67,10 +67,17 @@ module BUS(
 	reg[1:0] romState;
 	reg[1:0] bootromState;
 	
-    reg[599:0] displayMemory[799:0];
+    /*reg[1:0] displayMemory_0[799:0][599:0];
+    reg[1:0] displayMemory_1[799:0][599:0];
+    reg[1:0] displayMemory_2[799:0][599:0];
+    reg[1:0] displayMemory_3[799:0][599:0];
     
-    assign displayData_o = displayMemory[hdata_i][vdata_i] == 1'b1 ? 8'hff : 8'h00;
-
+    assign displayData_o = {displayMemory_3[hdata_i][vdata_i], displayMemory_2[hdata_i][vdata_i], displayMemory_1[hdata_i][vdata_i], displayMemory_0[hdata_i][vdata_i]};
+    */
+    
+    reg[599:0] displayMemory[799:0];
+    assign displayData_o = (displayMemory[hdata_i][vdata_i] == 1'b1) ? 8'hff : 8'h00;
+    
 	always @ (posedge clk_i) begin
 		if(rst_i == `Enable || flush_i == `Enable) begin
 			ifBusState <= `BUS_IDLE;
@@ -165,6 +172,10 @@ module BUS(
 						        dataBusState <= `BUS_BUSY_BOOTROM;
 						    end
 						end else if(`displayMemory_l <= dataAddr_i && dataAddr_i < `displayMemory_r) begin
+						    /*displayMemory_0[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[1:0];
+						    displayMemory_1[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[3:2];
+						    displayMemory_2[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[5:4];
+						    displayMemory_3[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[7:6];*/
 						    displayMemory[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[0];
 						    dataBusState <= `BUS_ERROR;
 						end else begin

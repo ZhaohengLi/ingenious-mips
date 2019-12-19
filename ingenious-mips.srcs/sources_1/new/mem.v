@@ -159,10 +159,10 @@ module MEM(
 					exceptionType_o <= 32'h0000000e;
 				end else if(exceptionType_i[9] == 1'b1) begin //ri  无效指令
 					exceptionType_o <= 32'h0000000a;
-				end else if(load_alignment_error == `True_v) begin //AdEL mem访存阶段
+				end else if(load_alignment_error == `True_v && !(virtDataAddr_i[31:24]>=8'hbc || virtDataAddr_i[31:24] <= 8'hbf)) begin //AdEL mem访存阶段
 					exceptionType_o <= 32'h00000004;
 					badAddr_o <= virtDataAddr_i;
-				end else if(store_alignment_error == `True_v) begin //AdES mem访存阶段
+				end else if(store_alignment_error == `True_v && !(virtDataAddr_i[31:24]>=8'hbc || virtDataAddr_i[31:24] <= 8'hbf)) begin //AdES mem访存阶段
 					exceptionType_o <= 32'h00000005;
 					badAddr_o <= virtDataAddr_i;
 				end else if(dataIllegal_i == 1'b1) begin
