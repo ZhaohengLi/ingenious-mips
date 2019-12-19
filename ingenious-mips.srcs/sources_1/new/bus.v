@@ -51,7 +51,11 @@ module BUS(
 	input  wire      romRdy_i,
 	
 	output reg[31:0] bootromAddr_o,
-	input wire[31:0] bootromData_i
+	input wire[31:0] bootromData_i,
+	
+	input wire[9:0] hdata_i,
+	input wire[9:0] vdata_i,
+	output wire[7:0] displayData_o
 	
 );
 
@@ -62,6 +66,10 @@ module BUS(
 	reg[1:0] extRAM_State;
 	reg[1:0] romState;
 	reg[1:0] bootromState;
+	
+    reg[599:0] displayMemory[799:0];
+    
+    assign displayData_o = displayMemory[hdata_i][vdata_i] == 1'b1 ? 8'hff : 8'h00;
 
 	always @ (posedge clk_i) begin
 		if(rst_i == `Enable || flush_i == `Enable) begin
@@ -156,6 +164,9 @@ module BUS(
 						        bootromState[1] <= 1'b1;
 						        dataBusState <= `BUS_BUSY_BOOTROM;
 						    end
+						end else if(`displayMemory_l <= dataAddr_i && dataAddr_i < `displayMemory_r) begin
+						    displayMemory[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[0];
+						    dataBusState <= `BUS_ERROR;
 						end else begin
 						    dataBusState <= `BUS_ERROR;
 						end

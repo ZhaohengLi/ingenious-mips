@@ -286,3 +286,6 @@
 
 `define bootrom_l         32'h1FC00000
 `define bootrom_r         32'h1FC04000
+
+`define displayMemory_l   32'h1FE00000
+`define displayMemory_r   32'h1FF00000
