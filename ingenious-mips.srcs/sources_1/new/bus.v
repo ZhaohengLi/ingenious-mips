@@ -55,7 +55,11 @@ module BUS(
 	
 	input wire[9:0] hdata_i,
 	input wire[9:0] vdata_i,
-	output wire[7:0] displayData_o
+	output wire[7:0] displayData_o,
+	
+	output wire[15:0] leds_o,
+	output wire[7:0]  num0_o,
+	output wire[7:0]  num1_o
 	
 );
 
@@ -66,6 +70,10 @@ module BUS(
 	reg[1:0] extRAM_State;
 	reg[1:0] romState;
 	reg[1:0] bootromState;
+	
+	reg[15:0] leds;
+	reg[7:0]  num_0;
+	reg[7:0]  num_1;
 	
     /*reg[1:0] displayMemory_0[799:0][599:0];
     reg[1:0] displayMemory_1[799:0][599:0];
@@ -78,6 +86,10 @@ module BUS(
     reg[599:0] displayMemory[799:0];
     assign displayData_o = (displayMemory[hdata_i][vdata_i] == 1'b1) ? 8'hff : 8'h00;
     
+    assign leds_o = leds;
+    assign num0_o = num_0;
+    assign num1_o = num_1;
+    
 	always @ (posedge clk_i) begin
 		if(rst_i == `Enable || flush_i == `Enable) begin
 			ifBusState <= `BUS_IDLE;
@@ -86,6 +98,9 @@ module BUS(
 			extRAM_State <= 2'b00;
 			romState <= 2'b00;
 			bootromState <= 2'b00;
+			leds <= 16'h0;
+			num_0 <= 8'h0;
+			num_1 <= 8'h0;
 		end else begin
 			case(ifBusState)
 				`BUS_IDLE: begin
@@ -177,7 +192,112 @@ module BUS(
 						    displayMemory_2[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[5:4];
 						    displayMemory_3[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[7:6];*/
 						    displayMemory[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[0];
-						    dataBusState <= `BUS_ERROR;
+						    dataBusState <= `BUS_WAIT;
+						end else if(`ledAddr == dataAddr_i) begin
+						    leds <= dataData_i[15:0];
+						    dataBusState <= `BUS_WAIT;
+						end else if(dataAddr_i == `numAddr) begin
+                            case (dataData_i[7:0])
+                                4'h0: begin
+                                    num_0 <= 8'b01111110;
+                                end
+                                4'h1: begin
+                                    num_0 <= 8'b00010010;
+                                end
+                                4'h2: begin
+                                    num_0 <= 8'b10111100;
+                                end
+                                4'h3: begin
+                                    num_0 <= 8'b10110110;
+                                end
+                                4'h4: begin
+                                    num_0 <= 8'b11010010;
+                                end
+                                4'h5: begin
+                                    num_0 <= 8'b11100110;
+                                end
+                                4'h6: begin
+                                    num_0 <= 8'b11101110;
+                                end
+                                4'h7: begin
+                                    num_0 <= 8'b00110010;
+                                end
+                                4'h8: begin
+                                    num_0 <= 8'b11111110;
+                                end
+                                4'h9: begin
+                                    num_0 <= 8'b11110110;
+                                end
+                                4'ha: begin
+                                    num_0 <= 8'b10001110;
+                                end
+                                4'hb: begin
+                                    num_0 <= 8'b11001110;
+                                end
+                                4'hc: begin
+                                    num_0 <= 8'b10001100;
+                                end
+                                4'hd: begin
+                                    num_0 <= 8'b10011110;
+                                end
+                                4'he: begin
+                                    num_0 <= 8'b11101100;
+                                end
+                                4'hf: begin
+                                    num_0 <= 8'b11101000;
+                                end
+                            endcase
+                            case (dataData_i[15:8])
+                                4'h0: begin
+                                    num_1 <= 8'b01111110;
+                                end
+                                4'h1: begin
+                                    num_1 <= 8'b00010010;
+                                end
+                                4'h2: begin
+                                    num_1 <= 8'b10111100;
+                                end
+                                4'h3: begin
+                                    num_1 <= 8'b10110110;
+                                end
+                                4'h4: begin
+                                    num_1 <= 8'b11010010;
+                                end
+                                4'h5: begin
+                                    num_1 <= 8'b11100110;
+                                end
+                                4'h6: begin
+                                    num_1 <= 8'b11101110;
+                                end
+                                4'h7: begin
+                                    num_1 <= 8'b00110010;
+                                end
+                                4'h8: begin
+                                    num_1 <= 8'b11111110;
+                                end
+                                4'h9: begin
+                                    num_1 <= 8'b11110110;
+                                end
+                                4'ha: begin
+                                    num_1 <= 8'b10001110;
+                                end
+                                4'hb: begin
+                                    num_1 <= 8'b11001110;
+                                end
+                                4'hc: begin
+                                    num_1 <= 8'b10001100;
+                                end
+                                4'hd: begin
+                                    num_1 <= 8'b10011110;
+                                end
+                                4'he: begin
+                                    num_1 <= 8'b11101100;
+                                end
+                                4'hf: begin
+                                    num_1 <= 8'b11101000;
+                                end
+                            endcase
+                            dataBusState <= `BUS_WAIT;
 						end else begin
 						    dataBusState <= `BUS_ERROR;
 						end
@@ -502,6 +622,9 @@ module BUS(
 				    ifStallReq_o <= `NoStop;
 				end
 				`BUS_ERROR: begin
+				    ifStallReq_o <= `NoStop;
+				end
+				`BUS_WAIT: begin
 				    ifStallReq_o <= `NoStop;
 				end
 				default: begin

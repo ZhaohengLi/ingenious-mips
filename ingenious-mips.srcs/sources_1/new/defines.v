@@ -289,3 +289,6 @@
 
 `define displayMemory_l   32'h1FE00000
 `define displayMemory_r   32'h1FF00000
+
+`define ledAddr           32'h1FD00400
+`define numAddr           32'h1FD00408
