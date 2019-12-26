@@ -24,27 +24,22 @@ module BOOT_ROM(
             instructions[11] <= 32'h00000000;
             
             //for test
-            /*instructions[0] <= 32'h3c09bfe0;
-            instructions[1] <= 32'h354a0000;
-            instructions[2] <= 32'h356b0001;
-            instructions[3] <= 32'h358c0000;
-            instructions[4] <= 32'h35ad0000;
-            instructions[5] <= 32'h35ce0000;
-            instructions[6] <= 32'h200101f4;
-            instructions[7] <= 32'h102d000c;
-            instructions[8] <= 32'h000d6a80;
-            instructions[9] <= 32'h012d5020;
-            instructions[10] <= 32'h014e5020;
-            instructions[11] <= 32'h11ae0004;
-            instructions[12] <= 32'had4c0000;
-            instructions[13] <= 32'h25ad0001;
-            instructions[14] <= 32'h25ce0001;
-            instructions[15] <= 32'h0401fff6;
-            instructions[16] <= 32'had4b0000;
-            instructions[17] <= 32'h25ad0001;
-            instructions[18] <= 32'h25ce0001;
-            instructions[19] <= 32'h0401fff2;
-            instructions[20] <= 32'h00000000;*/
+/*instructions[0] <= 32'h00094824;
+instructions[1] <= 32'h3c09bfe0;
+instructions[2] <= 32'h000d6824;
+instructions[3] <= 32'h01a05025;
+instructions[4] <= 32'h000a5280;
+instructions[5] <= 32'h01495021;
+instructions[6] <= 32'h000e7024;
+instructions[7] <= 32'h014e5821;
+instructions[8] <= 32'had6d0000;
+instructions[9] <= 32'h25ce0001;
+instructions[10] <= 32'h24010258;
+instructions[11] <= 32'h15c1fffb;
+instructions[12] <= 32'h25ad0001;
+instructions[13] <= 32'h24010320;
+instructions[14] <= 32'h15a1fff4;
+instructions[15] <= 32'h00000000;*/
 
         end else begin
             romData_o <= instructions[romAddr_i[11:2]];

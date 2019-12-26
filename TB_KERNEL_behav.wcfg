@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="2863419583333fs"></ZoomStartTime>
-      <ZoomEndTime time="2863828083334fs"></ZoomEndTime>
-      <Cursor1Time time="2863410000000fs"></Cursor1Time>
+      <ZoomStartTime time="91700000fs"></ZoomStartTime>
+      <ZoomEndTime time="261500001fs"></ZoomEndTime>
+      <Cursor1Time time="120000000fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="343"></NameColumnWidth>
-      <ValueColumnWidth column_width="272"></ValueColumnWidth>
+      <ValueColumnWidth column_width="240"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="22" />
+   <WVObjectSize size="24" />
    <wvobject fp_name="/TB_KERNEL/dut/cpu1/clk" type="logic">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -43,22 +43,6 @@
    <wvobject fp_name="/TB_KERNEL/dut/cpu1/mem1/instAddr_o" type="array">
       <obj_property name="ElementShortName">instAddr_o[31:0]</obj_property>
       <obj_property name="ObjectShortName">instAddr_o[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/TB_KERNEL/dut/vga800x600at75/hsync" type="logic">
-      <obj_property name="ElementShortName">hsync</obj_property>
-      <obj_property name="ObjectShortName">hsync</obj_property>
-   </wvobject>
-   <wvobject fp_name="/TB_KERNEL/dut/vga800x600at75/vsync" type="logic">
-      <obj_property name="ElementShortName">vsync</obj_property>
-      <obj_property name="ObjectShortName">vsync</obj_property>
-   </wvobject>
-   <wvobject fp_name="/TB_KERNEL/dut/vga800x600at75/hdata" type="array">
-      <obj_property name="ElementShortName">hdata[9:0]</obj_property>
-      <obj_property name="ObjectShortName">hdata[9:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/TB_KERNEL/dut/vga800x600at75/vdata" type="array">
-      <obj_property name="ElementShortName">vdata[9:0]</obj_property>
-      <obj_property name="ObjectShortName">vdata[9:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/TB_KERNEL/dut/vga800x600at75/data_enable" type="logic">
       <obj_property name="ElementShortName">data_enable</obj_property>
@@ -92,20 +76,44 @@
       <obj_property name="ElementShortName">dataData_o[31:0]</obj_property>
       <obj_property name="ObjectShortName">dataData_o[31:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/TB_KERNEL/dut/video_red" type="array">
-      <obj_property name="ElementShortName">video_red[2:0]</obj_property>
-      <obj_property name="ObjectShortName">video_red[2:0]</obj_property>
+   <wvobject fp_name="/TB_KERNEL/dut/bus/ifStallReq_o" type="logic">
+      <obj_property name="ElementShortName">ifStallReq_o</obj_property>
+      <obj_property name="ObjectShortName">ifStallReq_o</obj_property>
    </wvobject>
-   <wvobject fp_name="/TB_KERNEL/dut/video_green" type="array">
-      <obj_property name="ElementShortName">video_green[2:0]</obj_property>
-      <obj_property name="ObjectShortName">video_green[2:0]</obj_property>
+   <wvobject fp_name="/TB_KERNEL/dut/bus/dataStallReq_o" type="logic">
+      <obj_property name="ElementShortName">dataStallReq_o</obj_property>
+      <obj_property name="ObjectShortName">dataStallReq_o</obj_property>
    </wvobject>
-   <wvobject fp_name="/TB_KERNEL/dut/video_blue" type="array">
-      <obj_property name="ElementShortName">video_blue[1:0]</obj_property>
-      <obj_property name="ObjectShortName">video_blue[1:0]</obj_property>
+   <wvobject fp_name="/TB_KERNEL/dut/bus/ifEnable_i" type="logic">
+      <obj_property name="ElementShortName">ifEnable_i</obj_property>
+      <obj_property name="ObjectShortName">ifEnable_i</obj_property>
    </wvobject>
-   <wvobject fp_name="/TB_KERNEL/dut/bus/displayData_o" type="array">
-      <obj_property name="ElementShortName">displayData_o[7:0]</obj_property>
-      <obj_property name="ObjectShortName">displayData_o[7:0]</obj_property>
+   <wvobject fp_name="/TB_KERNEL/dut/bus/ifWriteEnable_i" type="logic">
+      <obj_property name="ElementShortName">ifWriteEnable_i</obj_property>
+      <obj_property name="ObjectShortName">ifWriteEnable_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_KERNEL/dut/bus/ifSel_i" type="array">
+      <obj_property name="ElementShortName">ifSel_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ifSel_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_KERNEL/dut/bus/ifAddr_i" type="array">
+      <obj_property name="ElementShortName">ifAddr_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ifAddr_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_KERNEL/dut/bus/ifData_i" type="array">
+      <obj_property name="ElementShortName">ifData_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ifData_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_KERNEL/dut/bus/ifData_o" type="array">
+      <obj_property name="ElementShortName">ifData_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ifData_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_KERNEL/dut/bus/ifBusState" type="array">
+      <obj_property name="ElementShortName">ifBusState[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ifBusState[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/TB_KERNEL/dut/bus/dataBusState" type="array">
+      <obj_property name="ElementShortName">dataBusState[3:0]</obj_property>
+      <obj_property name="ObjectShortName">dataBusState[3:0]</obj_property>
    </wvobject>
 </wave_config>

@@ -46,7 +46,7 @@ always @ (*) begin
     end
 end
 
-always @ (posedge clk_i) begin
+always @ (clk_i) begin
 	if(rst_i == 1'b1) begin
 		SRAM_OE_o <= 1'b1;
 		SRAM_WE_o <= 1'b1;
@@ -69,7 +69,7 @@ always @ (posedge clk_i) begin
 		end else begin
 			ramState <= ramState + 4'h1;
 			case(ramState)
-				4'h1: begin
+				4'h2: begin
 					if(ramWriteEnable_i == `Disable) begin
 						ramData_o <= SRAM_Data;
 					end
@@ -77,7 +77,7 @@ always @ (posedge clk_i) begin
 					SRAM_WE_o <= 1'b1;
 					SRAM_OE_o <= 1'b1;
 				end
-				4'h2: begin
+				4'h3: begin
 					ramRdy_o <= 1'b0;
 					ramState <= 4'h0;
 				end

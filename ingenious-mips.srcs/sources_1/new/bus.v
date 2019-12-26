@@ -55,7 +55,7 @@ module BUS(
 	
 	input wire[9:0] hdata_i,
 	input wire[9:0] vdata_i,
-	output wire[7:0] displayData_o,
+	output reg[7:0] displayData_o,
 	
 	output wire[15:0] leds_o,
 	output wire[7:0]  num0_o,
@@ -84,13 +84,27 @@ module BUS(
     */
     
     reg[599:0] displayMemory[799:0];
-    assign displayData_o = (displayMemory[hdata_i][vdata_i] == 1'b1) ? 8'hff : 8'h00;
+    //assign displayData_o = (displayMemory[hdata_i][vdata_i] == 1'b1) ? 8'hff : 8'h00;
+    
+    reg jumpState;
+    
+    always @ (*) begin
+        if(10'd0 <= hdata_i && hdata_i < 10'd800 && 10'd0 <= vdata_i && vdata_i <= 10'd600) begin
+            if(displayMemory[hdata_i][vdata_i] == 1'b1) begin
+                displayData_o <= 8'hff;
+            end else begin
+                displayData_o <= 8'h00;
+            end
+        end else begin
+            displayData_o <= 8'h00;
+        end
+    end
     
     assign leds_o = leds;
     assign num0_o = num_0;
     assign num1_o = num_1;
     
-	always @ (posedge clk_i) begin
+	always @ (clk_i) begin
 		if(rst_i == `Enable || flush_i == `Enable) begin
 			ifBusState <= `BUS_IDLE;
 			dataBusState <= `BUS_IDLE;
@@ -99,8 +113,8 @@ module BUS(
 			romState <= 2'b00;
 			bootromState <= 2'b00;
 			leds <= 16'h0;
-			num_0 <= 8'h0;
-			num_1 <= 8'h0;
+			num_0 <= 8'hff;
+			num_1 <= 8'hff;
 		end else begin
 			case(ifBusState)
 				`BUS_IDLE: begin
@@ -191,13 +205,13 @@ module BUS(
 						    displayMemory_1[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[3:2];
 						    displayMemory_2[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[5:4];
 						    displayMemory_3[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[7:6];*/
-						    displayMemory[dataAddr_i[19:0]][dataAddr_i[9:0]] <= dataData_i[0];
+						    displayMemory[dataAddr_i[21:12]][dataAddr_i[11:2]] <= dataData_i[0];
 						    dataBusState <= `BUS_WAIT;
 						end else if(`ledAddr == dataAddr_i) begin
 						    leds <= dataData_i[15:0];
 						    dataBusState <= `BUS_WAIT;
 						end else if(dataAddr_i == `numAddr) begin
-                            case (dataData_i[7:0])
+                            case (dataData_i[3:0])
                                 4'h0: begin
                                     num_0 <= 8'b01111110;
                                 end
@@ -247,7 +261,7 @@ module BUS(
                                     num_0 <= 8'b11101000;
                                 end
                             endcase
-                            case (dataData_i[15:8])
+                            case (dataData_i[7:4])
                                 4'h0: begin
                                     num_1 <= 8'b01111110;
                                 end
@@ -298,6 +312,13 @@ module BUS(
                                 end
                             endcase
                             dataBusState <= `BUS_WAIT;
+						end else if(dataAddr_i == `JUMPSTATE) begin
+						    if(dataWriteEnable_i == `Enable) begin
+						        jumpState <= dataData_i[0];
+						        dataBusState <= `BUS_WAIT;
+				            end else begin
+						        dataBusState <= `BUS_MAGIC;
+						    end
 						end else begin
 						    dataBusState <= `BUS_ERROR;
 						end
@@ -329,6 +350,9 @@ module BUS(
 				end
 				`BUS_UART_REG: begin
 				    dataBusState <= `BUS_WAIT;
+				end
+				`BUS_MAGIC: begin
+				    dataBusState <= `BUS_IDLE;
 				end
 				`BUS_BUSY_BOOTROM: begin
 				    bootromState[1] <= 1'b0;
@@ -547,6 +571,10 @@ module BUS(
 				end
 				`BUS_UART_REG: begin
 				    dataData_o <= {30'b0, uartReg_i};
+				    dataStallReq_o <= `NoStop;
+				end
+				`BUS_MAGIC: begin
+				    dataData_o <= {31'b0, jumpState};
 				    dataStallReq_o <= `NoStop;
 				end
 				`BUS_ERROR: begin

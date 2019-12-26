@@ -270,8 +270,9 @@
 `define BUS_UART_REG 4'h5
 `define BUS_BUSY_BOOTROM 4'h6
 `define BUS_ERROR 4'h7
+`define BUS_MAGIC 4'h8
 
-`define PC_INIT_ADDR      32'hBFC00000
+`define PC_INIT_ADDR      32'h80000000//32'hBFC00000
 
 `define baseRAM_Border_l  32'h00000000
 `define baseRAM_Border_r  32'h00400000
@@ -287,8 +288,10 @@
 `define bootrom_l         32'h1FC00000
 `define bootrom_r         32'h1FC04000
 
-`define displayMemory_l   32'h1FE00000
-`define displayMemory_r   32'h1FF00000
+`define displayMemory_l   32'h1F000000
+`define displayMemory_r   32'h1F400000
 
 `define ledAddr           32'h1FD00400
 `define numAddr           32'h1FD00408
+
+`define JUMPSTATE         32'h1F400000
