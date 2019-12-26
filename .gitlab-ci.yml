@@ -17,7 +17,7 @@ bitstream:
   image: vivado2018:2018.3
   script:
     - env
-    - ${VIVADO_PATH} -mode tcl -source scripts/build.tcl ${PROJECT_NAME}.xpr
+    - ${VIVADO_PATH} -mode tcl -source ingenious-mips.scripts/build.tcl ${PROJECT_NAME}.xpr
 
   artifacts:
     paths:
